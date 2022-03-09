@@ -4,7 +4,7 @@ import { Posts } from "./Components/Posts";
 
 const App = () => {
   // STATE
-
+  console.log("HELLO GH-PAGES")
   return (
     <>
       <Header />
