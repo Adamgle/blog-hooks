@@ -16,7 +16,7 @@
             width: 100%;
             .comment-form {
                 display: flex;
-                justify-content: flex-start;
+                justify-content: space-between;
                 align-items: center;
                 .comment-textarea {
                     font-family: "Roboto", sans-serif;
@@ -29,6 +29,39 @@
                     outline: 0;
                     resize: none;
                     border-radius: 50px;
+                    &::placeholder {
+                        letter-spacing: 0.25px;
+                    }
+                    @media (max-width: 700px) {
+                        width: 70%;
+                    }
+                }
+                .comment-publish-container {
+                    display: flex;
+                    width: 20%;
+                    display: flex;
+                    align-self: flex-start;
+                    justify-self: flex-start;
+                    @media (max-width: 700px) {
+                        width: 30%;
+                    }
+                    justify-content: center;
+                    .comment-publish {
+                        display: flex;
+                        font-family: "Roboto", sans-serif;
+                        border-radius: 20px;
+                        padding: 10px 15px;
+                        background-color: #2a2b2c;
+                        letter-spacing: 1px;
+                        outline: 0;
+                        border: 0;
+                        color: #fff;
+                        font-weight: bold;
+                        text-align: center;
+                        &:hover {
+                            cursor: pointer;
+                        }
+                    }
                 }
             }
         }

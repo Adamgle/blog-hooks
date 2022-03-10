@@ -3,6 +3,7 @@ import { useFetch } from "./useFetch";
 import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 import TextareaAutosize from "react-textarea-autosize";
 import useWindowDimensions from "./useWindowDimensions";
+import { nanoid } from "nanoid";
 
 const Comments = ({
   postID,
@@ -11,6 +12,7 @@ const Comments = ({
   mergedState,
   setMergedState,
   post,
+  setCommentsCounter,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${postID}/comments/?_limit=${randomNumberRef}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
@@ -83,14 +85,11 @@ const Comments = ({
                       ...post.comments.dataComments,
                       {
                         body: post.comments.textField,
-                        // MAKE EMAIL ETC. INFORMATION COMING FROM PROFILE OBJECT
-                        // IN STATE
-                        email: "Presley.Mueller@myrl.com",
-                        id: "SASASA",
-                        name: "et fugit eligendi deleniti quidem qui sint nihil autem",
-                        picture:
-                          "https://randomuser.me/api/portraits/thumb/men/67.jpg",
-                        postId: "SASASAASA",
+                        email: prevState.dataProfile.email,
+                        id: nanoid(),
+                        name: "",
+                        picture: prevState.dataProfile.image,
+                        postId: postID,
                       },
                     ],
                   },
@@ -99,6 +98,7 @@ const Comments = ({
           }),
         };
       });
+      setCommentsCounter((prevState) => prevState + 1);
     }
     setMergedState((prevState) => {
       return {
@@ -164,10 +164,16 @@ const Comments = ({
                   className="comment-textarea"
                   onChange={(e) => handleChange(e)}
                   value={post.comments.textField}
+                  placeholder="Write a comment..."
                 />
-                <button onClick={(e) => handleSubmit(e, postID)}>
-                  Publish
-                </button>
+                <div className="comment-publish-container">
+                  <button
+                    onClick={(e) => handleSubmit(e, postID)}
+                    className="comment-publish"
+                  >
+                    Publish
+                  </button>
+                </div>
               </form>
             </div>
           </div>

@@ -39,7 +39,9 @@ const Posts = () => {
           name: "Adam",
           image:
             "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+          email: "adam.dev@gmail.com"
         },
+        isAdmin: false,
       });
     }
   }, [loadingPosts, loadingRandomUser, loadingRandomPicture]);
@@ -79,7 +81,7 @@ const Post = ({
   // STATES
   const [showComments, setShowComments] = useState(false);
   const [beenShown, setBeenShown] = useState(false);
-
+  const [commentsCounter, setCommentsCounter] = useState(0);
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
@@ -162,11 +164,18 @@ const Post = ({
               <img src={randomUser.picture.thumbnail} alt="user thumbnail" />
             </div>
             <div className="post-user-name-date">
-              <div className="post-user-name">{`${randomUser.name.first} ${randomUser.name.last}`}</div>
+              <div className="post-user-name">
+                {`${randomUser.name.first} ${randomUser.name.last}`}
+                <div className="post-delete-container">
+                  <button
+                    onClick={() => deletePost(post.id)}
+                    className="post-delete-button"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
               <div className="post-user-date">{randomDateRef.current}</div>
-            </div>
-            <div>
-              <button onClick={() => deletePost(post.id)}>DELETE</button>
             </div>
           </div>
           <div className="post-image-splash">
@@ -192,7 +201,7 @@ const Post = ({
               >
                 Comments
                 <div className="post-comments-count">
-                  {randomNumberRef.current}
+                  {randomNumberRef.current + commentsCounter}
                 </div>
               </div>
               <div className="post-share-count-container post-interaction-count">
@@ -235,6 +244,7 @@ const Post = ({
               randomNumberRef={randomNumberRef.current}
               mergedState={mergedState}
               setMergedState={setMergedState}
+              setCommentsCounter={setCommentsCounter}
             />
           )}
         </div>
