@@ -215,6 +215,7 @@ const Post = ({
           {beenShown && (
             <Comments
               postID={post.id}
+              post={post}
               showComments={showComments}
               setShowComments={setShowComments}
               randomNumberRef={randomNumberRef.current}

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useFetch } from "./useFetch";
 import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 import TextareaAutosize from "react-textarea-autosize";
+import useWindowDimensions from "./useWindowDimensions";
 
 const Comments = ({
   postID,
@@ -9,6 +10,7 @@ const Comments = ({
   showComments,
   mergedState,
   setMergedState,
+  post,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${postID}/comments/?_limit=${randomNumberRef}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
@@ -25,7 +27,10 @@ const Comments = ({
           posts: prevState.posts.map((post, i) => {
             if (post.id === postID) {
               post.comments = {
-                dataComments: dataComments,
+                dataComments: dataComments.map((comment, i) => ({
+                  ...comment,
+                  picture: dataRandomUser.results[i].picture.thumbnail,
+                })),
                 dataRandomUser: dataRandomUser.results,
                 likes: 0,
                 textField: "",
@@ -45,43 +50,61 @@ const Comments = ({
     return post;
   })[0];
 
-  console.log(commentsObject.comments.dataComments);
-
-  const textAreaRef = useRef(null);
-
-  const handleSubmit = () => {
-    // if (!loadingComments && !loadingRandomUser) {
-    //   setMergedState((prevState) => {
-    //     return {
-    //       ...prevState,
-    //       posts: prevState.posts.map((post, i) => {
-    //         if (post.id === postID) {
-    //           post.comments.dataComments = {
-    //             ...post.comments,
-    //             body: post.comments.textField,
-    //             email: "Eliseo@gardner.biz",
-    //             id: 12391283,
-    //             name: prevState.dataProfile.name,
-    //             postId: 12312,
-    //           };
-    //         }
-    //         return post;
-    //       }),
-    //     };
-    //   });
-    // }
-  };
-
-  // POSSIBLE SHIT
-  const handleKeyPress = (event) => {
-    // if (event.key === "Enter") {
-    //   handleSubmit();
-    //   console.log("works");
-    // }
-  };
-
   const handleChange = (e) => {
-    if (!loadingComments && !loadingRandomUser) {
+    setMergedState((prevState) => {
+      return {
+        ...prevState,
+        posts: prevState.posts.map((post, i) => {
+          if (post.id === postID) {
+            post.comments = {
+              ...post.comments,
+              textField: e.target.value,
+            };
+          }
+          return post;
+        }),
+      };
+    });
+  };
+
+  const handleSubmit = (e, id) => {
+    e.preventDefault();
+    if (post.comments.textField) {
+      setMergedState((prevState) => {
+        return {
+          ...prevState,
+          posts: prevState.posts.map((post) => {
+            return post.id === id
+              ? {
+                  ...post,
+                  comments: {
+                    ...post.comments,
+                    dataComments: [
+                      ...post.comments.dataComments,
+                      {
+                        body: post.comments.textField,
+                        // MAKE EMAIL ETC. INFORMATION COMING FROM PROFILE OBJECT
+                        // IN STATE
+                        email: "Presley.Mueller@myrl.com",
+                        id: "SASASA",
+                        name: "et fugit eligendi deleniti quidem qui sint nihil autem",
+                        picture:
+                          "https://randomuser.me/api/portraits/thumb/men/67.jpg",
+                        postId: "SASASAASA",
+                      },
+                    ],
+                  },
+                }
+              : post;
+          }),
+        };
+      });
+    }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleSubmit(event, postID);
       setMergedState((prevState) => {
         return {
           ...prevState,
@@ -89,7 +112,7 @@ const Comments = ({
             if (post.id === postID) {
               post.comments = {
                 ...post.comments,
-                textField: e.target.value,
+                textField: "",
               };
             }
             return post;
@@ -99,8 +122,20 @@ const Comments = ({
     }
   };
 
+  const windowDimensions = useWindowDimensions();
+
+  const commentsDynamicStyles = {
+    maxWidth:
+      windowDimensions.width > 900
+        ? "900px"
+        : `${windowDimensions.width - 50}px`,
+  };
+  console.log(post.comments.textField);
   return (
-    <div className={`comments-container ${!showComments ? "hidden" : ""}`}>
+    <div
+      className={`comments-container ${!showComments ? "hidden" : ""}`}
+      style={commentsDynamicStyles}
+    >
       <div className="comments-label">Comments</div>
       {loadingComments ||
       loadingRandomUser ||
@@ -119,16 +154,20 @@ const Comments = ({
               <div className="comment-name">{mergedState.dataProfile.name}</div>
               <form
                 className="comment-form"
-                onSubmit={handleSubmit}
+                onSubmit={(e) => handleSubmit(e, postID)}
                 onKeyDown={(e) => handleKeyPress(e)}
               >
                 <TextareaAutosize
                   // DEBUG THE REF, PASS WHEN CLICK ON ADD COMMENT
-                  ref={textAreaRef}
-                  autoFocus
+                  // ref={textAreaRef}
+                  // autoFocus
                   className="comment-textarea"
                   onChange={(e) => handleChange(e)}
+                  value={post.comments.textField}
                 />
+                <button onSubmit={(e) => handleSubmit(e, postID)}>
+                  Publish
+                </button>
               </form>
             </div>
           </div>
@@ -137,6 +176,7 @@ const Comments = ({
               key={comment.id}
               comment={comment}
               randomUser={dataRandomUser.results[i]}
+              mergedState={mergedState}
             />
           ))}
         </>
@@ -145,43 +185,36 @@ const Comments = ({
   );
 };
 
-const Comment = ({ comment, randomUser }) => {
-  const randomDateRef = useRef(randomDate());
+const Comment = ({ comment, randomUser, mergedState }) => {
+  // STATE
+  const [commentData, setCommentData] = useState({
+    date: randomUser ? randomDate() : getTodaysDate(),
+    picture: randomUser
+      ? randomUser.picture.thumbnail
+      : mergedState.dataProfile.image,
+    name: randomUser
+      ? `${randomUser.name.first} ${randomUser.name.last}`
+      : mergedState.dataProfile.name,
+  });
 
   return (
     <div className="comment">
       <div className="comment-picture-container">
         <img
           className="comment-picture"
-          src={randomUser.picture.thumbnail}
+          src={commentData.picture}
           alt="thumbnail"
         />
         <div className="comment-name-date">
-          <div className="comment-name">{comment.email.split("@")[0]}</div>
-          <div className="comment-date">{randomDateRef.current}</div>
+          <div className="comment-name">{commentData.name}</div>
+          <div className="comment-date">{commentData.date}</div>
         </div>
       </div>
       <div className="comment-content">
         {upperCaseFirst(comment.body, true)}
       </div>
-      {/* <div>EMAIL: {comment.email}</div> */}
     </div>
   );
 };
 
-// const SubmittedComment = ({ image, name, date, content }) => {
-//   return (
-//     <div className="comment">
-//       <div className="comment-picture-container">
-//         <img className="comment-picture" src={image} alt="thumbnail" />
-//         <div className="comment-name-date">
-//           <div className="comment-name">{name}</div>
-//           <div className="comment-date">{date}</div>
-//         </div>
-//       </div>
-//       <div className="comment-content">{upperCaseFirst(content, true)}</div>
-//       {/* <div>EMAIL: {comment.email}</div> */}
-//     </div>
-//   );
-// };
 export { Comments, Comment };
