@@ -8,36 +8,62 @@ import {
 } from "./_parsingFunctions";
 
 const Posts = () => {
-  const [usersCount, setUsersCount] = useState(15);
+  // STATE
+  const [usersCount, setUsersCount] = useState(2);
+  const [mergedState, setMergedState] = useState(null);
+  // DB'S
   const dbUsers = `https://jsonplaceholder.typicode.com/posts/?_limit=${usersCount}`;
-  const dbRandomUser = `https://randomuser.me/api/?results=${usersCount}`;
+  const dbRandomUser = `https://randomuser.me/api/?results=${usersCount}&noinfo`;
   const dbRandomPicture = `https://picsum.photos/v2/list?page=2&limit=100`;
-
+  console.log(mergedState);
+  // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbUsers);
   const { data: dataRandomUser, loading: loadingRandomUser } =
     useFetch(dbRandomUser);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
 
+  useEffect(() => {
+    if (!loadingPosts && !loadingRandomUser && !loadingRandomPicture) {
+      setMergedState({
+        posts: dataPosts.map((post) => ({
+          ...post,
+          comments: {},
+          likes: 0,
+          isRead: false,
+        })),
+        dataRandomUser: dataRandomUser.results,
+        dataRandomPicture: dataRandomPicture,
+        dataProfile: {
+          name: "Adam",
+          image:
+            "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+        },
+      });
+    }
+  }, [loadingPosts, loadingRandomUser, loadingRandomPicture]);
+
   return (
-    <div className="posts">
-      {loadingPosts || loadingRandomUser || loadingRandomPicture
-        ? "Loading..."
-        : dataPosts.map((post, i) => (
-            <Post
-              key={post.id}
-              post={post}
-              randomUser={dataRandomUser && dataRandomUser.results[i]}
-              loadingRandomUser={loadingRandomUser}
-              randomPicture={
-                !loadingRandomPicture &&
-                dataRandomPicture[
-                  Math.trunc(Math.random() * dataRandomPicture.length)
-                ]
-              }
-              loadingRandomPicture={loadingRandomPicture}
-            />
-          ))}
+    <div className="posts-container">
+      <div className="posts">
+        {loadingPosts ||
+        loadingRandomUser ||
+        loadingRandomPicture ||
+        !mergedState
+          ? "Loading..."
+          : // dataPosts as State
+            mergedState.posts.map((post, i) => (
+              <Post
+                key={post.id}
+                post={post}
+                randomUser={mergedState.dataRandomUser[post.id - 1]}
+                loadingRandomUser={loadingRandomUser}
+                loadingRandomPicture={loadingRandomPicture}
+                setMergedState={setMergedState}
+                mergedState={mergedState}
+              />
+            ))}
+      </div>
     </div>
   );
 };
@@ -45,9 +71,15 @@ const Post = ({
   post,
   randomUser,
   loadingRandomUser,
-  randomPicture,
   loadingRandomPicture,
+  setMergedState,
+  mergedState,
 }) => {
+  // STATES
+  const [showComments, setShowComments] = useState(false);
+  const [beenShown, setBeenShown] = useState(false);
+
+  // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
     upperCaseFirst(concatFetchedContent(post.body), true)
@@ -55,18 +87,19 @@ const Post = ({
   const randomNumberRef = useRef(1 + Math.round(Math.random() * 4));
   const sharesCount = useRef(1 + Math.round(Math.random() * 19));
 
-  const [showComments, setShowComments] = useState(false);
-  const [beenShown, setBeenShown] = useState(false);
+  const randomImageRef = useRef(
+    mergedState.dataRandomPicture[
+      Math.trunc(Math.random() * mergedState.dataRandomPicture.length)
+    ].download_url
+  );
 
-  console.log(post);
-  console.log(randomUser);
-  console.log(randomPicture);
+  const { isRead, likes } = post;
 
   const handleShowComments = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
       THEN ON THE NEXT CLICK, SHOWCOMMENTS ARE BEENING SET TO FALSE WHILE ->
       BEENSHOWN STATE VARIABLE ARE PERSISTED TO BE TRUE ON EVERY CLICK
-      THEN SHOWCOMMENTS ARE BEEING USED TO TOGGLING THE CLASSED ->
+      THEN SHOWCOMMENTS ARE BEEING USED TO TOGGLING THE CLASS ->
       WITH DISPLAY PROP ON THE CONTAINER ->
       SO THE COMPONENT IS BEEING PROPERLY TOGGLED ->
       SO THAT RANDOMUSER FETCH CALL ARE TRIGERED ONCE AND THE RESULTS ARE PERSISTED ->
@@ -78,8 +111,32 @@ const Post = ({
 
   const handleAddComment = () => {
     // SHOW COMMENTS ON CLICK
-    handleShowComments();
+    setShowComments(true);
+    setBeenShown(true);
     // THEN AUTOFOCUS ON INPUT FIELD
+  };
+
+  const handleLikePost = (id) => {
+    setMergedState((prevState) => {
+      return {
+        ...prevState,
+        posts: prevState.posts.map((post) => {
+          return id === post.id ? { ...post, likes: post.likes + 1 } : post;
+        }),
+      };
+    });
+  };
+
+  // ON ADMIN
+  const deletePost = (id) => {
+    setMergedState((prevState) => {
+      return {
+        ...prevState,
+        posts: prevState.posts.filter((post) => {
+          return post.id !== id && post;
+        }),
+      };
+    });
   };
 
   return (
@@ -94,9 +151,12 @@ const Post = ({
               <div className="post-user-name">{`${randomUser.name.first} ${randomUser.name.last}`}</div>
               <div className="post-user-date">{randomDateRef.current}</div>
             </div>
+            <div>
+              <button onClick={() => deletePost(post.id)}>DELETE</button>
+            </div>
           </div>
           <div className="post-image-splash">
-            <img src={randomPicture.download_url} alt="splash" width="900" />
+            <img src={randomImageRef.current} alt="splash" width="900" />
           </div>
           <div className="post-title">
             <h3>{upperCaseFirst(post.title)}</h3>
@@ -109,7 +169,7 @@ const Post = ({
           <div className="post-likes-comments-share-count noselect">
             <div className="post-likes-count-container post-interaction-count">
               Likes
-              <div className="post-likes-count">55</div>
+              <div className="post-likes-count">{likes}</div>
             </div>
             <div className="post-comments-shares-container">
               <div
@@ -130,7 +190,10 @@ const Post = ({
           <div className="post-likes-comments-share-buttons noselect">
             <div className="post-likes-comments-share-buttons-inner-container">
               <div className="post-likes-container">
-                <button className="post-likes post-interaction-button ">
+                <button
+                  className="post-likes post-interaction-button"
+                  onClick={() => handleLikePost(post.id)}
+                >
                   Like it!
                 </button>
               </div>
@@ -155,6 +218,8 @@ const Post = ({
               showComments={showComments}
               setShowComments={setShowComments}
               randomNumberRef={randomNumberRef.current}
+              mergedState={mergedState}
+              setMergedState={setMergedState}
             />
           )}
         </div>

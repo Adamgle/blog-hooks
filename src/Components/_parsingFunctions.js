@@ -63,4 +63,14 @@ const concatFetchedContent = (str) => {
   return array.join(" ");
 };
 
-export { randomDate, upperCaseFirst, concatFetchedContent };
+const getTodaysDate = () => {
+  return new Date()
+    .toString()
+    .split(" ")
+    .splice(1, 3)
+    .join(" ")
+    .split(" ")
+    .join(". ");
+};
+
+export { randomDate, upperCaseFirst, concatFetchedContent, getTodaysDate };

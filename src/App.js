@@ -4,13 +4,10 @@ import { Posts } from "./Components/Posts";
 
 const App = () => {
   // STATE
-  console.log("HELLO GH-PAGES")
   return (
     <>
       <Header />
-      <div className="posts-container">
-        <Posts />
-      </div>
+      <Posts />
     </>
   );
 };
