@@ -100,25 +100,25 @@ const Comments = ({
         };
       });
     }
+    setMergedState((prevState) => {
+      return {
+        ...prevState,
+        posts: prevState.posts.map((post, i) => {
+          if (post.id === postID) {
+            post.comments = {
+              ...post.comments,
+              textField: "",
+            };
+          }
+          return post;
+        }),
+      };
+    });
   };
 
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       handleSubmit(event, postID);
-      setMergedState((prevState) => {
-        return {
-          ...prevState,
-          posts: prevState.posts.map((post, i) => {
-            if (post.id === postID) {
-              post.comments = {
-                ...post.comments,
-                textField: "",
-              };
-            }
-            return post;
-          }),
-        };
-      });
     }
   };
 
@@ -127,10 +127,11 @@ const Comments = ({
   const commentsDynamicStyles = {
     maxWidth:
       windowDimensions.width > 900
-        ? "900px"
-        : `${windowDimensions.width - 50}px`,
+        ? "863px"
+        : windowDimensions.width <= 900 && windowDimensions.width > 700
+        ? `${windowDimensions.width - 77}px` // 900 - 701 viewport
+        : `${windowDimensions.width - 67}px`, // >=700 viewport
   };
-  console.log(post.comments.textField);
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
@@ -154,7 +155,6 @@ const Comments = ({
               <div className="comment-name">{mergedState.dataProfile.name}</div>
               <form
                 className="comment-form"
-                onSubmit={(e) => handleSubmit(e, postID)}
                 onKeyDown={(e) => handleKeyPress(e)}
               >
                 <TextareaAutosize
@@ -165,7 +165,7 @@ const Comments = ({
                   onChange={(e) => handleChange(e)}
                   value={post.comments.textField}
                 />
-                <button onSubmit={(e) => handleSubmit(e, postID)}>
+                <button onClick={(e) => handleSubmit(e, postID)}>
                   Publish
                 </button>
               </form>

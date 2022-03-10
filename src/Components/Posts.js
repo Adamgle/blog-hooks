@@ -6,6 +6,7 @@ import {
   randomDate,
   concatFetchedContent,
 } from "./_parsingFunctions";
+import useWindowDimensions from "./useWindowDimensions";
 
 const Posts = () => {
   // STATE
@@ -139,10 +140,23 @@ const Post = ({
     });
   };
 
+  const windowDimensions = useWindowDimensions();
+
+  const commentsDynamicStyles = {
+    maxWidth:
+      windowDimensions.width <= 937
+        ? "863px"
+        : windowDimensions.width > 937
+        ? "900px"
+        : windowDimensions.width <= 900 && windowDimensions.width > 700
+        ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
+        : `${windowDimensions.width - 27}px`, // >=700 viewport
+  };
+
   return (
     <>
       {!loadingRandomUser && !loadingRandomPicture && (
-        <div className="post">
+        <div className="post" style={commentsDynamicStyles}>
           <div className="post-user">
             <div className="post-user-img">
               <img src={randomUser.picture.thumbnail} alt="user thumbnail" />
