@@ -4,7 +4,6 @@ import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 import TextareaAutosize from "react-textarea-autosize";
 import useWindowDimensions from "./useWindowDimensions";
 import { nanoid } from "nanoid";
-import { render } from "@testing-library/react";
 
 const Comments = ({
   postID,
@@ -15,6 +14,7 @@ const Comments = ({
   post,
   setCommentsCounter,
   passRef,
+  textAreaRef,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${postID}/comments/?_limit=${randomNumberRef}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
@@ -22,6 +22,8 @@ const Comments = ({
   const { data: dataComments, loading: loadingComments } = useFetch(dbComments);
   const { data: dataRandomUser, loading: loadingRandomUser } =
     useFetch(dbRandomUser);
+  // STATE
+  const [renderTextAreaRef, setRenderTextAreaRef] = useState(false);
 
   useEffect(() => {
     if (!loadingComments && !loadingRandomUser) {
@@ -139,10 +141,6 @@ const Comments = ({
     setRenderTextAreaRef((prevState) => !prevState);
   }, [showComments]);
 
-  const [renderTextAreaRef, setRenderTextAreaRef] = useState(false);
-
-  const textAreaRef = useRef(null);
-
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
@@ -168,7 +166,6 @@ const Comments = ({
                 className="comment-form"
                 onKeyDown={(e) => handleKeyPress(e)}
               >
-                {/* textAreaRef, handleChange, post, renderTextAreaRef, passRef, */}
                 {renderTextAreaRef && passRef && (
                   <TextareaAutosize
                     ref={textAreaRef}
@@ -187,6 +184,7 @@ const Comments = ({
                     placeholder="Write a comment..."
                   />
                 )}
+
                 <div className="comment-publish-container">
                   <button
                     onClick={(e) => handleSubmit(e, postID)}
@@ -209,37 +207,6 @@ const Comments = ({
         </>
       )}
     </div>
-  );
-};
-
-const TextareaAutosizeRef = ({
-  textAreaRef,
-  handleChange,
-  post,
-  renderTextAreaRef,
-  passRef,
-}) => {
-  useEffect(() => {
-    if (textAreaRef.current) {
-      return () => {
-        return document.textAreaRef.current.blur();
-      };
-    }
-  });
-  console.log(textAreaRef);
-  return (
-    <>
-      {renderTextAreaRef && passRef && (
-        <TextareaAutosize
-          ref={textAreaRef}
-          autoFocus
-          className="comment-textarea"
-          onChange={(e) => handleChange(e)}
-          value={post.comments.textField}
-          placeholder="Write a comment..."
-        />
-      )}
-    </>
   );
 };
 

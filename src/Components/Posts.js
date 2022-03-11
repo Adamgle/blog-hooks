@@ -250,7 +250,7 @@ const Post = ({
               setMergedState={setMergedState}
               setCommentsCounter={setCommentsCounter}
               passRef={passRef}
-    
+          
             />
           )}
         </div>
