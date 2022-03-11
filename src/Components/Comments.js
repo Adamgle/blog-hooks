@@ -4,6 +4,7 @@ import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 import TextareaAutosize from "react-textarea-autosize";
 import useWindowDimensions from "./useWindowDimensions";
 import { nanoid } from "nanoid";
+import { render } from "@testing-library/react";
 
 const Comments = ({
   postID,
@@ -13,6 +14,7 @@ const Comments = ({
   setMergedState,
   post,
   setCommentsCounter,
+  passRef,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${postID}/comments/?_limit=${randomNumberRef}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
@@ -132,6 +134,15 @@ const Comments = ({
         ? `${windowDimensions.width - 77}px` // 900 - 701 viewport
         : `${windowDimensions.width - 67}px`, // >=700 viewport
   };
+
+  useEffect(() => {
+    setRenderTextAreaRef((prevState) => !prevState);
+  }, [showComments]);
+
+  const [renderTextAreaRef, setRenderTextAreaRef] = useState(false);
+
+  const textAreaRef = useRef(null);
+
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
@@ -157,15 +168,25 @@ const Comments = ({
                 className="comment-form"
                 onKeyDown={(e) => handleKeyPress(e)}
               >
-                <TextareaAutosize
-                  // DEBUG THE REF, PASS WHEN CLICK ON ADD COMMENT
-                  // ref={textAreaRef}
-                  // autoFocus
-                  className="comment-textarea"
-                  onChange={(e) => handleChange(e)}
-                  value={post.comments.textField}
-                  placeholder="Write a comment..."
-                />
+                {/* textAreaRef, handleChange, post, renderTextAreaRef, passRef, */}
+                {renderTextAreaRef && passRef && (
+                  <TextareaAutosize
+                    ref={textAreaRef}
+                    autoFocus
+                    className="comment-textarea"
+                    onChange={(e) => handleChange(e)}
+                    value={post.comments.textField}
+                    placeholder="Write a comment..."
+                  />
+                )}
+                {!passRef && (
+                  <TextareaAutosize
+                    className="comment-textarea"
+                    onChange={(e) => handleChange(e)}
+                    value={post.comments.textField}
+                    placeholder="Write a comment..."
+                  />
+                )}
                 <div className="comment-publish-container">
                   <button
                     onClick={(e) => handleSubmit(e, postID)}
@@ -181,13 +202,44 @@ const Comments = ({
             <Comment
               key={comment.id}
               comment={comment}
-              randomUser={dataRandomUser.results[i]}
+              randomUser={commentsObject.comments.dataRandomUser[i]}
               mergedState={mergedState}
             />
           ))}
         </>
       )}
     </div>
+  );
+};
+
+const TextareaAutosizeRef = ({
+  textAreaRef,
+  handleChange,
+  post,
+  renderTextAreaRef,
+  passRef,
+}) => {
+  useEffect(() => {
+    if (textAreaRef.current) {
+      return () => {
+        return document.textAreaRef.current.blur();
+      };
+    }
+  });
+  console.log(textAreaRef);
+  return (
+    <>
+      {renderTextAreaRef && passRef && (
+        <TextareaAutosize
+          ref={textAreaRef}
+          autoFocus
+          className="comment-textarea"
+          onChange={(e) => handleChange(e)}
+          value={post.comments.textField}
+          placeholder="Write a comment..."
+        />
+      )}
+    </>
   );
 };
 
@@ -205,19 +257,49 @@ const Comment = ({ comment, randomUser, mergedState }) => {
 
   return (
     <div className="comment">
-      <div className="comment-picture-container">
-        <img
-          className="comment-picture"
-          src={commentData.picture}
-          alt="thumbnail"
-        />
-        <div className="comment-name-date">
-          <div className="comment-name">{commentData.name}</div>
-          <div className="comment-date">{commentData.date}</div>
+      <div className="comment-inner-container">
+        <div className="comment-picture-container">
+          <img
+            className="comment-picture"
+            src={commentData.picture}
+            alt="thumbnail"
+          />
+          <div className="comment-name-date">
+            <div className="comment-name">{commentData.name}</div>
+            <div className="comment-date">{commentData.date}</div>
+          </div>
+        </div>
+        <div className="comment-content">
+          {upperCaseFirst(comment.body, true)}
         </div>
       </div>
-      <div className="comment-content">
-        {upperCaseFirst(comment.body, true)}
+      <div className="comment-interactions noselect">
+        <div className="comment-interactions-container">
+          <div className="comment-interaction-like-container comment-interaction-container">
+            <button className="comment-interaction-like comment-interaction">
+              Like it!
+            </button>
+          </div>
+          <div className="comment-interaction-reply-container comment-interaction-container">
+            <button className="comment-interaction-reply comment-interaction">
+              Reply
+            </button>
+          </div>
+        </div>
+        <div className="comment-interactions-count">
+          <div className="comment-interactions-likes-container comment-interaction-count-container">
+            Likes
+            <div className="comment-interactions-likes-count comment-interaction-count">
+              {/* {comment.likes} */} 0
+            </div>
+          </div>
+          <div className="comment-interactions-replies-container comment-interaction-count-container">
+            Replies
+            <div className="comment-interactions-replies-count comment-interaction-count">
+              {/* {comment.replyCount} */} 0
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

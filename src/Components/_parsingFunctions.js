@@ -4,7 +4,14 @@ const upperCaseFirst = (str, addDot) => {
       .trim()
       .split("")
       .map((e, i) => (i === 0 ? e.toUpperCase() : e))
-      .join("") + `${addDot ? "." : ""}`
+      .join("") +
+    `${
+      addDot &&
+      /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(str[str.length - 1]) ===
+        false
+        ? "."
+        : ""
+    }`
   );
 };
 

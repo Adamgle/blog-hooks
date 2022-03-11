@@ -39,7 +39,7 @@ const Posts = () => {
           name: "Adam",
           image:
             "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
-          email: "adam.dev@gmail.com"
+          email: "adam.dev@gmail.com",
         },
         isAdmin: false,
       });
@@ -82,6 +82,7 @@ const Post = ({
   const [showComments, setShowComments] = useState(false);
   const [beenShown, setBeenShown] = useState(false);
   const [commentsCounter, setCommentsCounter] = useState(0);
+
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
@@ -89,13 +90,14 @@ const Post = ({
   );
   const randomNumberRef = useRef(1 + Math.round(Math.random() * 4));
   const sharesCount = useRef(1 + Math.round(Math.random() * 19));
-
   const randomImageRef = useRef(
     mergedState.dataRandomPicture[
       Math.trunc(Math.random() * mergedState.dataRandomPicture.length)
     ].download_url
   );
+  const [passRef, setPassRef] = useState(false);
 
+  // VARS
   const { isRead, likes } = post;
 
   const handleShowComments = () => {
@@ -110,12 +112,14 @@ const Post = ({
     */
     setShowComments((prevState) => !prevState);
     setBeenShown(true);
+    setPassRef(false);
   };
 
   const handleAddComment = () => {
     // SHOW COMMENTS ON CLICK
     setShowComments(true);
     setBeenShown(true);
+    setPassRef(true);
     // THEN AUTOFOCUS ON INPUT FIELD
   };
 
@@ -245,6 +249,8 @@ const Post = ({
               mergedState={mergedState}
               setMergedState={setMergedState}
               setCommentsCounter={setCommentsCounter}
+              passRef={passRef}
+    
             />
           )}
         </div>
