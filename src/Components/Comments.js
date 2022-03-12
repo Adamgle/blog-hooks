@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFetch } from "./useFetch";
 import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 import TextareaAutosize from "react-textarea-autosize";
@@ -7,15 +7,15 @@ import { nanoid } from "nanoid";
 
 const Comments = ({
   postID,
+  post,
+  mergedState,
   randomNumberRef,
   showComments,
-  mergedState,
   setMergedState,
-  post,
   setCommentsCounter,
-  passRef,
+  doTextAreaFocus,
   textAreaRef,
-  setPassRef,
+  setDoTextAreaFocus,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${postID}/comments/?_limit=${randomNumberRef}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
@@ -23,8 +23,6 @@ const Comments = ({
   const { data: dataComments, loading: loadingComments } = useFetch(dbComments);
   const { data: dataRandomUser, loading: loadingRandomUser } =
     useFetch(dbRandomUser);
-  // STATE
-  const [renderTextAreaRef, setRenderTextAreaRef] = useState(false);
 
   useEffect(() => {
     if (!loadingComments && !loadingRandomUser) {
@@ -50,6 +48,7 @@ const Comments = ({
     }
   }, [loadingComments, loadingRandomUser]);
 
+  // GET CURRENT (IN THIS POST) COMMENTS OBJECT
   const commentsObject = mergedState.posts.filter((post) => {
     if (!loadingComments && !loadingRandomUser) {
       return post.id === postID;
@@ -58,6 +57,7 @@ const Comments = ({
   })[0];
 
   const handleChange = (e) => {
+    // SET INPUT TEXT ON STATEFULL VALUE
     setMergedState((prevState) => {
       return {
         ...prevState,
@@ -72,7 +72,8 @@ const Comments = ({
         }),
       };
     });
-    setPassRef(true);
+    //
+    setDoTextAreaFocus(true);
   };
 
   const handleSubmit = (e, id) => {
@@ -105,6 +106,8 @@ const Comments = ({
           }),
         };
       });
+      // INCREMENT COMMENTS LENGTH (WHICH IS COMMING FROM POST COMPONENT ->
+      // AS STATE SEPARATE VALUE)
       setCommentsCounter((prevState) => prevState + 1);
     }
     // ClEAR TEXTFIELD AFTER SUBMIT
@@ -122,16 +125,28 @@ const Comments = ({
         }),
       };
     });
+    // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
+    setDoTextAreaFocus(false);
   };
 
+  // MAKE COMMENT SUBMIT HAPPENDS ON ENTER KEY
   const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       handleSubmit(event, postID);
+      // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
+      setDoTextAreaFocus(false);
     }
   };
 
+  // HOOKS WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
   const windowDimensions = useWindowDimensions();
 
+  // COMPUTE CURRENT VIEWPORT
+  // IF USER PASS A LOT OF TEXT IN ONE WORD "LONG STRING WITHOUT WHITE CHARACTER"
+  // -> IN TEXTFIELD APPLICATION UI WILL BROKE ->
+  // THIS STATEMENT HANDLES THAT THE CONTAINER WILL FIT TO VIEWPORT ->
+  // WITH CONSIDERATION ON PADDING, MARGINS AND BORDERS SO THAT ->
+  // TEXT WILL FIT TO CONTAINER CAUSING WORD WRAP "OR LETTERS WRAP"
   const commentsDynamicStyles = {
     maxWidth:
       windowDimensions.width > 900
@@ -141,16 +156,6 @@ const Comments = ({
         : `${windowDimensions.width - 67}px`, // >=700 viewport
   };
 
-  useEffect(() => {
-    setRenderTextAreaRef((prevState) => !prevState);
-  }, [showComments]);
-
-  useEffect(() => {
-    if (textAreaRef.current) {
-      textAreaRef.current.focus();
-    }
-  }, [textAreaRef]);
-  console.log(passRef);
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
@@ -160,7 +165,8 @@ const Comments = ({
       {loadingComments ||
       loadingRandomUser ||
       !commentsObject.comments.dataComments ? (
-        // false, false
+        // WAIT FOR ALL APIS AND STATE MERGES, THEN DISPLAY DATA
+        // IF AT LEAST ONE OF THEM ARE FALSE THEN DISPLAY "LOADING..."
         "Loading..."
       ) : (
         <>
@@ -176,49 +182,12 @@ const Comments = ({
                 className="comment-form"
                 onKeyDown={(e) => handleKeyPress(e)}
               >
-                {/* {renderTextAreaRef && passRef && (
-                  <TextareaAutosize
-                    ref={textAreaRef}
-                    autoFocus
-                    className="comment-textarea"
-                    onChange={(e) => handleChange(e)}
-                    value={post.comments.textField}
-                    placeholder="Write a comment..."
-                  />
-                )}
-                {!passRef && (
-                  <TextareaAutosize
-                    ref={textAreaRef}
-                    className="comment-textarea"
-                    onChange={(e) => handleChange(e)}
-                    value={post.comments.textField}
-                    placeholder="Write a comment..."
-                  />
-                )} */}
-
-                {/* {passRef ? (
-                  <TextAreaRef
-                    ref={textAreaRef}
-                    handleChange={handleChange}
-                    post={post}
-                  />
-                ) : (
-                  <TextareaAutosize
-                    ref={textAreaRef}
-                    className="comment-textarea"
-                    onChange={(e) => handleChange(e)}
-                    value={post.comments.textField}
-                    placeholder="Write a comment..."
-                  />
-                )} */}
-
-                <TextAreaRef
+                <TextAreaAutosizeRef
                   ref={textAreaRef}
                   handleChange={handleChange}
                   post={post}
-                  passRef={passRef}
+                  doTextAreaFocus={doTextAreaFocus}
                 />
-
                 <div className="comment-publish-container">
                   <button
                     onClick={(e) => handleSubmit(e, postID)}
@@ -246,31 +215,31 @@ const Comments = ({
   );
 };
 
-const TextAreaRef = React.forwardRef(({ handleChange, post, passRef }, ref) => {
-  useEffect(() => {
-    const currentRef = ref.current;
-    if (passRef) {
-      currentRef.focus();
-    } else if (!passRef) {
-      currentRef.blur();
-    }
-    return () => {
-      currentRef.blur();
-    };
-  });
+const TextAreaAutosizeRef = React.forwardRef(
+  ({ handleChange, post, doTextAreaFocus }, ref) => {
+    useEffect(() => {
+      const currentRef = ref.current;
+      if (doTextAreaFocus) {
+        currentRef.focus();
+      } else if (!doTextAreaFocus) {
+        currentRef.blur();
+      }
+      return () => {
+        currentRef.blur();
+      };
+    });
 
-  console.log(ref);
-
-  return (
-    <TextareaAutosize
-      ref={ref}
-      className="comment-textarea"
-      onChange={(e) => handleChange(e)}
-      value={post.comments.textField}
-      placeholder="Write a comment..."
-    />
-  );
-});
+    return (
+      <TextareaAutosize
+        ref={ref}
+        className="comment-textarea"
+        onChange={(e) => handleChange(e)}
+        value={post.comments.textField}
+        placeholder="Write a comment..."
+      />
+    );
+  }
+);
 
 const Comment = ({
   comment,

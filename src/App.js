@@ -1,6 +1,6 @@
 import React from "react";
 import Header from "./Components/Header";
-import { Posts } from "./Components/Posts";
+import Posts from "./Components/Posts";
 
 const App = () => {
   // STATE
