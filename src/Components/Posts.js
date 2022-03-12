@@ -96,6 +96,7 @@ const Post = ({
     ].download_url
   );
   const [passRef, setPassRef] = useState(false);
+  const textAreaRef = useRef(null);
 
   // VARS
   const { isRead, likes } = post;
@@ -113,6 +114,10 @@ const Post = ({
     setShowComments((prevState) => !prevState);
     setBeenShown(true);
     setPassRef(false);
+    // LOSE FOCUS ON TEXTAREA ON CLICK
+    if (textAreaRef.current) {
+      textAreaRef.current.blur();
+    }
   };
 
   const handleAddComment = () => {
@@ -121,6 +126,9 @@ const Post = ({
     setBeenShown(true);
     setPassRef(true);
     // THEN AUTOFOCUS ON INPUT FIELD
+    if (textAreaRef.current) {
+      textAreaRef.current.focus();
+    }
   };
 
   const handleLikePost = (id) => {
@@ -250,7 +258,8 @@ const Post = ({
               setMergedState={setMergedState}
               setCommentsCounter={setCommentsCounter}
               passRef={passRef}
-          
+              textAreaRef={textAreaRef}
+              setPassRef={setPassRef}
             />
           )}
         </div>

@@ -15,6 +15,7 @@ const Comments = ({
   setCommentsCounter,
   passRef,
   textAreaRef,
+  setPassRef,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${postID}/comments/?_limit=${randomNumberRef}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
@@ -36,9 +37,9 @@ const Comments = ({
                 dataComments: dataComments.map((comment, i) => ({
                   ...comment,
                   picture: dataRandomUser.results[i].picture.thumbnail,
+                  likes: 0,
                 })),
                 dataRandomUser: dataRandomUser.results,
-                likes: 0,
                 textField: "",
               };
             }
@@ -71,10 +72,12 @@ const Comments = ({
         }),
       };
     });
+    setPassRef(true);
   };
 
   const handleSubmit = (e, id) => {
     e.preventDefault();
+    // ADD COMMENT
     if (post.comments.textField) {
       setMergedState((prevState) => {
         return {
@@ -86,7 +89,6 @@ const Comments = ({
                   comments: {
                     ...post.comments,
                     dataComments: [
-                      ...post.comments.dataComments,
                       {
                         body: post.comments.textField,
                         email: prevState.dataProfile.email,
@@ -95,6 +97,7 @@ const Comments = ({
                         picture: prevState.dataProfile.image,
                         postId: postID,
                       },
+                      ...post.comments.dataComments,
                     ],
                   },
                 }
@@ -104,6 +107,7 @@ const Comments = ({
       });
       setCommentsCounter((prevState) => prevState + 1);
     }
+    // ClEAR TEXTFIELD AFTER SUBMIT
     setMergedState((prevState) => {
       return {
         ...prevState,
@@ -141,6 +145,12 @@ const Comments = ({
     setRenderTextAreaRef((prevState) => !prevState);
   }, [showComments]);
 
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.focus();
+    }
+  }, [textAreaRef]);
+  console.log(passRef);
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
@@ -166,7 +176,7 @@ const Comments = ({
                 className="comment-form"
                 onKeyDown={(e) => handleKeyPress(e)}
               >
-                {renderTextAreaRef && passRef && (
+                {/* {renderTextAreaRef && passRef && (
                   <TextareaAutosize
                     ref={textAreaRef}
                     autoFocus
@@ -178,12 +188,36 @@ const Comments = ({
                 )}
                 {!passRef && (
                   <TextareaAutosize
+                    ref={textAreaRef}
                     className="comment-textarea"
                     onChange={(e) => handleChange(e)}
                     value={post.comments.textField}
                     placeholder="Write a comment..."
                   />
-                )}
+                )} */}
+
+                {/* {passRef ? (
+                  <TextAreaRef
+                    ref={textAreaRef}
+                    handleChange={handleChange}
+                    post={post}
+                  />
+                ) : (
+                  <TextareaAutosize
+                    ref={textAreaRef}
+                    className="comment-textarea"
+                    onChange={(e) => handleChange(e)}
+                    value={post.comments.textField}
+                    placeholder="Write a comment..."
+                  />
+                )} */}
+
+                <TextAreaRef
+                  ref={textAreaRef}
+                  handleChange={handleChange}
+                  post={post}
+                  passRef={passRef}
+                />
 
                 <div className="comment-publish-container">
                   <button
@@ -202,6 +236,8 @@ const Comments = ({
               comment={comment}
               randomUser={commentsObject.comments.dataRandomUser[i]}
               mergedState={mergedState}
+              dataRandomUserLength={dataRandomUser.results.length}
+              commentsLength={commentsObject.comments.dataComments.length}
             />
           ))}
         </>
@@ -210,17 +246,53 @@ const Comments = ({
   );
 };
 
-const Comment = ({ comment, randomUser, mergedState }) => {
-  // STATE
-  const [commentData, setCommentData] = useState({
-    date: randomUser ? randomDate() : getTodaysDate(),
-    picture: randomUser
-      ? randomUser.picture.thumbnail
-      : mergedState.dataProfile.image,
-    name: randomUser
-      ? `${randomUser.name.first} ${randomUser.name.last}`
-      : mergedState.dataProfile.name,
+const TextAreaRef = React.forwardRef(({ handleChange, post, passRef }, ref) => {
+  useEffect(() => {
+    const currentRef = ref.current;
+    if (passRef) {
+      currentRef.focus();
+    } else if (!passRef) {
+      currentRef.blur();
+    }
+    return () => {
+      currentRef.blur();
+    };
   });
+
+  console.log(ref);
+
+  return (
+    <TextareaAutosize
+      ref={ref}
+      className="comment-textarea"
+      onChange={(e) => handleChange(e)}
+      value={post.comments.textField}
+      placeholder="Write a comment..."
+    />
+  );
+});
+
+const Comment = ({
+  comment,
+  randomUser,
+  mergedState,
+  dataRandomUserLength,
+  commentsLength,
+}) => {
+  // STATE
+  const [commentData, setCommentData] = useState(
+    dataRandomUserLength === commentsLength
+      ? {
+          date: randomDate(),
+          picture: randomUser.picture.thumbnail,
+          name: `${randomUser.name.first} ${randomUser.name.last}`,
+        }
+      : {
+          date: getTodaysDate(),
+          picture: mergedState.dataProfile.image,
+          name: mergedState.dataProfile.name,
+        }
+  );
 
   return (
     <div className="comment">
