@@ -46,7 +46,7 @@ const Comments = ({
         };
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingComments, loadingRandomUser]);
 
   // GET CURRENT (IN THIS POST) COMMENTS OBJECT
@@ -187,6 +187,7 @@ const Comments = ({
                   ref={textAreaRef}
                   handleChange={handleChange}
                   post={post}
+                  setDoTextAreaFocus={setDoTextAreaFocus}
                   doTextAreaFocus={doTextAreaFocus}
                 />
                 <div className="comment-publish-container">
