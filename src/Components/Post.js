@@ -1,11 +1,11 @@
 import React, { useState, useRef } from "react";
-import { Comments } from "./Comments";
+import Comments from "./Comments";
 import {
   upperCaseFirst,
   randomDate,
   concatFetchedContent,
 } from "./_parsingFunctions";
-import useWindowDimensions from "./useWindowDimensions";
+import useWindowDimensions from "./Hooks/useWindowDimensions";
 
 const Post = ({
   post,

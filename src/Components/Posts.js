@@ -1,17 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Comments } from "./Comments";
-import { useFetch } from "./useFetch";
-import {
-  upperCaseFirst,
-  randomDate,
-  concatFetchedContent,
-} from "./_parsingFunctions";
-import useWindowDimensions from "./useWindowDimensions";
+import React, { useState, useEffect } from "react";
+import { useFetch } from "./Hooks/useFetch";
 import Post from "./Post";
 
 const Posts = () => {
   // STATE
-  const [usersCount, setUsersCount] = useState(2);
+  const [usersCount, setUsersCount] = useState(100);
   const [mergedState, setMergedState] = useState(null);
 
   // DB'S
@@ -48,6 +41,7 @@ const Posts = () => {
         isAdmin: false,
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingPosts, loadingRandomUser, loadingRandomPicture]);
 
   return (
