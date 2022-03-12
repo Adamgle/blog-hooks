@@ -1,26 +1,42 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 const TextAreaAutosizeRef = React.forwardRef(
   ({ handleChange, post, doTextAreaFocus, setDoTextAreaFocus }, ref) => {
+    const [textAreaClick, setTextAreaClick] = useState(false);
     useEffect(() => {
       const currentRef = ref.current;
-      if (doTextAreaFocus) {
-        currentRef.focus();
-      } else if (!doTextAreaFocus) {
-        currentRef.blur();
+      if (textAreaClick) {
+        setDoTextAreaFocus(true);
+        return;
+      } else {
+        if (doTextAreaFocus) {
+          currentRef.focus();
+        } else if (!doTextAreaFocus) {
+          currentRef.blur();
+        }
+        return () => {
+          currentRef.blur();
+        };
       }
-      return () => {
-        currentRef.blur();
-      };
     });
+
+    const handleTextAreaClick = () => {
+      setTextAreaClick(true);
+    };
+
+    const handleBlur = () => {
+      setTextAreaClick(false);
+      ref.current.blur();
+    };
 
     return (
       <TextareaAutosize
         ref={ref}
         className="comment-textarea"
         onChange={(e) => handleChange(e)}
-        onClick={() => setDoTextAreaFocus(true)}
+        onClick={handleTextAreaClick}
+        onBlur={handleBlur}
         value={post.comments.textField}
         placeholder="Write a comment..."
       />
