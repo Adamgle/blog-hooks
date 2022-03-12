@@ -138,7 +138,8 @@ const Post = ({
               {upperCaseFirst(post.body, true)} {concatFetchDataRef.current}
             </p>
           </div>
-          <div className="post-likes-comments-share-count noselect">
+          {/* noselect */}
+          <div className="post-likes-comments-share-count ">
             <div className="post-likes-count-container post-interaction-count">
               Likes
               <div className="post-likes-count">{likes}</div>
@@ -159,7 +160,8 @@ const Post = ({
               </div>
             </div>
           </div>
-          <div className="post-likes-comments-share-buttons noselect">
+          {/* noselect */}
+          <div className="post-likes-comments-share-buttons ">
             <div className="post-likes-comments-share-buttons-inner-container">
               <div className="post-likes-container">
                 <button

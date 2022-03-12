@@ -15,14 +15,15 @@ const TextAreaAutosizeRef = React.forwardRef(
         } else if (!doTextAreaFocus) {
           currentRef.blur();
         }
-        return () => {
-          currentRef.blur();
-        };
       }
+      return () => {
+        currentRef.blur();
+      };
     });
 
     const handleTextAreaClick = () => {
       setTextAreaClick(true);
+      ref.current.focus();
     };
 
     const handleBlur = () => {

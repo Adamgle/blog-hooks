@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 const Comment = ({
   comment,
@@ -8,7 +8,7 @@ const Comment = ({
   commentsLength,
 }) => {
   // STATE
-  const commentData =
+  const [commentData, setCommentData] = useState(
     dataRandomUserLength === commentsLength
       ? {
           date: randomDate(),
@@ -19,7 +19,8 @@ const Comment = ({
           date: getTodaysDate(),
           picture: mergedState.dataProfile.image,
           name: mergedState.dataProfile.name,
-        };
+        }
+  );
 
   return (
     <div className="comment">
@@ -39,7 +40,8 @@ const Comment = ({
           {upperCaseFirst(comment.body, true)}
         </div>
       </div>
-      <div className="comment-interactions noselect">
+      {/* noselect */}
+      <div className="comment-interactions">
         <div className="comment-interactions-container">
           <div className="comment-interaction-like-container comment-interaction-container">
             <button className="comment-interaction-like comment-interaction">
