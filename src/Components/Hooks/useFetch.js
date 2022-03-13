@@ -5,16 +5,19 @@ export const useFetch = (url) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(url)
-      .then((res) => res.json())
-      .then((res) => {
-        setData(res);
-        setLoading(false);
-        return res;
-      });
+    if (url) {
+      fetch(url)
+        .then((res) => res.json())
+        .then((res) => {
+          setData(res);
+          setLoading(false);
+          return res;
+        });
+    }
     return () => {
       setLoading(false);
     };
   }, [url]);
+
   return { data, loading };
 };

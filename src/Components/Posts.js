@@ -4,28 +4,68 @@ import Post from "./Post";
 
 const Posts = () => {
   // STATE
-  const [usersCount, setUsersCount] = useState(15);
+  const [usersCount, setUsersCount] = useState(5);
   const [mergedState, setMergedState] = useState(null);
-
+  const [fetchStatus, setFetchStatus] = useState(false);
   // DB'S
-  const dbUsers = `https://jsonplaceholder.typicode.com/posts/?_limit=${usersCount}`;
-  const dbRandomUser = `https://randomuser.me/api/?results=${usersCount}&noinfo`;
-  const dbRandomPicture = `https://picsum.photos/v2/list?page=2&limit=100`;
+  const [dbPosts, setDbPosts] = useState(null);
+  const [dbRandomUser, setDbRandomUser] = useState(null);
+  const [dbRandomPicture, setDbRandomPicture] = useState(null);
+
+  // REACTIVE FETCH DATA
+  const [reactiveDataPosts, setReactiveDataPosts] = useState(null);
+  const [reactiveRandomUsers, setReactiveRandomUsers] = useState(null);
+
+  // LOAD DATABASES
+  useEffect(() => {
+    setDbPosts(
+      `https://jsonplaceholder.typicode.com/posts/?_limit=${usersCount}`
+    );
+    setDbRandomUser(`https://randomuser.me/api/?results=${usersCount}&noinfo`);
+    setDbRandomPicture(`https://picsum.photos/v2/list?page=2&limit=100`);
+  }, []);
+
+  console.log(dbPosts, fetchStatus);
+  console.log(dbRandomUser, fetchStatus);
+  console.log(dbRandomPicture, fetchStatus);
+  console.log(mergedState);
 
   // FETCH CALLS
-  const { data: dataPosts, loading: loadingPosts } = useFetch(dbUsers);
+  const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
   const { data: dataRandomUser, loading: loadingRandomUser } =
     useFetch(dbRandomUser);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
 
+  useEffect(() => {
+    // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
+    if (
+      !loadingPosts &&
+      !loadingRandomUser &&
+      !loadingRandomPicture &&
+      dataPosts &&
+      dataRandomUser &&
+      dataRandomPicture
+    ) {
+      setFetchStatus(true);
+    }
+  }, [
+    loadingPosts,
+    loadingRandomUser,
+    loadingRandomPicture,
+    dataPosts,
+    dataRandomUser,
+    dataRandomPicture,
+  ]);
+
   // REFS
   const [secondLastElement, setSecondLastElement] = useState(null);
+  const observer = useRef(null);
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
     // WAIT FOR ALL FETCH CALLS BE PROCCESSED
-    if (!loadingPosts && !loadingRandomUser && !loadingRandomPicture) {
+    if (fetchStatus) {
       setMergedState({
         posts: dataPosts.map((post) => ({
           ...post,
@@ -45,55 +85,42 @@ const Posts = () => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadingPosts, loadingRandomUser, loadingRandomPicture]);
+  }, [fetchStatus]);
 
   useEffect(() => {
-    if (
-      mergedState &&
-      !loadingPosts &&
-      !loadingRandomUser &&
-      !loadingRandomPicture
-    ) {
+    if (mergedState && fetchStatus) {
       setSecondLastElement(
         mergedState.posts.length >= 3
           ? mergedState.posts[mergedState.posts.length - 3]
           : true
       );
     }
-  }, [loadingPosts, loadingRandomPicture, loadingRandomUser, mergedState]);
+  }, [fetchStatus, mergedState]);
 
-  const observer = useRef(null);
-
-  const createObserver = () => {
-    if (observer && observer.current) {
-      let options = {
-        root: null,
-        rootMargin: "0px",
-        threshold: 0.2,
-      };
-
-      const handleIntersect = (entries, observer) => {};
-
-      observer.current = new IntersectionObserver(handleIntersect, options);
-      observer.current.observe();
-    }
-  };
   useEffect(() => {
-    if (
-      observer.current &&
-      mergedState &&
-      !loadingPosts &&
-      !loadingRandomUser &&
-      !loadingRandomPicture
-    ) {
-      if (observer.current) {
-        createObserver();
+    if (fetchStatus) {
+      if (observer && observer.current) {
+        let options = {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0.2,
+        };
+
+        const createdObserver = new IntersectionObserver((entries) => {
+          const post = entries[0];
+          if (!post.isIntersecting) {
+            return;
+          }
+
+          setUsersCount((prevState) => prevState + 5);
+          createdObserver.unobserve(post.target);
+        }, options);
+
+        createdObserver.observe(observer.current);
       }
     }
-  }, [loadingPosts, loadingRandomPicture, loadingRandomUser, mergedState]);
+  }, [fetchStatus]);
 
-  console.log(secondLastElement);
-  console.log(observer.current);
   return (
     <div className="posts-container">
       <div className="posts">
@@ -111,8 +138,7 @@ const Posts = () => {
                   key={post.id}
                   post={post}
                   randomUser={mergedState.dataRandomUser[post.id - 1]}
-                  loadingRandomUser={loadingRandomUser}
-                  loadingRandomPicture={loadingRandomPicture}
+                  fetchStatus={fetchStatus}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
                 />
@@ -121,8 +147,7 @@ const Posts = () => {
                   key={post.id}
                   post={post}
                   randomUser={mergedState.dataRandomUser[post.id - 1]}
-                  loadingRandomUser={loadingRandomUser}
-                  loadingRandomPicture={loadingRandomPicture}
+                  fetchStatus={fetchStatus}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
                 />

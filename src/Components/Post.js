@@ -10,8 +10,7 @@ import useWindowDimensions from "./Hooks/useWindowDimensions";
 const Post = ({
   post,
   randomUser,
-  loadingRandomUser,
-  loadingRandomPicture,
+  fetchStatus,
   setMergedState,
   mergedState,
   observer,
@@ -107,7 +106,7 @@ const Post = ({
 
   return (
     <>
-      {!loadingRandomUser && !loadingRandomPicture && (
+      {fetchStatus && (
         <div className="post" style={commentsDynamicStyles} ref={observer}>
           <div className="post-user">
             <div className="post-user-img">

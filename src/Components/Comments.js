@@ -229,13 +229,13 @@ const Comments = ({
           {commentsObject.comments.dataComments.map((comment, i) => (
             <Comment
               key={comment.id}
+              postID={postID}
               comment={comment}
-              randomUser={commentsObject.comments.dataRandomUser[i]}
               mergedState={mergedState}
+              randomUser={commentsObject.comments.dataRandomUser[i]}
               dataRandomUserLength={dataRandomUser.results.length}
               commentsLength={commentsObject.comments.dataComments.length}
               likeComment={likeComment}
-              postID={postID}
             />
           ))}
         </>
