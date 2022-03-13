@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     gap: 3rem;
     width: 100%;
     color: #fff;
@@ -16,7 +17,7 @@
         }
         .post {
             //   background-color: #1c1e21;
-            background-color: rgb(41, 41, 89);
+            background-color: #1c1e21;
             display: flex;
             justify-content: center;
             align-items: flex-start;

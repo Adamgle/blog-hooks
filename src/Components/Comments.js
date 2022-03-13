@@ -36,6 +36,7 @@ const Comments = ({
                   ...comment,
                   picture: dataRandomUser.results[i].picture.thumbnail,
                   likes: 0,
+                  replies: 0,
                 })),
                 dataRandomUser: dataRandomUser.results,
                 textField: "",
@@ -98,6 +99,8 @@ const Comments = ({
                         name: "",
                         picture: prevState.dataProfile.image,
                         postId: postID,
+                        likes: 0,
+                        replies: 0,
                       },
                       ...post.comments.dataComments,
                     ],
@@ -128,6 +131,29 @@ const Comments = ({
     });
     // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
     setDoTextAreaFocus(false);
+  };
+
+  const likeComment = (postID, commentID) => {
+    setMergedState((prevState) => {
+      return {
+        ...prevState,
+        posts: prevState.posts.map((post) => {
+          return post.id === postID
+            ? {
+                ...post,
+                comments: {
+                  ...post.comments,
+                  dataComments: post.comments.dataComments.map((comment) => {
+                    return commentID === comment.id
+                      ? { ...comment, likes: comment.likes + 1 }
+                      : comment;
+                  }),
+                },
+              }
+            : post;
+        }),
+      };
+    });
   };
 
   // MAKE COMMENT SUBMIT HAPPENDS ON ENTER KEY
@@ -180,14 +206,13 @@ const Comments = ({
             <div className="comment-profile-name">
               <div className="comment-name">{mergedState.dataProfile.name}</div>
               <form
-                className="comment-form"
+                className="comment-form noselect"
                 onKeyDown={(e) => handleKeyPress(e)}
               >
                 <TextAreaAutosizeRef
                   ref={textAreaRef}
-                  handleChange={handleChange}
                   post={post}
-                  setDoTextAreaFocus={setDoTextAreaFocus}
+                  handleChange={handleChange}
                   doTextAreaFocus={doTextAreaFocus}
                 />
                 <div className="comment-publish-container">
@@ -209,6 +234,8 @@ const Comments = ({
               mergedState={mergedState}
               dataRandomUserLength={dataRandomUser.results.length}
               commentsLength={commentsObject.comments.dataComments.length}
+              likeComment={likeComment}
+              postID={postID}
             />
           ))}
         </>

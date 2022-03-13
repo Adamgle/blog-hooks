@@ -14,6 +14,7 @@ const Post = ({
   loadingRandomPicture,
   setMergedState,
   mergedState,
+  observer,
 }) => {
   // STATES
   const [showComments, setShowComments] = useState(false);
@@ -107,7 +108,7 @@ const Post = ({
   return (
     <>
       {!loadingRandomUser && !loadingRandomPicture && (
-        <div className="post" style={commentsDynamicStyles}>
+        <div className="post" style={commentsDynamicStyles} ref={observer}>
           <div className="post-user">
             <div className="post-user-img">
               <img src={randomUser.picture.thumbnail} alt="user thumbnail" />
@@ -138,8 +139,7 @@ const Post = ({
               {upperCaseFirst(post.body, true)} {concatFetchDataRef.current}
             </p>
           </div>
-          {/* noselect */}
-          <div className="post-likes-comments-share-count ">
+          <div className="post-likes-comments-share-count noselect">
             <div className="post-likes-count-container post-interaction-count">
               Likes
               <div className="post-likes-count">{likes}</div>
@@ -160,8 +160,7 @@ const Post = ({
               </div>
             </div>
           </div>
-          {/* noselect */}
-          <div className="post-likes-comments-share-buttons ">
+          <div className="post-likes-comments-share-buttons noselect">
             <div className="post-likes-comments-share-buttons-inner-container">
               <div className="post-likes-container">
                 <button

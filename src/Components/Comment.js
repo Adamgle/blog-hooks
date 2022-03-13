@@ -6,6 +6,8 @@ const Comment = ({
   mergedState,
   dataRandomUserLength,
   commentsLength,
+  likeComment,
+  postID,
 }) => {
   // STATE
   const [commentData, setCommentData] = useState(
@@ -40,11 +42,13 @@ const Comment = ({
           {upperCaseFirst(comment.body, true)}
         </div>
       </div>
-      {/* noselect */}
-      <div className="comment-interactions">
+      <div className="comment-interactions noselect">
         <div className="comment-interactions-container">
           <div className="comment-interaction-like-container comment-interaction-container">
-            <button className="comment-interaction-like comment-interaction">
+            <button
+              className="comment-interaction-like comment-interaction"
+              onClick={() => likeComment(postID, comment.id)}
+            >
               Like it!
             </button>
           </div>
@@ -58,13 +62,13 @@ const Comment = ({
           <div className="comment-interactions-likes-container comment-interaction-count-container">
             Likes
             <div className="comment-interactions-likes-count comment-interaction-count">
-              {/* {comment.likes} */} 0
+              {comment.likes}
             </div>
           </div>
           <div className="comment-interactions-replies-container comment-interaction-count-container">
             Replies
             <div className="comment-interactions-replies-count comment-interaction-count">
-              {/* {comment.replyCount} */} 0
+              {comment.replies}
             </div>
           </div>
         </div>

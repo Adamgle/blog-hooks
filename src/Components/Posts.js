@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useFetch } from "./Hooks/useFetch";
 import Post from "./Post";
 
 const Posts = () => {
   // STATE
-  const [usersCount, setUsersCount] = useState(100);
+  const [usersCount, setUsersCount] = useState(15);
   const [mergedState, setMergedState] = useState(null);
 
   // DB'S
@@ -18,6 +18,9 @@ const Posts = () => {
     useFetch(dbRandomUser);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
+
+  // REFS
+  const [secondLastElement, setSecondLastElement] = useState(null);
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
@@ -41,29 +44,90 @@ const Posts = () => {
         isAdmin: false,
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingPosts, loadingRandomUser, loadingRandomPicture]);
 
+  useEffect(() => {
+    if (
+      mergedState &&
+      !loadingPosts &&
+      !loadingRandomUser &&
+      !loadingRandomPicture
+    ) {
+      setSecondLastElement(
+        mergedState.posts.length >= 3
+          ? mergedState.posts[mergedState.posts.length - 3]
+          : true
+      );
+    }
+  }, [loadingPosts, loadingRandomPicture, loadingRandomUser, mergedState]);
+
+  const observer = useRef(null);
+
+  const createObserver = () => {
+    if (observer && observer.current) {
+      let options = {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.2,
+      };
+
+      const handleIntersect = (entries, observer) => {};
+
+      observer.current = new IntersectionObserver(handleIntersect, options);
+      observer.current.observe();
+    }
+  };
+  useEffect(() => {
+    if (
+      observer.current &&
+      mergedState &&
+      !loadingPosts &&
+      !loadingRandomUser &&
+      !loadingRandomPicture
+    ) {
+      if (observer.current) {
+        createObserver();
+      }
+    }
+  }, [loadingPosts, loadingRandomPicture, loadingRandomUser, mergedState]);
+
+  console.log(secondLastElement);
+  console.log(observer.current);
   return (
     <div className="posts-container">
       <div className="posts">
         {loadingPosts ||
         loadingRandomUser ||
         loadingRandomPicture ||
-        !mergedState
+        !mergedState ||
+        !secondLastElement
           ? "Loading..."
           : // dataPosts as State
-            mergedState.posts.map((post, i) => (
-              <Post
-                key={post.id}
-                post={post}
-                randomUser={mergedState.dataRandomUser[post.id - 1]}
-                loadingRandomUser={loadingRandomUser}
-                loadingRandomPicture={loadingRandomPicture}
-                setMergedState={setMergedState}
-                mergedState={mergedState}
-              />
-            ))}
+            mergedState.posts.map((post, i) =>
+              post.id === secondLastElement.id ? (
+                <Post
+                  observer={observer}
+                  key={post.id}
+                  post={post}
+                  randomUser={mergedState.dataRandomUser[post.id - 1]}
+                  loadingRandomUser={loadingRandomUser}
+                  loadingRandomPicture={loadingRandomPicture}
+                  setMergedState={setMergedState}
+                  mergedState={mergedState}
+                />
+              ) : (
+                <Post
+                  key={post.id}
+                  post={post}
+                  randomUser={mergedState.dataRandomUser[post.id - 1]}
+                  loadingRandomUser={loadingRandomUser}
+                  loadingRandomPicture={loadingRandomPicture}
+                  setMergedState={setMergedState}
+                  mergedState={mergedState}
+                />
+              )
+            )}
       </div>
     </div>
   );
