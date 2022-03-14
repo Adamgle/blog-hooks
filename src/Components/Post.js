@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Comments from "./Comments";
 import {
   upperCaseFirst,
@@ -37,6 +37,15 @@ const Post = ({
 
   // VARS
   const { isRead, likes } = post;
+
+  useEffect(() => {
+    setMergedState((prevState) => ({
+      ...prevState,
+      dataRandomUser: prevState.posts.map((post) => {
+        return { ...randomUser, id: post.id };
+      }),
+    }));
+  }, []); 
 
   const handleShowComments = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
@@ -78,7 +87,7 @@ const Post = ({
       };
     });
   };
-
+  console.log(post);
   // ON ADMIN
   const deletePost = (id) => {
     setMergedState((prevState) => {
@@ -87,10 +96,13 @@ const Post = ({
         posts: prevState.posts.filter((post) => {
           return post.id !== id && post;
         }),
+        dataRandomUser: prevState.dataRandomUser.filter((user) => {
+          return user.id !== id && user;
+        }),
       };
     });
   };
-
+  console.log(randomUser);
   const windowDimensions = useWindowDimensions();
 
   const commentsDynamicStyles = {
@@ -106,7 +118,7 @@ const Post = ({
 
   return (
     <>
-      {fetchStatus && (
+      {fetchStatus && randomUser && (
         <div className="post" style={commentsDynamicStyles} ref={observer}>
           <div className="post-user">
             <div className="post-user-img">

@@ -47,16 +47,7 @@ const Comments = ({
         };
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingComments, loadingRandomUser]);
-
-  // GET CURRENT (IN THIS POST) COMMENTS OBJECT
-  const commentsObject = mergedState.posts.filter((post) => {
-    if (!loadingComments && !loadingRandomUser) {
-      return post.id === postID;
-    }
-    return post;
-  })[0];
 
   const handleChange = (e) => {
     // SET INPUT TEXT ON STATEFULL VALUE
@@ -183,15 +174,16 @@ const Comments = ({
         : `${windowDimensions.width - 67}px`, // >=700 viewport
   };
 
+  console.log(dataComments);
+  console.log(dataRandomUser);
+
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
       style={commentsDynamicStyles}
     >
       <div className="comments-label">Comments</div>
-      {loadingComments ||
-      loadingRandomUser ||
-      !commentsObject.comments.dataComments ? (
+      {loadingComments || loadingRandomUser || !post.comments.dataComments ? (
         // WAIT FOR ALL APIS AND STATE MERGES, THEN DISPLAY DATA
         // IF AT LEAST ONE OF THEM ARE FALSE THEN DISPLAY "LOADING..."
         "Loading..."
@@ -226,15 +218,15 @@ const Comments = ({
               </form>
             </div>
           </div>
-          {commentsObject.comments.dataComments.map((comment, i) => (
+          {post.comments.dataComments.map((comment, i) => (
             <Comment
               key={comment.id}
               postID={postID}
               comment={comment}
               mergedState={mergedState}
-              randomUser={commentsObject.comments.dataRandomUser[i]}
+              randomUser={post.comments.dataRandomUser[i]}
               dataRandomUserLength={dataRandomUser.results.length}
-              commentsLength={commentsObject.comments.dataComments.length}
+              commentsLength={post.comments.dataComments.length}
               likeComment={likeComment}
             />
           ))}

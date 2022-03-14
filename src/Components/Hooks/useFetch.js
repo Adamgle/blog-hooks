@@ -17,7 +17,7 @@ export const useFetch = (url) => {
     return () => {
       setLoading(false);
     };
-  }, [url]);
+  }, [url, loading]);
 
   return { data, loading };
 };
