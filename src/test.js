@@ -1,47 +1,50 @@
-const cards = document.querySelectorAll(".card");
-const cardContainer = document.querySelector(".card-container");
+// const cards = document.querySelectorAll(".card");
+// const cardContainer = document.querySelector(".card-container");
 
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      entry.target.classList.toggle("card-show", entry.isIntersecting);
-      //   if (entry.isIntersecting) {
-      //     observer.unobserve(entry.target);
-      //   }
-    });
-  },
-  {
-    threshold: 1,
-  }
-);
+// const observer = new IntersectionObserver(
+//   (entries) => {
+//     entries.forEach((entry) => {
+//       entry.target.classList.toggle("card-show", entry.isIntersecting);
+//       //   if (entry.isIntersecting) {
+//       //     observer.unobserve(entry.target);
+//       //   }
+//     });
+//   },
+//   {
+//     threshold: 1,
+//   }
+// );
 
-const lastCardObserver = new IntersectionObserver(
-  (entries) => {
-    const lastCard = entries[0];
-    if (!lastCard.isIntersecting) {
-      return;
-    }
-    loadNewCards();
-    lastCardObserver.unobserve(lastCard.target);
-    lastCardObserver.observe(document.querySelector(".card:last-child"));
-  },
-  {
-    rootMargin: "100px",
-  }
-);
+// const lastCardObserver = new IntersectionObserver(
+//   (entries) => {
+//     const lastCard = entries[0];
+//     if (!lastCard.isIntersecting) {
+//       return;
+//     }
+//     loadNewCards();
+//     lastCardObserver.unobserve(lastCard.target);
+//     lastCardObserver.observe(document.querySelector(".card:last-child"));
+//   },
+//   {
+//     rootMargin: "100px",
+//   }
+// );
 
-lastCardObserver.observe(document.querySelector(".card:last-child"));
+// lastCardObserver.observe(document.querySelector(".card:last-child"));
 
-cards.forEach((card) => {
-  observer.observe(card);
-});
+// cards.forEach((card) => {
+//   observer.observe(card);
+// });
 
-function loadNewCards() {
-  for (let i = 0; i < 10; i++) {
-    const card = document.createElement("div");
-    card.textContent = "New Card";
-    card.classList.add("card");
-    observer.observe(card);
-    cardContainer.append(card);
-  }
-}
+// function loadNewCards() {
+//   for (let i = 0; i < 10; i++) {
+//     const card = document.createElement("div");
+//     card.textContent = "New Card";
+//     card.classList.add("card");
+//     observer.observe(card);
+//     cardContainer.append(card);
+//   }
+// }
+
+let arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+console.log(arr.slice(arr.length - 5));

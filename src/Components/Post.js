@@ -14,6 +14,7 @@ const Post = ({
   setMergedState,
   mergedState,
   observer,
+
 }) => {
   // STATES
   const [showComments, setShowComments] = useState(false);
@@ -38,14 +39,14 @@ const Post = ({
   // VARS
   const { isRead, likes } = post;
 
-  useEffect(() => {
-    setMergedState((prevState) => ({
-      ...prevState,
-      dataRandomUser: prevState.posts.map((post) => {
-        return { ...randomUser, id: post.id };
-      }),
-    }));
-  }, []); 
+  // useEffect(() => {
+  //   setMergedState((prevState) => ({
+  //     ...prevState,
+  //     dataRandomUser: prevState.posts.map((post) => {
+  //       return { ...randomUser, id: post.id };
+  //     }),
+  //   }));
+  // }, [reactiveRandomUsers, reactiveDataPosts]);
 
   const handleShowComments = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
@@ -87,7 +88,6 @@ const Post = ({
       };
     });
   };
-  console.log(post);
   // ON ADMIN
   const deletePost = (id) => {
     setMergedState((prevState) => {
@@ -102,7 +102,6 @@ const Post = ({
       };
     });
   };
-  console.log(randomUser);
   const windowDimensions = useWindowDimensions();
 
   const commentsDynamicStyles = {
@@ -115,6 +114,10 @@ const Post = ({
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
+
+  if (!fetchStatus && !randomUser) {
+    console.log("post Error")
+  }
 
   return (
     <>

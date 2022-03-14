@@ -176,16 +176,17 @@ const Comments = ({
 
   console.log(dataComments);
   console.log(dataRandomUser);
-
+  console.log(loadingComments, loadingRandomUser, post.comments.dataComments);
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}
       style={commentsDynamicStyles}
     >
       <div className="comments-label">Comments</div>
+      {/* false false, []*/}
       {loadingComments || loadingRandomUser || !post.comments.dataComments ? (
         // WAIT FOR ALL APIS AND STATE MERGES, THEN DISPLAY DATA
-        // IF AT LEAST ONE OF THEM ARE FALSE THEN DISPLAY "LOADING..."
+        // IF AT LEAST ONE OF THEM ARE FALSY THEN DISPLAY "LOADING..."
         "Loading..."
       ) : (
         <>

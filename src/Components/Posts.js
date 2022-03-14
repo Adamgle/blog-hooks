@@ -70,44 +70,119 @@ const Posts = () => {
 
   useEffect(() => {
     if (fetchStatus) {
-      setReactiveDataPosts(dataPosts);
-      setReactiveRandomUsers(dataRandomUser);
+      // dataPosts.slice(dataPosts.length - 5);
+      // dataRandomUser.results.slice(dataRandomUser.results.length - 5);
+
+      setReactiveDataPosts(dataPosts.slice(dataPosts.length - 5));
+      setReactiveRandomUsers(
+        dataRandomUser.results.slice(dataRandomUser.results.length - 5)
+      );
     }
   }, [dataPosts, dataRandomUser]);
 
-  // console.log(reactiveDataPosts);
-  // console.log(reactiveRandomUsers);
+  console.log(reactiveDataPosts);
+  console.log(reactiveRandomUsers);
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
     // WAIT FOR ALL FETCH CALLS BE PROCCESSED
+
     if (fetchStatus) {
-      if (reactiveDataPosts && reactiveRandomUsers) {
-        if (reactiveDataPosts.length !== reactiveRandomUsers.results.length) {
-          return;
-        } else {
-          setMergedState({
-            posts: reactiveDataPosts.map((post) => ({
-              ...post,
-              comments: {},
-              likes: 0,
-              isRead: false,
-            })),
-            dataRandomUser: reactiveRandomUsers.results,
-            dataRandomPicture: dataRandomPicture,
-            dataProfile: {
-              name: "Adam",
-              image:
-                "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
-              email: "adam.dev@gmail.com",
-            },
-            isAdmin: false,
-          });
-        }
+      // if (
+      //   reactiveDataPosts &&
+      //   reactiveRandomUsers &&
+      //   reactiveDataPosts.length &&
+      //   reactiveRandomUsers.length
+      // ) {
+      //   setMergedState((prevState) => {
+      //     console.log("if");
+      //     return {
+      //       posts: [
+      //         ...prevState.posts,
+      //         ...reactiveDataPosts.map((post) => ({
+      //           ...post,
+      //           comments: {},
+      //           likes: 0,
+      //           isRead: false,
+      //         })),
+      //       ],
+      //       dataRandomUser: [
+      //         ...prevState.dataRandomUser,
+      //         ...reactiveRandomUsers,
+      //       ],
+      //       dataRandomPicture: dataRandomPicture,
+      //       dataProfile: {
+      //         name: "Adam",
+      //         image:
+      //           "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+      //         email: "adam.dev@gmail.com",
+      //       },
+      //       isAdmin: false,
+      //     };
+      //   });
+      // } else {
+      if (dataPosts.length !== dataRandomUser.results.length) {
+        return;
       }
+      setMergedState({
+        posts: dataPosts.map((post) => ({
+          ...post,
+          comments: {},
+          likes: 0,
+          isRead: false,
+        })),
+        dataRandomUser: dataRandomUser.results,
+        dataRandomPicture: dataRandomPicture,
+        dataProfile: {
+          name: "Adam",
+          image:
+            "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+          email: "adam.dev@gmail.com",
+        },
+        isAdmin: false,
+      });
     }
     // PROBABLY GOOD CODE THERE
-  }, [reactiveDataPosts, reactiveRandomUsers]);
+  }, [dataPosts, dataRandomUser]);
+
+  // SHIT SHIT SHIT SHIT SHIT SHIT SHIT SHIT SHIT
+  // useEffect(() => {
+  //   if (fetchStatus) {
+  //     if (
+  //       reactiveDataPosts &&
+  //       reactiveRandomUsers &&
+  //       reactiveDataPosts.length &&
+  //       reactiveRandomUsers.length
+  //     ) {
+  //       setMergedState((prevState) => {
+  //         console.log("if");
+  //         return {
+  //           posts: [
+  //             ...prevState.posts,
+  //             ...reactiveDataPosts.map((post) => ({
+  //               ...post,
+  //               comments: {},
+  //               likes: 0,
+  //               isRead: false,
+  //             })),
+  //           ],
+  //           dataRandomUser: [
+  //             ...prevState.dataRandomUser,
+  //             ...reactiveRandomUsers,
+  //           ],
+  //           dataRandomPicture: dataRandomPicture,
+  //           dataProfile: {
+  //             name: "Adam",
+  //             image:
+  //               "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+  //             email: "adam.dev@gmail.com",
+  //           },
+  //           isAdmin: false,
+  //         };
+  //       });
+  //     }
+  //   }
+  // }, [reactiveDataPosts, reactiveRandomUsers]);
 
   useEffect(() => {
     if (mergedState && fetchStatus) {
@@ -138,7 +213,7 @@ const Posts = () => {
             return;
           }
 
-          setUsersCount(reactiveDataPosts.length + 5);
+          setUsersCount((prevState) => prevState + 5);
           createdObserver.unobserve(post.target);
           createdObserver.disconnect();
         }, options);
@@ -182,6 +257,9 @@ const Posts = () => {
                 />
               );
             })}
+        {fetchStatus && dataPosts.length !== dataRandomUser.results.length && (
+          <div className="await">Fetching Data...</div>
+        )}
       </div>
     </div>
   );
