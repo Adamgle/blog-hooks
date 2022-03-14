@@ -16,6 +16,12 @@ const Posts = () => {
   const [reactiveDataPosts, setReactiveDataPosts] = useState(null);
   const [reactiveRandomUsers, setReactiveRandomUsers] = useState(null);
 
+  // LAST SECOND POST
+  const [secondLastElement, setSecondLastElement] = useState(null);
+
+  // REFS
+  const observer = useRef(null);
+
   // LOAD DATABASES
   useEffect(() => {
     setDbPosts(
@@ -23,7 +29,7 @@ const Posts = () => {
     );
     setDbRandomUser(`https://randomuser.me/api/?results=${usersCount}&noinfo`);
     setDbRandomPicture(`https://picsum.photos/v2/list?page=2&limit=100`);
-  }, []);
+  }, [usersCount]);
 
   console.log(dbPosts, fetchStatus);
   console.log(dbRandomUser, fetchStatus);
@@ -36,6 +42,9 @@ const Posts = () => {
     useFetch(dbRandomUser);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
+  console.log(dataPosts);
+  console.log(dataRandomUser);
+  console.log(dataRandomPicture);
 
   useEffect(() => {
     // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
@@ -57,10 +66,6 @@ const Posts = () => {
     dataRandomUser,
     dataRandomPicture,
   ]);
-
-  // REFS
-  const [secondLastElement, setSecondLastElement] = useState(null);
-  const observer = useRef(null);
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
@@ -84,8 +89,42 @@ const Posts = () => {
         isAdmin: false,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchStatus]);
+    // PROBABLY GOOD CODE THERE
+  }, [fetchStatus, dbPosts, dbRandomUser]);
+
+  useEffect(() => {
+    if (fetchStatus) {
+      const createObserver = () => {
+        if (observer && observer.current) {
+          const options = {
+            root: null,
+            rootMargin: "0px",
+            threshold: 0.2,
+          };
+
+          const createdObserver = new IntersectionObserver((entries) => {
+            const post = entries[0];
+            if (usersCount >= 100) {
+              createdObserver.disconnect();
+              return;
+            }
+            if (!post.isIntersecting) {
+              return;
+            }
+
+            setUsersCount((prevState) => prevState + 5);
+
+            createdObserver.unobserve(post.target);
+            createdObserver.disconnect();
+          }, options);
+
+          createdObserver.observe(observer.current);
+        }
+        return null;
+      };
+      createObserver();
+    }
+  }, [fetchStatus, secondLastElement]);
 
   useEffect(() => {
     if (mergedState && fetchStatus) {
@@ -96,30 +135,6 @@ const Posts = () => {
       );
     }
   }, [fetchStatus, mergedState]);
-
-  useEffect(() => {
-    if (fetchStatus) {
-      if (observer && observer.current) {
-        let options = {
-          root: null,
-          rootMargin: "0px",
-          threshold: 0.2,
-        };
-
-        const createdObserver = new IntersectionObserver((entries) => {
-          const post = entries[0];
-          if (!post.isIntersecting) {
-            return;
-          }
-
-          setUsersCount((prevState) => prevState + 5);
-          createdObserver.unobserve(post.target);
-        }, options);
-
-        createdObserver.observe(observer.current);
-      }
-    }
-  }, [fetchStatus]);
 
   return (
     <div className="posts-container">
