@@ -29,6 +29,7 @@ const Posts = () => {
   );
 
   // REFS
+
   // LAST SECOND POST
   const [secondLastElement, setSecondLastElement] = useState(null);
   // REF TO OBSERVER
@@ -42,7 +43,7 @@ const Posts = () => {
     setDbRandomUser(
       `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
     );
-  }, [fetchCount, pageNumber, usersSeed, beenFullRequested]);
+  }, [fetchCount, pageNumber, usersSeed]);
 
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
@@ -95,7 +96,7 @@ const Posts = () => {
                     ...prevState.posts,
                     ...dataPosts.map((post) => ({
                       ...post,
-                      id: nanoid(),
+                      id: post.id,
                       comments: {},
                       likes: 0,
                       isRead: false,
@@ -103,22 +104,15 @@ const Posts = () => {
                   ]
                 : dataPosts.map((post) => ({
                     ...post,
-                    id: nanoid(),
+                    id: post.id,
                     comments: {},
                     likes: 0,
                     isRead: false,
                   })),
             dataRandomUser:
               prevState && prevState.dataRandomUser
-                ? [
-                    ...prevState.dataRandomUser,
-                    ...dataRandomUser.results.map((users) => {
-                      return { ...users, id: nanoid() };
-                    }),
-                  ]
-                : dataRandomUser.results.map((users) => {
-                    return { ...users, id: nanoid() };
-                  }),
+                ? [...prevState.dataRandomUser, ...dataRandomUser.results]
+                : dataRandomUser.results,
             dataRandomPicture: dataRandomPicture,
             dataProfile: {
               name: "Adam",
@@ -131,7 +125,6 @@ const Posts = () => {
         });
       }
     }
-    // PROBABLY GOOD CODE THERE
   }, [
     fetchStatus,
     dataPosts,
@@ -163,14 +156,10 @@ const Posts = () => {
 
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
-          // if (mergedState.posts.length >= 100) {
-          //   createdObserver.disconnect();
-          //   return;
-          // }
           if (!post.isIntersecting) {
             return;
           }
-          // TODO -> RANDOMIZE THERE
+
           setUrlDeps((prevState) => {
             if (prevState) {
               return {
@@ -212,18 +201,30 @@ const Posts = () => {
                   key={post.id}
                   post={post}
                   randomUser={mergedState.dataRandomUser[i]}
-                  fetchStatus={fetchStatus}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
+                  fetchStatus={fetchStatus}
+                  dataPosts={dataPosts}
+                  dataRandomPicture={dataRandomPicture}
+                  dataRandomUser={dataRandomUser}
+                  loadingPosts={loadingPosts}
+                  loadingRandomPicture={loadingRandomPicture}
+                  loadingRandomUser={loadingRandomUser}
                 />
               ) : (
                 <Post
                   key={post.id}
                   post={post}
                   randomUser={mergedState.dataRandomUser[i]}
-                  fetchStatus={fetchStatus}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
+                  fetchStatus={fetchStatus}
+                  dataPosts={dataPosts}
+                  dataRandomPicture={dataRandomPicture}
+                  dataRandomUser={dataRandomUser}
+                  loadingPosts={loadingPosts}
+                  loadingRandomPicture={loadingRandomPicture}
+                  loadingRandomUser={loadingRandomUser}
                 />
               );
             })}

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Comments from "./Comments";
 import {
   upperCaseFirst,
@@ -6,6 +6,7 @@ import {
   concatFetchedContent,
 } from "./_parsingFunctions";
 import useWindowDimensions from "./Hooks/useWindowDimensions";
+import { nanoid } from "nanoid";
 
 const Post = ({
   post,
@@ -14,7 +15,12 @@ const Post = ({
   setMergedState,
   mergedState,
   observer,
-
+  dataPosts,
+  dataRandomPicture,
+  dataRandomUser,
+  loadingPosts,
+  loadingRandomPicture,
+  loadingRandomUser,
 }) => {
   // STATES
   const [showComments, setShowComments] = useState(false);
@@ -38,14 +44,17 @@ const Post = ({
   // VARS
   const { isRead, likes } = post;
 
+  // SHIT
   // useEffect(() => {
-  //   setMergedState((prevState) => ({
-  //     ...prevState,
-  //     dataRandomUser: prevState.posts.map((post) => {
-  //       return { ...randomUser, id: post.id };
-  //     }),
-  //   }));
-  // }, [reactiveRandomUsers, reactiveDataPosts]);
+  //   setMergedState((prevState) => {
+  //     return {
+  //       ...prevState,
+  //       dataRandomUser: prevState.dataRandomUser.map((user) => {
+  //         return { ...user, id: post.id };
+  //       }),
+  //     };
+  //   });
+  // }, []);
 
   const handleShowComments = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
@@ -115,7 +124,7 @@ const Post = ({
   };
 
   if (!fetchStatus && !randomUser) {
-    console.log("post Error")
+    console.log("post Error");
   }
 
   return (
