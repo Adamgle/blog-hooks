@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Comments from "./Comments";
 import {
   upperCaseFirst,
@@ -20,7 +20,6 @@ const Post = ({
   const [showComments, setShowComments] = useState(false);
   const [beenShown, setBeenShown] = useState(false);
   const [commentsCounter, setCommentsCounter] = useState(0);
-
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(

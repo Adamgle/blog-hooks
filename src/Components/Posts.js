@@ -1,18 +1,21 @@
+import { nanoid } from "nanoid";
 import React, { useState, useEffect, useRef } from "react";
 import { useFetch } from "./Hooks/useFetch";
 import Post from "./Post";
 
 const Posts = () => {
   // STATE
-
   const [{ fetchCount, pageNumber }, setUrlDeps] = useState({
     fetchCount: 0,
     pageNumber: 1,
   });
   const [mergedState, setMergedState] = useState(null);
   const [fetchStatus, setFetchStatus] = useState(false);
-  const [storeState, setStoreState] = useState(null);
+  const [beenFullRequested, setBeenFullRequested] = useState(null);
+
   const { current: usersSeed } = useRef("usersSeed");
+
+  console.log(mergedState);
 
   // DB'S
   const [dbPosts, setDbPosts] = useState(
@@ -39,11 +42,7 @@ const Posts = () => {
     setDbRandomUser(
       `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
     );
-  }, [fetchCount, pageNumber, usersSeed]);
-
-  // https://jsonplaceholder.typicode.com/posts?_start=10&_limit=5
-
-  // console.log(mergedState);
+  }, [fetchCount, pageNumber, usersSeed, beenFullRequested]);
 
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
@@ -51,16 +50,6 @@ const Posts = () => {
     useFetch(dbRandomUser);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
-
-  // console.log(loadingPosts, loadingRandomUser, loadingRandomPicture);
-
-  // useEffect(() => {
-  //   if (fetchStatus) {
-  //     setStoreState({
-
-  //     });
-  //   }
-  // }, [dataPosts, dataRandomUser]);
 
   useEffect(() => {
     // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
@@ -74,30 +63,6 @@ const Posts = () => {
       dataRandomPicture
     ) {
       setFetchStatus(true);
-      setStoreState((prevState) => {
-        console.log(prevState);
-        if (
-          prevState &&
-          prevState.postsData &&
-          prevState.postsData.length &&
-          prevState.randomUsersData &&
-          prevState.randomUsersData.length
-        ) {
-          console.log("storestate");
-          return {
-            postsData: [...prevState.postsData, ...dataPosts],
-            randomUsersData: [
-              ...prevState.randomUsersData,
-              ...dataRandomUser.results,
-            ],
-          };
-        } else {
-          return {
-            postsData: dataPosts,
-            randomUsersData: dataRandomUser.results,
-          };
-        }
-      });
     }
   }, [
     loadingPosts,
@@ -114,16 +79,46 @@ const Posts = () => {
     if (fetchStatus) {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
-      } else {
+      } else if (
+        !loadingPosts &&
+        !loadingRandomUser &&
+        dataPosts &&
+        dataRandomUser &&
+        dataRandomUser.results.length
+      ) {
+        console.log("worlking");
         setMergedState((prevState) => {
           return {
-            posts: dataPosts.map((post) => ({
-              ...post,
-              comments: {},
-              likes: 0,
-              isRead: false,
-            })),
-            dataRandomUser: dataRandomUser.results,
+            posts:
+              prevState && prevState.posts
+                ? [
+                    ...prevState.posts,
+                    ...dataPosts.map((post) => ({
+                      ...post,
+                      id: nanoid(),
+                      comments: {},
+                      likes: 0,
+                      isRead: false,
+                    })),
+                  ]
+                : dataPosts.map((post) => ({
+                    ...post,
+                    id: nanoid(),
+                    comments: {},
+                    likes: 0,
+                    isRead: false,
+                  })),
+            dataRandomUser:
+              prevState && prevState.dataRandomUser
+                ? [
+                    ...prevState.dataRandomUser,
+                    ...dataRandomUser.results.map((users) => {
+                      return { ...users, id: nanoid() };
+                    }),
+                  ]
+                : dataRandomUser.results.map((users) => {
+                    return { ...users, id: nanoid() };
+                  }),
             dataRandomPicture: dataRandomPicture,
             dataProfile: {
               name: "Adam",
@@ -137,32 +132,15 @@ const Posts = () => {
       }
     }
     // PROBABLY GOOD CODE THERE
-  }, [fetchStatus]);
-
-  useEffect(() => {
-    if (storeState) {
-        setMergedState((prevState) => {
-          return {
-            ...prevState,
-            posts: storeState.postsData.map((post) => ({
-              ...post,
-              comments: {},
-              likes: 0,
-              isRead: false,
-            })),
-            dataRandomUser: storeState.randomUsersData,
-          };
-        });
-    }
-  }, [storeState]);
-
-  console.log(storeState);
-  console.log(mergedState);
-
-  if (fetchStatus) {
-    console.log(dataPosts);
-    console.log(dataRandomUser.results);
-  }
+  }, [
+    fetchStatus,
+    dataPosts,
+    dataRandomPicture,
+    dataRandomUser,
+    loadingPosts,
+    loadingRandomPicture,
+    loadingRandomUser,
+  ]);
 
   useEffect(() => {
     if (mergedState && fetchStatus) {
@@ -179,24 +157,32 @@ const Posts = () => {
       if (observer && observer.current) {
         const options = {
           root: null,
-          rootMargin: "0px",
+          rootMargin: "300px 0px 0px 0px",
           threshold: 0.2,
         };
 
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
-          if (mergedState.posts.length >= 100) {
-            createdObserver.disconnect();
-            return;
-          }
+          // if (mergedState.posts.length >= 100) {
+          //   createdObserver.disconnect();
+          //   return;
+          // }
           if (!post.isIntersecting) {
             return;
           }
-
-          setUrlDeps((prevState) => ({
-            fetchCount: prevState.fetchCount + 5,
-            pageNumber: prevState.pageNumber + 1,
-          }));
+          // TODO -> RANDOMIZE THERE
+          setUrlDeps((prevState) => {
+            if (prevState) {
+              return {
+                fetchCount: beenFullRequested
+                  ? Math.trunc(Math.random() * 95)
+                  : prevState.fetchCount + 5,
+                pageNumber: beenFullRequested
+                  ? Math.trunc(Math.random() * 19)
+                  : prevState.pageNumber + 1,
+              };
+            }
+          });
 
           createdObserver.unobserve(post.target);
           createdObserver.disconnect();
@@ -205,7 +191,13 @@ const Posts = () => {
         createdObserver.observe(observer.current);
       }
     }
-  }, [secondLastElement]);
+  }, [fetchStatus, secondLastElement, beenFullRequested]);
+
+  useEffect(() => {
+    if (fetchCount >= 95 && pageNumber >= 19) {
+      setBeenFullRequested(true);
+    }
+  }, [fetchCount, pageNumber]);
 
   return (
     <div className="posts-container">
@@ -213,13 +205,13 @@ const Posts = () => {
         {!fetchStatus || !mergedState || !secondLastElement
           ? "Loading..."
           : // dataPosts as State
-            mergedState.posts.map((post) => {
+            mergedState.posts.map((post, i) => {
               return post.id === secondLastElement.id ? (
                 <Post
                   observer={observer}
                   key={post.id}
                   post={post}
-                  randomUser={mergedState.dataRandomUser[post.id - 1]}
+                  randomUser={mergedState.dataRandomUser[i]}
                   fetchStatus={fetchStatus}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
@@ -228,7 +220,7 @@ const Posts = () => {
                 <Post
                   key={post.id}
                   post={post}
-                  randomUser={mergedState.dataRandomUser[post.id - 1]}
+                  randomUser={mergedState.dataRandomUser[i]}
                   fetchStatus={fetchStatus}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
