@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
 const Comment = ({
-  comment,
+  currentComment,
+  currentPost,
   randomUser,
   mergedState,
   dataRandomUserLength,
   commentsLength,
-  likeComment,
-  postID,
+  setMergedState,
 }) => {
   // STATE
-  const [commentData, setCommentData] = useState(
+  const [commentData] = useState(
     dataRandomUserLength === commentsLength
       ? {
           date: randomDate(),
@@ -23,6 +23,29 @@ const Comment = ({
           name: mergedState.dataProfile.name,
         }
   );
+
+  const likeComment = () => {
+    setMergedState((prevState) => {
+      return {
+        ...prevState,
+        posts: prevState.posts.map((post) => {
+          return post.id === currentPost.id
+            ? {
+                ...post,
+                comments: {
+                  ...post.comments,
+                  dataComments: post.comments.dataComments.map((comment) => {
+                    return comment.id === currentComment.id
+                      ? { ...comment, likes: comment.likes + 1 }
+                      : comment;
+                  }),
+                },
+              }
+            : post;
+        }),
+      };
+    });
+  };
 
   return (
     <div className="comment">
@@ -39,7 +62,7 @@ const Comment = ({
           </div>
         </div>
         <div className="comment-content">
-          {upperCaseFirst(comment.body, true)}
+          {upperCaseFirst(currentComment.body, true)}
         </div>
       </div>
       <div className="comment-interactions noselect">
@@ -47,7 +70,7 @@ const Comment = ({
           <div className="comment-interaction-like-container comment-interaction-container">
             <button
               className="comment-interaction-like comment-interaction"
-              onClick={() => likeComment(postID, comment.id)}
+              onClick={() => likeComment(currentComment.id, currentPost.id)}
             >
               Like it!
             </button>
@@ -62,13 +85,13 @@ const Comment = ({
           <div className="comment-interactions-likes-container comment-interaction-count-container">
             Likes
             <div className="comment-interactions-likes-count comment-interaction-count">
-              {comment.likes}
+              {currentComment.likes}
             </div>
           </div>
           <div className="comment-interactions-replies-container comment-interaction-count-container">
             Replies
             <div className="comment-interactions-replies-count comment-interaction-count">
-              {comment.replies}
+              {currentComment.replies}
             </div>
           </div>
         </div>

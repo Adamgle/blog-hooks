@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect, useRef } from "react";
 import { useFetch } from "./Hooks/useFetch";
+import useWindowDimensions from "./Hooks/useWindowDimensions";
 import Post from "./Post";
 
 const Posts = () => {
@@ -13,19 +14,19 @@ const Posts = () => {
   const [fetchStatus, setFetchStatus] = useState(false);
   const [beenFullRequested, setBeenFullRequested] = useState(null);
   const [intersecting, setIntersecting] = useState(false);
-  const [{ fetchCountValue, pageNumberValue }, setFetchDeps] = useState({
+  const [{ fetchCountValue, pageNumberValue }, setUrlDepsValues] = useState({
     fetchCountValue: 0,
     pageNumberValue: 1,
   });
 
+  console.log(mergedState);
+
   // REFS
   // LAST SECOND POST
-  const [secondLastElement, setSecondLastElement] = useState(null);
+  const [lastElement, setLastElement] = useState(null);
   // REF TO OBSERVER
   const observer = useRef(null);
   const { current: usersSeed } = useRef("usersSeed");
-
-  console.log(mergedState);
 
   // DB'S
   const [dbPosts, setDbPosts] = useState(
@@ -34,9 +35,12 @@ const Posts = () => {
   const [dbRandomUser, setDbRandomUser] = useState(
     `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
   );
-  const [dbRandomPicture, setDbRandomPicture] = useState(
+  const [dbRandomPicture] = useState(
     `https://picsum.photos/v2/list?page=2&limit=100`
   );
+
+  // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
+  const windowDimensions = useWindowDimensions();
 
   // LOAD DATABASES
   useEffect(() => {
@@ -83,14 +87,17 @@ const Posts = () => {
     if (fetchStatus) {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
-      } else if (
+      }
+      // ELSE IF IS PERFORMED FOR INFINITY SCROLLING,
+      // WHEN USER GOES ALL THE WAY DOWN THE PAGE, ANOTHER 5 POSTS
+      // WILL BE FETCHED AND STATUS WILL BE DIFFERENT
+      else if (
         !loadingPosts &&
         !loadingRandomUser &&
         dataPosts &&
         dataRandomUser &&
         dataRandomUser.results.length
       ) {
-        console.log("worlking");
         setMergedState((prevState) => {
           return {
             posts:
@@ -99,7 +106,8 @@ const Posts = () => {
                     ...prevState.posts,
                     ...dataPosts.map((post) => ({
                       ...post,
-                      id: post.id,
+                      postID: post.id,
+                      id: nanoid(),
                       comments: {},
                       likes: 0,
                       isRead: false,
@@ -107,15 +115,25 @@ const Posts = () => {
                   ]
                 : dataPosts.map((post) => ({
                     ...post,
-                    id: post.id,
+                    postID: post.id,
+                    id: nanoid(),
                     comments: {},
                     likes: 0,
                     isRead: false,
                   })),
             dataRandomUser:
               prevState && prevState.dataRandomUser
-                ? [...prevState.dataRandomUser, ...dataRandomUser.results]
-                : dataRandomUser.results,
+                ? [
+                    ...prevState.dataRandomUser,
+                    ...dataRandomUser.results.map((user) => ({
+                      ...user,
+                      id: nanoid(),
+                    })),
+                  ]
+                : dataRandomUser.results.map((user) => ({
+                    ...user,
+                    id: nanoid(),
+                  })),
             dataRandomPicture: dataRandomPicture,
             dataProfile: {
               name: "Adam",
@@ -140,13 +158,15 @@ const Posts = () => {
 
   useEffect(() => {
     if (mergedState && fetchStatus) {
-      setSecondLastElement(
-        mergedState.posts.length >= 3
-          ? mergedState.posts[mergedState.posts.length - 1]
-          : true
-      );
+      setLastElement(mergedState.posts[mergedState.posts.length - 1]);
     }
   }, [fetchStatus, mergedState]);
+
+  // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
+  // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
+  // USE EFFECT WITH urlDepsValues VALUES IN STATEMENT WILL BE DIFFERENT ON
+  // ANOTHER RENDER WHEN CONDITION IS MET, SO THE POSTS WILL BE JUST
+  // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH REDENR WILL BE BROKEN
 
   useEffect(() => {
     if (fetchCountValue >= 100 || pageNumberValue >= 21) {
@@ -154,9 +174,12 @@ const Posts = () => {
     }
   }, [fetchCountValue, pageNumberValue]);
 
+  // SETS URL DEPS VALUES, AND MAKES IT STATEFULL
+  // THIS IS DIFFERENT 'CAUSE THIS IS JUST THE VALUE
   useEffect(() => {
+    // IF (INTERSECTING) -> FETCH CALL WILL BE PERFORMED
     if (intersecting) {
-      setFetchDeps((prevState) => {
+      setUrlDepsValues((prevState) => {
         if (beenFullRequested) {
           return {
             fetchCountValue: Math.trunc(Math.random() * 95),
@@ -177,10 +200,11 @@ const Posts = () => {
       if (observer && observer.current) {
         const options = {
           root: null,
-          rootMargin: "300px 0px 0px 0px",
+          rootMargin: "300px",
           threshold: 0.2,
         };
 
+        // ON EACH FETCH DIFFERENT INTERSECTION_OBSERVER ARE CREATED
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
           setIntersecting(post.isIntersecting);
@@ -204,46 +228,35 @@ const Posts = () => {
         createdObserver.observe(observer.current);
       }
     }
-  }, [fetchStatus, secondLastElement, fetchCountValue, pageNumberValue]);
+  }, [fetchStatus, lastElement, fetchCountValue, pageNumberValue]);
 
   return (
     <div className="posts-container">
       <div className="posts">
-        {!fetchStatus || !mergedState || !secondLastElement
+        {!fetchStatus || !mergedState || !lastElement
           ? "Loading..."
           : // dataPosts as State
             mergedState.posts.map((post, i) => {
-              return post.id === secondLastElement.id ? (
+              return post.id === lastElement.id ? (
                 <Post
                   observer={observer}
                   key={post.id}
-                  post={post}
+                  currentPost={post}
                   randomUser={mergedState.dataRandomUser[i]}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
-                  // Shit down there
                   fetchStatus={fetchStatus}
-                  dataPosts={dataPosts}
-                  dataRandomPicture={dataRandomPicture}
-                  dataRandomUser={dataRandomUser}
-                  loadingPosts={loadingPosts}
-                  loadingRandomPicture={loadingRandomPicture}
-                  loadingRandomUser={loadingRandomUser}
+                  windowDimensions={windowDimensions}
                 />
               ) : (
                 <Post
                   key={post.id}
-                  post={post}
+                  currentPost={post}
                   randomUser={mergedState.dataRandomUser[i]}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
                   fetchStatus={fetchStatus}
-                  dataPosts={dataPosts}
-                  dataRandomPicture={dataRandomPicture}
-                  dataRandomUser={dataRandomUser}
-                  loadingPosts={loadingPosts}
-                  loadingRandomPicture={loadingRandomPicture}
-                  loadingRandomUser={loadingRandomUser}
+                  windowDimensions={windowDimensions}
                 />
               );
             })}

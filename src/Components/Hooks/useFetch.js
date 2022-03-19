@@ -6,7 +6,6 @@ export const useFetch = (url) => {
   useEffect(() => {
     if (url) {
       setState((state) => ({ data: state.data, loading: true }));
-      console.log("fetching");
       fetch(url)
         .then((res) => res.json())
         .then((res) => {

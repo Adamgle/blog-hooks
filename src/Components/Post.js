@@ -1,35 +1,29 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Comments from "./Comments";
 import {
   upperCaseFirst,
   randomDate,
   concatFetchedContent,
 } from "./_parsingFunctions";
-import useWindowDimensions from "./Hooks/useWindowDimensions";
-import { nanoid } from "nanoid";
 
 const Post = ({
-  post,
+  currentPost,
   randomUser,
   fetchStatus,
   setMergedState,
   mergedState,
   observer,
-  dataPosts,
-  dataRandomPicture,
-  dataRandomUser,
-  loadingPosts,
-  loadingRandomPicture,
-  loadingRandomUser,
+  windowDimensions,
 }) => {
   // STATES
   const [showComments, setShowComments] = useState(false);
   const [beenShown, setBeenShown] = useState(false);
   const [commentsCounter, setCommentsCounter] = useState(0);
+
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
-    upperCaseFirst(concatFetchedContent(post.body), true)
+    upperCaseFirst(concatFetchedContent(currentPost.body), true)
   );
   const randomNumberRef = useRef(1 + Math.round(Math.random() * 4));
   const sharesCount = useRef(1 + Math.round(Math.random() * 19));
@@ -42,21 +36,9 @@ const Post = ({
   const textAreaRef = useRef(null);
 
   // VARS
-  const { isRead, likes } = post;
+  const { isRead, likes } = currentPost;
 
-  // SHIT
-  // useEffect(() => {
-  //   setMergedState((prevState) => {
-  //     return {
-  //       ...prevState,
-  //       dataRandomUser: prevState.dataRandomUser.map((user) => {
-  //         return { ...user, id: post.id };
-  //       }),
-  //     };
-  //   });
-  // }, []);
-
-  const handleShowComments = () => {
+  const handleShowCommentsButton = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
       THEN ON THE NEXT CLICK, SHOWCOMMENTS ARE BEENING SET TO FALSE WHILE ->
       BEENSHOWN STATE VARIABLE ARE PERSISTED TO BE TRUE ON EVERY CLICK
@@ -75,7 +57,7 @@ const Post = ({
     }
   };
 
-  const handleAddComment = () => {
+  const handleAddCommentButton = () => {
     // SHOW COMMENTS ON CLICK
     setShowComments(true);
     setBeenShown(true);
@@ -86,31 +68,33 @@ const Post = ({
     }
   };
 
-  const handleLikePost = (id) => {
+  const handleLikePost = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
         posts: prevState.posts.map((post) => {
-          return id === post.id ? { ...post, likes: post.likes + 1 } : post;
+          return currentPost.id === post.id
+            ? { ...post, likes: post.likes + 1 }
+            : post;
         }),
       };
     });
   };
+
   // ON ADMIN
-  const deletePost = (id) => {
+  const deletePost = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
         posts: prevState.posts.filter((post) => {
-          return post.id !== id && post;
+          return post.id !== currentPost.id && post;
         }),
         dataRandomUser: prevState.dataRandomUser.filter((user) => {
-          return user.id !== id && user;
+          return user.id !== randomUser.id && user;
         }),
       };
     });
   };
-  const windowDimensions = useWindowDimensions();
 
   const commentsDynamicStyles = {
     maxWidth:
@@ -122,11 +106,6 @@ const Post = ({
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
-
-  if (!fetchStatus && !randomUser) {
-    console.log("post Error");
-  }
-
   return (
     <>
       {fetchStatus && randomUser && (
@@ -139,10 +118,7 @@ const Post = ({
               <div className="post-user-name">
                 {`${randomUser.name.first} ${randomUser.name.last}`}
                 <div className="post-delete-container">
-                  <button
-                    onClick={() => deletePost(post.id)}
-                    className="post-delete-button"
-                  >
+                  <button onClick={deletePost} className="post-delete-button">
                     Delete
                   </button>
                 </div>
@@ -154,11 +130,12 @@ const Post = ({
             <img src={randomImageRef.current} alt="splash" width="900" />
           </div>
           <div className="post-title">
-            <h3>{upperCaseFirst(post.title)}</h3>
+            <h3>{upperCaseFirst(currentPost.title)}</h3>
           </div>
           <div className="post-content">
             <p>
-              {upperCaseFirst(post.body, true)} {concatFetchDataRef.current}
+              {upperCaseFirst(currentPost.body, true)}
+              {concatFetchDataRef.current}
             </p>
           </div>
           <div className="post-likes-comments-share-count noselect">
@@ -169,7 +146,7 @@ const Post = ({
             <div className="post-comments-shares-container">
               <div
                 className="post-comments-count-container post-interaction-count"
-                onClick={handleShowComments}
+                onClick={handleShowCommentsButton}
               >
                 Comments
                 <div className="post-comments-count">
@@ -187,7 +164,7 @@ const Post = ({
               <div className="post-likes-container">
                 <button
                   className="post-likes post-interaction-button"
-                  onClick={() => handleLikePost(post.id)}
+                  onClick={handleLikePost}
                 >
                   Like it!
                 </button>
@@ -195,7 +172,7 @@ const Post = ({
               <div className="post-show-comments">
                 <button
                   className="post-show-comments-button post-interaction-button "
-                  onClick={handleAddComment}
+                  onClick={handleAddCommentButton}
                 >
                   Add Comment
                 </button>
@@ -209,17 +186,18 @@ const Post = ({
           </div>
           {beenShown && (
             <Comments
-              postID={post.id}
-              post={post}
+              currentPost={currentPost}
+              currentPostID={currentPost.postID}
               mergedState={mergedState}
               setMergedState={setMergedState}
               showComments={showComments}
               setShowComments={setShowComments}
               setCommentsCounter={setCommentsCounter}
-              doTextAreaFocus={doTextAreaFocus}
               setDoTextAreaFocus={setDoTextAreaFocus}
+              doTextAreaFocus={doTextAreaFocus}
               randomNumberRef={randomNumberRef.current}
               textAreaRef={textAreaRef}
+              windowDimensions={windowDimensions}
             />
           )}
         </div>

@@ -9,7 +9,7 @@ const upperCaseFirst = (str, addDot) => {
       addDot &&
       /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(str[str.length - 1]) ===
         false
-        ? "."
+        ? ". "
         : ""
     }`
   );

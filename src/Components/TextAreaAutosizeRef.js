@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 const TextAreaAutosizeRef = React.forwardRef(
-  ({ handleChange, post, doTextAreaFocus }, ref) => {
+  ({ handleChange, currentPost, doTextAreaFocus }, ref) => {
     useEffect(() => {
       const currentRef = ref.current;
       if (doTextAreaFocus) {
@@ -20,7 +20,7 @@ const TextAreaAutosizeRef = React.forwardRef(
         ref={ref}
         className="comment-textarea"
         onChange={(e) => handleChange(e)}
-        value={post.comments.textField}
+        value={currentPost.comments.textField}
         placeholder="Write a comment..."
       />
     );
