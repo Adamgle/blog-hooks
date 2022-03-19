@@ -32,16 +32,19 @@ const Comments = ({
           ...prevState,
           posts: prevState.posts.map((post) => {
             if (post.id === currentPost.id) {
-              post.comments = {
-                dataComments: dataComments.map((comment, i) => ({
-                  ...comment,
-                  id: nanoid(),
-                  picture: dataRandomUser.results[i].picture.thumbnail,
-                  likes: 0,
-                  replies: 0,
-                })),
-                dataRandomUser: dataRandomUser.results,
-                textField: "",
+              return {
+                ...post,
+                comments: {
+                  dataComments: dataComments.map((comment, i) => ({
+                    ...comment,
+                    id: nanoid(),
+                    picture: dataRandomUser.results[i].picture.thumbnail,
+                    likes: 0,
+                    replies: 0,
+                  })),
+                  dataRandomUser: dataRandomUser.results,
+                  textField: "",
+                },
               };
             }
             return post;

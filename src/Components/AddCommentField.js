@@ -18,9 +18,12 @@ const AddCommentField = ({
         ...prevState,
         posts: prevState.posts.map((post) => {
           if (post.id === currentPost.id) {
-            post.comments = {
-              ...post.comments,
-              textField: e.target.value,
+            return {
+              ...post,
+              comments: {
+                ...post.comments,
+                textField: e.target.value,
+              },
             };
           }
           return post;
@@ -72,9 +75,12 @@ const AddCommentField = ({
         ...prevState,
         posts: prevState.posts.map((post) => {
           if (post.id === currentPost.id) {
-            post.comments = {
-              ...post.comments,
-              textField: "",
+            return {
+              ...post,
+              comments: {
+                ...post.comments,
+                textField: "",
+              },
             };
           }
           return post;

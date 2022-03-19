@@ -114,20 +114,33 @@ const Post = ({
             <div className="post-user-img">
               <img src={randomUser.picture.thumbnail} alt="user thumbnail" />
             </div>
-            <div className="post-user-name-date">
-              <div className="post-user-name">
-                {`${randomUser.name.first} ${randomUser.name.last}`}
-                <div className="post-delete-container">
-                  <button onClick={deletePost} className="post-delete-button">
+            <div className="post-user-name-date-container">
+              <div className="post-user-name-date">
+                <div className="post-user-name post-user-label">
+                  {`${randomUser.name.first} ${randomUser.name.last}`}
+                </div>
+                <div className="post-user-date post-user-label">
+                  {randomDateRef.current}
+                </div>
+              </div>
+
+              <div className="post-edit-delete-button">
+                <div className="post-delete-container post-button-container">
+                  <button
+                    onClick={deletePost}
+                    className="post-delete-button post-button"
+                  >
                     Delete
                   </button>
                 </div>
+                <div className="post-edit-container post-button-container">
+                  <button className="post-edit-button post-button">Edit</button>
+                </div>
               </div>
-              <div className="post-user-date">{randomDateRef.current}</div>
             </div>
           </div>
           <div className="post-image-splash">
-            <img src={randomImageRef.current} alt="splash" width="900" />
+            <img src={randomImageRef.current} alt="splash" />
           </div>
           <div className="post-title">
             <h3>{upperCaseFirst(currentPost.title)}</h3>

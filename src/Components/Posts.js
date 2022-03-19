@@ -201,10 +201,10 @@ const Posts = () => {
         const options = {
           root: null,
           rootMargin: "300px",
-          threshold: 0.2,
+          threshold: 0,
         };
 
-        // ON EACH FETCH DIFFERENT INTERSECTION_OBSERVER ARE CREATED
+        // ON EACH FETCH CALL DIFFERENT INTERSECTION_OBSERVER ARE CREATED
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
           setIntersecting(post.isIntersecting);
