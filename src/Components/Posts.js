@@ -12,7 +12,17 @@ const Posts = () => {
   const [mergedState, setMergedState] = useState(null);
   const [fetchStatus, setFetchStatus] = useState(false);
   const [beenFullRequested, setBeenFullRequested] = useState(null);
+  const [intersecting, setIntersecting] = useState(false);
+  const [{ fetchCountValue, pageNumberValue }, setFetchDeps] = useState({
+    fetchCountValue: 0,
+    pageNumberValue: 1,
+  });
 
+  // REFS
+  // LAST SECOND POST
+  const [secondLastElement, setSecondLastElement] = useState(null);
+  // REF TO OBSERVER
+  const observer = useRef(null);
   const { current: usersSeed } = useRef("usersSeed");
 
   console.log(mergedState);
@@ -27,13 +37,6 @@ const Posts = () => {
   const [dbRandomPicture, setDbRandomPicture] = useState(
     `https://picsum.photos/v2/list?page=2&limit=100`
   );
-
-  // REFS
-
-  // LAST SECOND POST
-  const [secondLastElement, setSecondLastElement] = useState(null);
-  // REF TO OBSERVER
-  const observer = useRef(null);
 
   // LOAD DATABASES
   useEffect(() => {
@@ -146,6 +149,30 @@ const Posts = () => {
   }, [fetchStatus, mergedState]);
 
   useEffect(() => {
+    if (fetchCountValue >= 100 || pageNumberValue >= 21) {
+      setBeenFullRequested(true);
+    }
+  }, [fetchCountValue, pageNumberValue]);
+
+  useEffect(() => {
+    if (intersecting) {
+      setFetchDeps((prevState) => {
+        if (beenFullRequested) {
+          return {
+            fetchCountValue: Math.trunc(Math.random() * 95),
+            pageNumberValue: Math.trunc(Math.random() * 20),
+          };
+        }
+        return {
+          fetchCountValue: prevState.fetchCountValue + 5,
+          pageNumberValue: prevState.pageNumberValue + 1,
+        };
+      });
+    }
+    return;
+  }, [beenFullRequested, intersecting]);
+
+  useEffect(() => {
     if (fetchStatus) {
       if (observer && observer.current) {
         const options = {
@@ -156,21 +183,18 @@ const Posts = () => {
 
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
-          if (!post.isIntersecting) {
+          setIntersecting(post.isIntersecting);
+          if (
+            !post.isIntersecting ||
+            fetchCountValue >= 100 ||
+            pageNumberValue >= 21
+          ) {
             return;
           }
 
-          setUrlDeps((prevState) => {
-            if (prevState) {
-              return {
-                fetchCount: beenFullRequested
-                  ? Math.trunc(Math.random() * 95)
-                  : prevState.fetchCount + 5,
-                pageNumber: beenFullRequested
-                  ? Math.trunc(Math.random() * 19)
-                  : prevState.pageNumber + 1,
-              };
-            }
+          setUrlDeps({
+            fetchCount: fetchCountValue,
+            pageNumber: pageNumberValue,
           });
 
           createdObserver.unobserve(post.target);
@@ -180,13 +204,7 @@ const Posts = () => {
         createdObserver.observe(observer.current);
       }
     }
-  }, [fetchStatus, secondLastElement, beenFullRequested]);
-
-  useEffect(() => {
-    if (fetchCount >= 95 && pageNumber >= 19) {
-      setBeenFullRequested(true);
-    }
-  }, [fetchCount, pageNumber]);
+  }, [fetchStatus, secondLastElement, fetchCountValue, pageNumberValue]);
 
   return (
     <div className="posts-container">
@@ -203,6 +221,7 @@ const Posts = () => {
                   randomUser={mergedState.dataRandomUser[i]}
                   setMergedState={setMergedState}
                   mergedState={mergedState}
+                  // Shit down there
                   fetchStatus={fetchStatus}
                   dataPosts={dataPosts}
                   dataRandomPicture={dataRandomPicture}
