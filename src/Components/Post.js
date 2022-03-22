@@ -19,7 +19,7 @@ const Post = ({
   const [showComments, setShowComments] = useState(false);
   const [beenShown, setBeenShown] = useState(false);
   const [commentsCounter, setCommentsCounter] = useState(0);
-
+  console.log(currentPost)
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
