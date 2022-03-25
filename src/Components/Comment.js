@@ -70,7 +70,7 @@ const Comment = ({
           <div className="comment-interaction-like-container comment-interaction-container">
             <button
               className="comment-interaction-like comment-interaction"
-              onClick={() => likeComment(currentComment.id, currentPost.id)}
+              onClick={likeComment}
             >
               Like it!
             </button>

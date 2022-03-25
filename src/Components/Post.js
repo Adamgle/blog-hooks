@@ -1,30 +1,30 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import Comments from "./Comments";
 import {
   upperCaseFirst,
   randomDate,
   concatFetchedContent,
 } from "./_parsingFunctions";
+import { Link, useOutletContext } from "react-router-dom";
 
 const Post = ({
-  currentPost,
   randomUser,
   fetchStatus,
   setMergedState,
-  mergedState,
   observer,
-  windowDimensions,
+  currentPost,
 }) => {
-  // STATES
-  const [showComments, setShowComments] = useState(false);
-  const [beenShown, setBeenShown] = useState(false);
-  const [commentsCounter, setCommentsCounter] = useState(0);
+  // CONTEXT
+  const [mergedState, windowDimensions] = useOutletContext();
 
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
     upperCaseFirst(concatFetchedContent(currentPost.body), true)
   );
+
+  // Number used for displaying comments count
+  // then when comments is added, commentsCounter is there added
   const randomNumberRef = useRef(1 + Math.round(Math.random() * 4));
   const sharesCount = useRef(1 + Math.round(Math.random() * 19));
   const randomImageRef = useRef(
@@ -32,11 +32,7 @@ const Post = ({
       Math.trunc(Math.random() * mergedState.dataRandomPicture.length)
     ].download_url
   );
-  const [doTextAreaFocus, setDoTextAreaFocus] = useState(false);
   const textAreaRef = useRef(null);
-
-  // VARS
-  const { isRead, likes } = currentPost;
 
   const handleShowCommentsButton = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
@@ -48,23 +44,47 @@ const Post = ({
       SO THAT RANDOMUSER FETCH CALL ARE TRIGERED ONCE AND THE RESULTS ARE PERSISTED ->
       BETWEEN RENDERS;
     */
-    setShowComments((prevState) => !prevState);
-    setBeenShown(true);
-    setDoTextAreaFocus(false);
+
+    setMergedState((prevState) => ({
+      ...prevState,
+      posts: prevState.posts.map((post) => ({
+        ...post,
+        comments: {
+          ...post.comments,
+          showComments: !post.comments.showComments,
+          beenShown: true,
+          doTextAreaFocus: false,
+        },
+      })),
+    }));
+
     // LOSE FOCUS ON BUTTON CLICK
-    if (textAreaRef.current) {
-      textAreaRef.current.blur();
+    if (currentPost.comments.textAreaRef.current) {
+      currentPost.comments.textAreaRef.current.blur();
     }
   };
 
   const handleAddCommentButton = () => {
     // SHOW COMMENTS ON CLICK
-    setShowComments(true);
-    setBeenShown(true);
-    setDoTextAreaFocus(true);
+    setMergedState((prevState) => ({
+      ...prevState,
+      posts: prevState.posts.map((post) =>
+        post.id === currentPost.id
+          ? {
+              ...post,
+              comments: {
+                ...post.comments,
+                showComments: true,
+                beenShown: true,
+                doTextAreaFocus: true,
+              },
+            }
+          : post
+      ),
+    }));
     // AUTOFOCUS ON TEXTAREA FIELD
-    if (textAreaRef.current) {
-      textAreaRef.current.focus();
+    if (currentPost.comments.textAreaRef.current) {
+      currentPost.comments.textAreaRef.current.focus();
     }
   };
 
@@ -96,6 +116,59 @@ const Post = ({
     });
   };
 
+  useEffect(() => {
+    if (mergedState && mergedState.posts) {
+      setMergedState((prevState) => {
+        return {
+          ...prevState,
+          posts: prevState.posts.map((post) => {
+            return post.id === currentPost.id
+              ? // IF PROP EXIST THEN USE IT ELSE CREATE IT
+                post.comments.showComments === undefined
+                ? {
+                    ...post,
+                    body: `${upperCaseFirst(post.body, true)} ${
+                      concatFetchDataRef.current
+                    }`,
+                    randomDateRef: randomDateRef.current,
+                    randomImageRef: randomImageRef.current,
+                    sharesCount: sharesCount.current,
+                    comments: {
+                      ...post.comments,
+                      commentsCounter: 0,
+                      commentsLength: 0 + randomNumberRef.current,
+                      textAreaRef: textAreaRef,
+                      showComments: false,
+                      doTextAreaFocus: false,
+                      beenShown: false,
+                      randomNumberRef: randomNumberRef.current,
+                    },
+                  }
+                : {
+                    ...post,
+                    body: post.body,
+                    randomDateRef: post.randomDateRef,
+                    sharesCount: post.sharesCount,
+                    randomImageRef: post.randomImageRef,
+                    comments: {
+                      ...post.comments,
+                      commentsCounter: post.comments.commentsCounter,
+                      commentsLength: post.comments.commentsLength,
+                      textAreaRef: post.comments.textAreaRef,
+                      showComments: post.comments.showComments,
+                      doTextAreaFocus: post.comments.doTextAreaFocus,
+                      beenShown: post.comments.beenShown,
+                      randomNumberRef: post.comments.randomNumberRef,
+                      // dataCommnets: false ? true : false,
+                    },
+                  }
+              : post;
+          }),
+        };
+      });
+    }
+  }, []);
+
   const commentsDynamicStyles = {
     maxWidth:
       windowDimensions.width <= 937
@@ -106,9 +179,10 @@ const Post = ({
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
+
   return (
     <>
-      {fetchStatus && randomUser && (
+      {mergedState && fetchStatus && (
         <div className="post" style={commentsDynamicStyles} ref={observer}>
           <div className="post-user">
             <div className="post-user-img">
@@ -120,7 +194,7 @@ const Post = ({
                   {`${randomUser.name.first} ${randomUser.name.last}`}
                 </div>
                 <div className="post-user-date post-user-label">
-                  {randomDateRef.current}
+                  {currentPost.randomDateRef}
                 </div>
               </div>
 
@@ -140,21 +214,20 @@ const Post = ({
             </div>
           </div>
           <div className="post-image-splash">
-            <img src={randomImageRef.current} alt="splash" />
+            <img src={currentPost.randomImageRef} alt="splash" />
           </div>
           <div className="post-title">
-            <h3>{upperCaseFirst(currentPost.title)}</h3>
+            <Link to={currentPost.id}>
+              <h3>{upperCaseFirst(currentPost.title)}</h3>
+            </Link>
           </div>
           <div className="post-content">
-            <p>
-              {upperCaseFirst(currentPost.body, true)}
-              {concatFetchDataRef.current}
-            </p>
+            <p>{currentPost.body}</p>
           </div>
           <div className="post-likes-comments-share-count noselect">
             <div className="post-likes-count-container post-interaction-count">
               Likes
-              <div className="post-likes-count">{likes}</div>
+              <div className="post-likes-count">{currentPost.likes}</div>
             </div>
             <div className="post-comments-shares-container">
               <div
@@ -163,12 +236,14 @@ const Post = ({
               >
                 Comments
                 <div className="post-comments-count">
-                  {randomNumberRef.current + commentsCounter}
+                  {currentPost.comments.commentsLength}
                 </div>
               </div>
               <div className="post-share-count-container post-interaction-count">
                 Shares
-                <div className="post-share-count">{sharesCount.current}</div>
+                <div className="post-share-count">
+                  {currentPost.sharesCount}
+                </div>
               </div>
             </div>
           </div>
@@ -197,19 +272,16 @@ const Post = ({
               </div>
             </div>
           </div>
-          {beenShown && (
+          {currentPost.comments.beenShown && (
             <Comments
               currentPost={currentPost}
               currentPostID={currentPost.postID}
               mergedState={mergedState}
               setMergedState={setMergedState}
-              showComments={showComments}
-              setShowComments={setShowComments}
-              setCommentsCounter={setCommentsCounter}
-              setDoTextAreaFocus={setDoTextAreaFocus}
-              doTextAreaFocus={doTextAreaFocus}
-              randomNumberRef={randomNumberRef.current}
-              textAreaRef={textAreaRef}
+              showComments={currentPost.comments.showComments}
+              doTextAreaFocus={currentPost.comments.doTextAreaFocus}
+              randomNumberRef={currentPost.comments.randomNumberRef}
+              textAreaRef={currentPost.comments.textAreaRef}
               windowDimensions={windowDimensions}
             />
           )}

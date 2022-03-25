@@ -1,234 +1,23 @@
-import { nanoid } from "nanoid";
-import React, { useState, useEffect, useRef } from "react";
-import { useFetch } from "./Hooks/useFetch";
-import useWindowDimensions from "./Hooks/useWindowDimensions";
+import React, { useEffect } from "react";
 import Post from "./Post";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 const Posts = () => {
-  // STATE
-  const [{ fetchCount, pageNumber }, setUrlDeps] = useState({
-    fetchCount: 0,
-    pageNumber: 1,
-  });
-  const [mergedState, setMergedState] = useState(null);
-  const [fetchStatus, setFetchStatus] = useState(false);
-  const [beenFullRequested, setBeenFullRequested] = useState(null);
-  const [intersecting, setIntersecting] = useState(false);
-  const [{ fetchCountValue, pageNumberValue }, setUrlDepsValues] = useState({
-    fetchCountValue: 0,
-    pageNumberValue: 1,
-  });
-
-  console.log(mergedState);
-
-  // REFS
-  // LAST SECOND POST
-  const [lastElement, setLastElement] = useState(null);
-  // REF TO OBSERVER
-  const observer = useRef(null);
-  const { current: usersSeed } = useRef("usersSeed");
-
-  // DB'S
-  const [dbPosts, setDbPosts] = useState(
-    `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
-  );
-  const [dbRandomUser, setDbRandomUser] = useState(
-    `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
-  );
-  const [dbRandomPicture] = useState(
-    `https://picsum.photos/v2/list?page=2&limit=100`
-  );
-
-  // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
-  const windowDimensions = useWindowDimensions();
-
-  // LOAD DATABASES
-  useEffect(() => {
-    setDbPosts(
-      `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
-    );
-    setDbRandomUser(
-      `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
-    );
-  }, [fetchCount, pageNumber, usersSeed]);
-
-  // FETCH CALLS
-  const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
-  const { data: dataRandomUser, loading: loadingRandomUser } =
-    useFetch(dbRandomUser);
-  const { data: dataRandomPicture, loading: loadingRandomPicture } =
-    useFetch(dbRandomPicture);
-
-  useEffect(() => {
-    // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
-    if (
-      !loadingPosts &&
-      !loadingRandomUser &&
-      !loadingRandomPicture &&
-      dataPosts &&
-      dataRandomUser &&
-      dataRandomUser.results.length &&
-      dataRandomPicture
-    ) {
-      setFetchStatus(true);
-    }
-  }, [
-    loadingPosts,
-    loadingRandomUser,
-    loadingRandomPicture,
-    dataPosts,
-    dataRandomUser,
-    dataRandomPicture,
-  ]);
-
-  // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
-  useEffect(() => {
-    // WAIT FOR ALL FETCH CALLS BE PROCCESSED
-    if (fetchStatus) {
-      if (dataPosts.length !== dataRandomUser.results.length) {
-        return;
-      }
-      // ELSE IF IS PERFORMED FOR INFINITY SCROLLING,
-      // WHEN USER GOES ALL THE WAY DOWN THE PAGE, ANOTHER 5 POSTS
-      // WILL BE FETCHED AND STATUS WILL BE DIFFERENT
-      else if (
-        !loadingPosts &&
-        !loadingRandomUser &&
-        dataPosts &&
-        dataRandomUser &&
-        dataRandomUser.results.length
-      ) {
-        setMergedState((prevState) => {
-          return {
-            posts:
-              prevState && prevState.posts
-                ? [
-                    ...prevState.posts,
-                    ...dataPosts.map((post) => ({
-                      ...post,
-                      postID: post.id,
-                      id: nanoid(),
-                      comments: {},
-                      likes: 0,
-                      isRead: false,
-                    })),
-                  ]
-                : dataPosts.map((post) => ({
-                    ...post,
-                    postID: post.id,
-                    id: nanoid(),
-                    comments: {},
-                    likes: 0,
-                    isRead: false,
-                  })),
-            dataRandomUser:
-              prevState && prevState.dataRandomUser
-                ? [
-                    ...prevState.dataRandomUser,
-                    ...dataRandomUser.results.map((user) => ({
-                      ...user,
-                      id: nanoid(),
-                    })),
-                  ]
-                : dataRandomUser.results.map((user) => ({
-                    ...user,
-                    id: nanoid(),
-                  })),
-            dataRandomPicture: dataRandomPicture,
-            dataProfile: {
-              name: "Adam",
-              image:
-                "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
-              email: "adam.dev@gmail.com",
-            },
-            isAdmin: false,
-          };
-        });
-      }
-    }
-  }, [
+  const [
+    mergedState,
+    setMergedState,
     fetchStatus,
-    dataPosts,
-    dataRandomPicture,
-    dataRandomUser,
     loadingPosts,
-    loadingRandomPicture,
     loadingRandomUser,
-  ]);
+    observer,
+    lastElement,
+  ] = useOutletContext();
+
+  let navigate = useNavigate();
 
   useEffect(() => {
-    if (mergedState && fetchStatus) {
-      setLastElement(mergedState.posts[mergedState.posts.length - 1]);
-    }
-  }, [fetchStatus, mergedState]);
-
-  // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
-  // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
-  // USE EFFECT WITH urlDepsValues VALUES IN STATEMENT WILL BE DIFFERENT ON
-  // ANOTHER RENDER WHEN CONDITION IS MET, SO THE POSTS WILL BE JUST
-  // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH REDENR WILL BE BROKEN
-
-  useEffect(() => {
-    if (fetchCountValue >= 100 || pageNumberValue >= 21) {
-      setBeenFullRequested(true);
-    }
-  }, [fetchCountValue, pageNumberValue]);
-
-  // SETS URL DEPS VALUES, AND MAKES IT STATEFULL
-  // THIS IS DIFFERENT 'CAUSE THIS IS JUST THE VALUE
-  useEffect(() => {
-    // IF (INTERSECTING) -> FETCH CALL WILL BE PERFORMED
-    if (intersecting) {
-      setUrlDepsValues((prevState) => {
-        if (beenFullRequested) {
-          return {
-            fetchCountValue: Math.trunc(Math.random() * 95),
-            pageNumberValue: Math.trunc(Math.random() * 20),
-          };
-        }
-        return {
-          fetchCountValue: prevState.fetchCountValue + 5,
-          pageNumberValue: prevState.pageNumberValue + 1,
-        };
-      });
-    }
-    return;
-  }, [beenFullRequested, intersecting]);
-
-  useEffect(() => {
-    if (fetchStatus) {
-      if (observer && observer.current) {
-        const options = {
-          root: null,
-          rootMargin: "300px",
-          threshold: 0,
-        };
-
-        // ON EACH FETCH CALL DIFFERENT INTERSECTION_OBSERVER ARE CREATED
-        const createdObserver = new IntersectionObserver((entries) => {
-          const post = entries[0];
-          setIntersecting(post.isIntersecting);
-          if (
-            !post.isIntersecting ||
-            fetchCountValue >= 100 ||
-            pageNumberValue >= 21
-          ) {
-            return;
-          }
-
-          setUrlDeps({
-            fetchCount: fetchCountValue,
-            pageNumber: pageNumberValue,
-          });
-
-          createdObserver.unobserve(post.target);
-          createdObserver.disconnect();
-        }, options);
-
-        createdObserver.observe(observer.current);
-      }
-    }
-  }, [fetchStatus, lastElement, fetchCountValue, pageNumberValue]);
+    navigate("/posts");
+  }, []);
 
   return (
     <div className="posts-container">
@@ -246,7 +35,6 @@ const Posts = () => {
                   setMergedState={setMergedState}
                   mergedState={mergedState}
                   fetchStatus={fetchStatus}
-                  windowDimensions={windowDimensions}
                 />
               ) : (
                 <Post
@@ -256,7 +44,6 @@ const Posts = () => {
                   setMergedState={setMergedState}
                   mergedState={mergedState}
                   fetchStatus={fetchStatus}
-                  windowDimensions={windowDimensions}
                 />
               );
             })}

@@ -7,7 +7,7 @@ const upperCaseFirst = (str, addDot) => {
       .join("") +
     `${
       addDot &&
-      /[ `!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(str[str.length - 1]) ===
+      /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/.test(str[str.length - 1]) ===
         false
         ? ". "
         : ""
@@ -59,15 +59,23 @@ const randomDate = () => {
   )}. ${year}`;
 };
 
-const concatFetchedContent = (str) => {
-  const array = str.split(" ");
-  for (var i = array.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
+const concatFetchedContent = (str, count = 1) => {
+  const items = [];
+  for (let k = 0; k < count; k++) {
+    const array = str.split(" ");
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    items.push(array);
   }
-  return array.join(" ");
+  return count !== 1
+    ? items
+        .map((sentence) => upperCaseFirst(sentence.join(" "), true))
+        .join(" ")
+    : items[0].join(" ");
 };
 
 const getTodaysDate = () => {

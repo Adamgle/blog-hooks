@@ -8,8 +8,6 @@ const AddCommentField = ({
   currentPost,
   doTextAreaFocus,
   setMergedState,
-  setDoTextAreaFocus,
-  setCommentsCounter,
 }) => {
   const handleChange = (e) => {
     // SET INPUT TEXT ON STATEFULL VALUE
@@ -22,6 +20,7 @@ const AddCommentField = ({
               ...post,
               comments: {
                 ...post.comments,
+                doTextAreaFocus: true,
                 textField: e.target.value,
               },
             };
@@ -30,7 +29,6 @@ const AddCommentField = ({
         }),
       };
     });
-    setDoTextAreaFocus(true);
   };
 
   const handleSubmit = (e) => {
@@ -46,6 +44,7 @@ const AddCommentField = ({
                   ...post,
                   comments: {
                     ...post.comments,
+                    commentsCounter: post.commentsCounter + 1,
                     dataComments: [
                       {
                         body: post.comments.textField,
@@ -67,7 +66,6 @@ const AddCommentField = ({
       });
       // INCREMENT COMMENTS LENGTH (WHICH IS COMMING FROM POST COMPONENT ->
       // AS STATE SEPARATE VALUE)
-      setCommentsCounter((prevState) => prevState + 1);
     }
     // CLEAR TEXTFIELD AFTER SUBMIT
     setMergedState((prevState) => {
@@ -79,6 +77,9 @@ const AddCommentField = ({
               ...post,
               comments: {
                 ...post.comments,
+                doTextAreaFocus: post.comments.textField
+                  ? false
+                  : post.doTextAreaFocus,
                 textField: "",
               },
             };
@@ -88,9 +89,9 @@ const AddCommentField = ({
       };
     });
     // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
-    if (currentPost.comments.textField) {
-      setDoTextAreaFocus(false);
-    }
+    // if (currentPost.comments.textField) {
+    //   setDoTextAreaFocus(false);
+    // }
   };
 
   // HANDLE SUBMIT ON ENTER ON MOBILE
@@ -99,7 +100,13 @@ const AddCommentField = ({
       handleSubmit(e, currentPost.id);
       // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
       if (currentPost.comments.textField) {
-        setDoTextAreaFocus(false);
+        setMergedState((prevState) => ({
+          ...prevState,
+          posts: prevState.posts.map((post) => ({
+            ...post,
+            comments: { ...post.comments, doTextAreaFocus: false },
+          })),
+        }));
       }
     }
   };
