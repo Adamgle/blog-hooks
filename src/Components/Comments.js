@@ -1,47 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useFetch } from "./Hooks/useFetch";
 import { nanoid } from "nanoid";
 import Comment from "./Comment";
 import AddCommentField from "./AddCommentField";
-
+import { randomDate } from "./_parsingFunctions";
 const Comments = ({
   currentPost,
   currentPostID,
   mergedState,
-  randomNumberRef,
+  commentsFetchedLength,
   showComments,
   setMergedState,
-  setCommentsCounter,
-  doTextAreaFocus,
   textAreaRef,
-  setDoTextAreaFocus,
   windowDimensions,
 }) => {
-  const dbComments = `https://jsonplaceholder.typicode.com/posts/${currentPostID}/comments/?_limit=${randomNumberRef}`;
-  const dbRandomUser = `https://randomuser.me/api/?results=${randomNumberRef}&noinfo`;
-
-  const [persistData, setPersistData] = useState(null);
+  const dbComments = `https://jsonplaceholder.typicode.com/posts/${currentPostID}/comments/?_limit=${commentsFetchedLength}`;
+  const dbRandomUser = `https://randomuser.me/api/?results=${commentsFetchedLength}&noinfo`;
 
   const { data: dataComments, loading: loadingComments } = useFetch(dbComments);
   const { data: dataRandomUser, loading: loadingRandomUser } =
     useFetch(dbRandomUser);
 
-  useEffect(() => {
-    if (!loadingComments && !loadingRandomUser) {
-      setPersistData({
-        dataComments: dataComments,
-        dataRandomUser: dataRandomUser,
-      });
-    }
-  }, [
-    currentPost.comments.beenShown,
-    dataComments,
-    dataRandomUser,
-    loadingComments,
-    loadingRandomUser,
-  ]);
-
   // CREATE COMMENTS DATA ON MOUNT WITH CONSIDERATION ON FETCH CALLS
+
   useEffect(() => {
     if (!loadingComments && !loadingRandomUser) {
       setMergedState((prevState) => {
@@ -60,8 +41,15 @@ const Comments = ({
                         picture: dataRandomUser.results[i].picture.thumbnail,
                         likes: 0,
                         replies: 0,
+                        commentDate: randomDate(),
+                        user: {
+                          ...dataRandomUser.results[i],
+                          name: {
+                            ...dataRandomUser.results[i].name,
+                            fullName: `${dataRandomUser.results[i].name.first} ${dataRandomUser.results[i].name.last}`,
+                          },
+                        },
                       })),
-                      dataRandomUser: dataRandomUser.results,
                       textField: "",
                     },
                   }
@@ -70,8 +58,6 @@ const Comments = ({
                     comments: {
                       ...post.comments,
                       dataComments: post.comments.dataComments,
-                      dataRandomUser: post.comments.dataRandomUser,
-                      textField: "",
                     },
                   };
             }
@@ -110,8 +96,7 @@ const Comments = ({
       style={commentsDynamicStyles}
     >
       <div className="comments-label">Comments</div>
-      {!currentPost.comments.dataRandomUser &&
-      !currentPost.comments.dataComments ? (
+      {!currentPost.comments.dataUsers && !currentPost.comments.dataComments ? (
         // WAIT FOR ALL APIS AND STATE MERGES, THEN DISPLAY DATA
         // IF AT LEAST ONE OF THEM ARE FALSY THEN DISPLAY "LOADING..."
         "Loading..."
@@ -121,10 +106,7 @@ const Comments = ({
             mergedState={mergedState}
             textAreaRef={textAreaRef}
             currentPost={currentPost}
-            doTextAreaFocus={doTextAreaFocus}
             setMergedState={setMergedState}
-            setDoTextAreaFocus={setDoTextAreaFocus}
-            setCommentsCounter={setCommentsCounter}
           />
           {currentPost.comments.dataComments.map((comment, i) => (
             <Comment
@@ -132,9 +114,7 @@ const Comments = ({
               currentPost={currentPost}
               currentComment={comment}
               mergedState={mergedState}
-              randomUser={currentPost.comments.dataRandomUser[i]}
-              dataRandomUserLength={currentPost.comments.dataRandomUser.length}
-              commentsLength={currentPost.comments.dataComments.length}
+              user={comment.user}
               setMergedState={setMergedState}
             />
           ))}

@@ -6,6 +6,7 @@ import Home from "./Components/Home";
 import Posts from "./Components/Posts";
 import NoMatch from "./Components/NoMatch";
 import CurrentPost from "./Components/CurrentPost";
+import Post from "./Components/Post";
 import "./styles/index.scss";
 const queryClient = new QueryClient();
 
@@ -15,8 +16,10 @@ render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<Posts />} />
-          <Route path="posts" element={<Posts />} />
-          <Route path="posts/:postId" element={<CurrentPost />} />
+          <Route path="posts" element={<Posts />}>
+            <Route index element={<Post />} />
+            <Route path=":postId" element={<Post />} />
+          </Route>
           <Route path="home" element={<Home />} />
           <Route path="*" element={<NoMatch />} />
         </Route>

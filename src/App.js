@@ -21,8 +21,9 @@ const App = () => {
   });
 
   // REFS
-  // LAST SECOND POST
+  // LAST POST
   const [lastElement, setLastElement] = useState(null);
+
   // REF TO OBSERVER
   const observer = useRef(null);
   const { current: usersSeed } = useRef("usersSeed");
@@ -84,7 +85,7 @@ const App = () => {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
       }
-      // ELSE IF IS PERFORMED FOR INFINITY SCROLLING,
+      // "ELSE IF" IS PERFORMED FOR INFINITY SCROLLING,
       // WHEN USER GOES ALL THE WAY DOWN THE PAGE, ANOTHER 5 POSTS
       // WILL BE FETCHED AND STATUS WILL BE DIFFERENT
       else if (
@@ -100,22 +101,24 @@ const App = () => {
               prevState && prevState.posts
                 ? [
                     ...prevState.posts,
-                    ...dataPosts.map((post) => ({
+                    ...dataPosts.map((post, i) => ({
                       ...post,
                       postID: post.id,
                       id: nanoid(),
                       comments: {},
                       likes: 0,
                       isRead: false,
+                      user: dataRandomUser.results[i],
                     })),
                   ]
-                : dataPosts.map((post) => ({
+                : dataPosts.map((post, i) => ({
                     ...post,
                     postID: post.id,
                     id: nanoid(),
                     comments: {},
                     likes: 0,
                     isRead: false,
+                    user: dataRandomUser.results[i],
                   })),
             dataRandomUser:
               prevState && prevState.dataRandomUser
@@ -132,9 +135,15 @@ const App = () => {
                   })),
             dataRandomPicture: dataRandomPicture,
             dataProfile: {
-              name: "Adam",
-              image:
-                "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+              name: {
+                title: "",
+                first: "Adam",
+                last: "",
+              },
+              picture: {
+                thumbnail:
+                  "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+              },
               email: "adam.dev@gmail.com",
             },
             isAdmin: false,
@@ -157,6 +166,8 @@ const App = () => {
       setLastElement(mergedState.posts[mergedState.posts.length - 1]);
     }
   }, [fetchStatus, mergedState]);
+
+  console.log(lastElement);
 
   // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
   // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
@@ -224,6 +235,7 @@ const App = () => {
         createdObserver.observe(observer.current);
       }
     }
+    // mergedState might be a bug
   }, [fetchStatus, lastElement, fetchCountValue, pageNumberValue]);
 
   // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
@@ -235,7 +247,7 @@ const App = () => {
     <>
       <Header />
       <Outlet
-        context={[
+        context={{
           mergedState,
           setMergedState,
           fetchStatus,
@@ -244,7 +256,7 @@ const App = () => {
           observer,
           lastElement,
           windowDimensions,
-        ]}
+        }}
       />
     </>
   );

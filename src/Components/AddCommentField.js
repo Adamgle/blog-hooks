@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import React from "react";
 import TextAreaAutosizeRef from "./TextAreaAutosizeRef";
+import { getTodaysDate } from "./_parsingFunctions";
 
 const AddCommentField = ({
   mergedState,
@@ -44,17 +45,25 @@ const AddCommentField = ({
                   ...post,
                   comments: {
                     ...post.comments,
-                    commentsCounter: post.commentsCounter + 1,
+                    commentsLength: post.comments.commentsLength + 1,
                     dataComments: [
                       {
                         body: post.comments.textField,
                         email: prevState.dataProfile.email,
                         id: nanoid(),
                         name: "",
-                        picture: prevState.dataProfile.image,
+                        picture: prevState.dataProfile.picture.thumbnail,
                         postId: post.id,
                         likes: 0,
                         replies: 0,
+                        commentDate: getTodaysDate(),
+                        user: {
+                          ...prevState.dataProfile,
+                          name: {
+                            ...prevState.dataProfile.name,
+                            fullName: `${prevState.dataProfile.name.first} ${prevState.dataProfile.name.last}`,
+                          },
+                        },
                       },
                       ...post.comments.dataComments,
                     ],
@@ -115,11 +124,14 @@ const AddCommentField = ({
     <div className="comment-profile">
       <img
         className="comment-picture-profile picture-profile"
-        src={mergedState.dataProfile.image}
+        src={mergedState.dataProfile.picture.thumbnail}
         alt="thumbnail"
       />
       <div className="comment-profile-name">
-        <div className="comment-name">{mergedState.dataProfile.name}</div>
+        <div className="comment-name">
+          {mergedState.dataProfile.name.first +
+            mergedState.dataProfile.name.last}
+        </div>
         <form
           className="comment-form noselect"
           onKeyDown={(e) => handleKeyDown(e)}

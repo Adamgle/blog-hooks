@@ -1,29 +1,7 @@
-import React, { useState } from "react";
-import { upperCaseFirst, randomDate, getTodaysDate } from "./_parsingFunctions";
-const Comment = ({
-  currentComment,
-  currentPost,
-  randomUser,
-  mergedState,
-  dataRandomUserLength,
-  commentsLength,
-  setMergedState,
-}) => {
-  // STATE
-  const [commentData] = useState(
-    dataRandomUserLength === commentsLength
-      ? {
-          date: randomDate(),
-          picture: randomUser.picture.thumbnail,
-          name: `${randomUser.name.first} ${randomUser.name.last}`,
-        }
-      : {
-          date: getTodaysDate(),
-          picture: mergedState.dataProfile.image,
-          name: mergedState.dataProfile.name,
-        }
-  );
+import React from "react";
+import { upperCaseFirst } from "./_parsingFunctions";
 
+const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
   const likeComment = () => {
     setMergedState((prevState) => {
       return {
@@ -53,12 +31,12 @@ const Comment = ({
         <div className="comment-picture-container">
           <img
             className="comment-picture"
-            src={commentData.picture}
+            src={user.picture.thumbnail}
             alt="thumbnail"
           />
           <div className="comment-name-date">
-            <div className="comment-name">{commentData.name}</div>
-            <div className="comment-date">{commentData.date}</div>
+            <div className="comment-name">{user.name.fullName}</div>
+            <div className="comment-date">{currentComment.commentDate}</div>
           </div>
         </div>
         <div className="comment-content">
