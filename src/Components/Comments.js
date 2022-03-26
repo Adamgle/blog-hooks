@@ -89,7 +89,7 @@ const Comments = ({
         ? `${windowDimensions.width - 77}px` // 900 - 701 viewport
         : `${windowDimensions.width - 67}px`, // >=700 viewport
   };
-  console.log(currentPost.comments.dataComments);
+
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}

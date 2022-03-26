@@ -22,8 +22,6 @@ const Posts = () => {
   let navigate = useNavigate();
   const params = useParams();
 
-  console.log(params);
-
   // useEffect(() => {
   //   navigate("/posts");
   // }, []);
@@ -37,13 +35,14 @@ const Posts = () => {
             mergedState.posts.map((post) => {
               return post.id === lastElement.id ? (
                 <Outlet
+                  key={post.id}
                   context={{
+                    observer,
                     mergedState,
                     setMergedState,
                     fetchStatus,
                     loadingPosts,
                     loadingRandomUser,
-                    observer,
                     lastElement,
                     windowDimensions,
                     currentPost: post,
@@ -52,13 +51,13 @@ const Posts = () => {
                 />
               ) : (
                 <Outlet
+                  key={post.id}
                   context={{
                     mergedState,
                     setMergedState,
                     fetchStatus,
                     loadingPosts,
                     loadingRandomUser,
-                    observer,
                     lastElement,
                     windowDimensions,
                     currentPost: post,
@@ -79,8 +78,9 @@ const Posts = () => {
         {!params.postId
           ? displayPosts()
           : mergedState?.posts.map((post) => {
-              return post.postID.toString() === params.postId ? (
+              return post.postID === params.postId ? (
                 <Outlet
+                  key={post.id}
                   context={{
                     mergedState,
                     setMergedState,

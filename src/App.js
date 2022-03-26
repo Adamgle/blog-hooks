@@ -103,7 +103,7 @@ const App = () => {
                     ...prevState.posts,
                     ...dataPosts.map((post, i) => ({
                       ...post,
-                      postID: post.id,
+                      postID: post.id.toString(),
                       id: nanoid(),
                       comments: {},
                       likes: 0,
@@ -113,7 +113,7 @@ const App = () => {
                   ]
                 : dataPosts.map((post, i) => ({
                     ...post,
-                    postID: post.id,
+                    postID: post.id.toString(),
                     id: nanoid(),
                     comments: {},
                     likes: 0,
@@ -162,7 +162,20 @@ const App = () => {
   ]);
 
   useEffect(() => {
+    if (fetchStatus) {
+      setMergedState((prevState) => ({
+        ...prevState,
+        posts: prevState.posts.map((post, i) => ({
+          ...post,
+          user: prevState.dataRandomUser[i],
+        })),
+      }));
+    }
+  }, [fetchStatus, mergedState?.dataRandomUser]);
+
+  useEffect(() => {
     if (mergedState && fetchStatus) {
+      // console.log(mergedState.posts[mergedState.posts.length - 1]);
       setLastElement(mergedState.posts[mergedState.posts.length - 1]);
     }
   }, [fetchStatus, mergedState]);

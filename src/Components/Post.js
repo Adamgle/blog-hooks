@@ -27,18 +27,6 @@ const Post = () => {
     currentUser,
   } = useOutletContext();
 
-  console.log(currentPost);
-
-  // if (params.postId) {
-  //   currentPost = myPost;
-  //   currentUser = myUser;
-  // }
-  // useEffect(() => {
-  //   if (params.postId) {
-  //     navigate(`posts/${params.postId}`);
-  //   }
-  // }, [params]);
-
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
@@ -61,7 +49,7 @@ const Post = () => {
       setMergedState((prevState) => {
         return {
           ...prevState,
-          posts: prevState.posts.map((post) => {
+          posts: prevState.posts.map((post, i) => {
             return post.id === currentPost.id
               ? // IF PROP EXIST THEN USE IT ELSE CREATE IT
                 // IF AT LEAST 1 DOES NOT EXITS, THEN CREATE IT
@@ -152,8 +140,6 @@ const Post = () => {
     // AUTOFOCUS ON TEXTAREA FIELD
     if (currentPost.comments.textAreaRef.current) {
       currentPost.comments.textAreaRef.current.focus();
-      console.log(currentPost.comments.textAreaRef);
-      console.log("done");
     }
   };
 
@@ -179,7 +165,9 @@ const Post = () => {
       };
     });
   };
-  console.log(params);
+
+  console.log(currentUser);
+
   // ON ADMIN
   const deletePost = () => {
     setMergedState((prevState) => {
@@ -205,7 +193,6 @@ const Post = () => {
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
-
   return (
     <>
       {mergedState && fetchStatus && (
@@ -243,9 +230,13 @@ const Post = () => {
             <img src={currentPost.randomImageRef} alt="splash" />
           </div>
           <div className="post-title">
-            <Link to={currentPost.postID.toString()}>
+            {params.postId !== currentPost.postID ? (
+              <Link to={currentPost.postID}>
+                <h3>{upperCaseFirst(currentPost.title)}</h3>
+              </Link>
+            ) : (
               <h3>{upperCaseFirst(currentPost.title)}</h3>
-            </Link>
+            )}
           </div>
           <div className="post-content">
             <p>{currentPost.body}</p>
