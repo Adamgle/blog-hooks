@@ -1,11 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Post from "./Post";
-import {
-  useNavigate,
-  useOutletContext,
-  Outlet,
-  useParams,
-} from "react-router-dom";
+import React from "react";
+import { useOutletContext, Outlet, useParams } from "react-router-dom";
 
 const Posts = () => {
   const {
@@ -19,21 +13,17 @@ const Posts = () => {
     windowDimensions,
   } = useOutletContext();
 
-  let navigate = useNavigate();
+  // GET URL PARAMS
   const params = useParams();
-
-  // useEffect(() => {
-  //   navigate("/posts");
-  // }, []);
 
   const displayPosts = () => {
     return (
       <>
         {!fetchStatus || !mergedState || !lastElement
           ? "Loading..."
-          : // dataPosts as State
-            mergedState.posts.map((post) => {
+          : mergedState.posts.map((post) => {
               return post.id === lastElement.id ? (
+                // ADD OBSERVER IF LAST POST ARE BEING INTERATED
                 <Outlet
                   key={post.id}
                   context={{
@@ -96,7 +86,6 @@ const Posts = () => {
                 />
               ) : null;
             })}
-        {/* {displayPosts()} */}
       </div>
     </div>
   );

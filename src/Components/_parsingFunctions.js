@@ -1,3 +1,4 @@
+let counter = 0;
 const upperCaseFirst = (str, addDot) => {
   return (
     str

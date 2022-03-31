@@ -1,5 +1,4 @@
 import React from "react";
-import { upperCaseFirst } from "./_parsingFunctions";
 
 const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
   const likeComment = () => {
@@ -40,7 +39,7 @@ const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
           </div>
         </div>
         <div className="comment-content">
-          {upperCaseFirst(currentComment.body, true)}
+          {currentComment.body}
         </div>
       </div>
       <div className="comment-interactions noselect">

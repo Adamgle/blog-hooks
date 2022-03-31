@@ -6,6 +6,7 @@ const TextAreaAutosizeRef = React.forwardRef(
     useEffect(() => {
       // REF IS BUGGED
       const currentRef = ref ? ref.current : null;
+      console.log("done")
       if (currentRef) {
         if (doTextAreaFocus) {
           currentRef.focus();

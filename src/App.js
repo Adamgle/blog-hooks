@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect, useRef } from "react";
 import { useFetch } from "./Components/Hooks/useFetch";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import Header from "./Components/Header";
 import useWindowDimensions from "./Components/Hooks/useWindowDimensions";
 
@@ -19,10 +19,12 @@ const App = () => {
     fetchCountValue: 0,
     pageNumberValue: 1,
   });
-
-  // REFS
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
+
+  const navigate = useNavigate();
+
+  // REFS
 
   // REF TO OBSERVER
   const observer = useRef(null);
@@ -58,13 +60,13 @@ const App = () => {
 
   useEffect(() => {
     // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
+    // FETCH STATUS ARE CHANGING ONLY ONCE, THEN IT'S ALWAYS SET TO TRUE
     if (
       !loadingPosts &&
       !loadingRandomUser &&
       !loadingRandomPicture &&
       dataPosts &&
-      dataRandomUser &&
-      dataRandomUser.results.length &&
+      dataRandomUser?.results.length &&
       dataRandomPicture
     ) {
       setFetchStatus(true);
@@ -175,12 +177,9 @@ const App = () => {
 
   useEffect(() => {
     if (mergedState && fetchStatus) {
-      // console.log(mergedState.posts[mergedState.posts.length - 1]);
       setLastElement(mergedState.posts[mergedState.posts.length - 1]);
     }
   }, [fetchStatus, mergedState]);
-
-  console.log(lastElement);
 
   // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
   // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
@@ -253,6 +252,11 @@ const App = () => {
 
   // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
   const windowDimensions = useWindowDimensions();
+
+  // REDIRECT TO /POSTS ON MOUNT
+  useEffect(() => {
+    navigate("/posts");
+  }, []);
 
   console.log(mergedState);
 

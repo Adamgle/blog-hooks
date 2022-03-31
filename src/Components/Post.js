@@ -5,16 +5,10 @@ import {
   randomDate,
   concatFetchedContent,
 } from "./_parsingFunctions";
-import {
-  Link,
-  useOutletContext,
-  useParams,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useOutletContext, useParams } from "react-router-dom";
 
 const Post = () => {
   const params = useParams();
-  const navigate = useNavigate();
 
   // CONTEXT
   const {
@@ -56,7 +50,6 @@ const Post = () => {
                 post.comments.showComments === undefined
                 ? {
                     ...post,
-                    currentPost: post,
                     body: `${upperCaseFirst(post.body, true)} ${
                       concatFetchDataRef.current
                     }`,
@@ -101,19 +94,24 @@ const Post = () => {
 
     setMergedState((prevState) => ({
       ...prevState,
-      posts: prevState.posts.map((post) => ({
-        ...post,
-        comments: {
-          ...post.comments,
-          showComments: !post.comments.showComments,
-          beenShown: true,
-          doTextAreaFocus: false,
-        },
-      })),
+      posts: prevState.posts.map((post) =>
+        post.id === currentPost.id
+          ? {
+              ...post,
+              comments: {
+                ...post.comments,
+                showComments: !post.comments.showComments,
+                beenShown: true,
+                doTextAreaFocus: false,
+              },
+            }
+          : post
+      ),
     }));
 
     // LOSE FOCUS ON BUTTON CLICK
     if (currentPost.comments.textAreaRef.current) {
+      console.log(currentPost.comments.textAreaRef.current);
       currentPost.comments.textAreaRef.current.blur();
     }
   };
@@ -139,6 +137,7 @@ const Post = () => {
 
     // AUTOFOCUS ON TEXTAREA FIELD
     if (currentPost.comments.textAreaRef.current) {
+      console.log(currentPost.comments.textAreaRef.current);
       currentPost.comments.textAreaRef.current.focus();
     }
   };
@@ -165,8 +164,6 @@ const Post = () => {
       };
     });
   };
-
-  console.log(currentUser);
 
   // ON ADMIN
   const deletePost = () => {
@@ -298,7 +295,6 @@ const Post = () => {
               showComments={currentPost.comments.showComments}
               doTextAreaFocus={currentPost.comments.doTextAreaFocus}
               commentsFetchedLength={currentPost.comments.commentsFetchedLength}
-              textAreaRef={currentPost.comments.textAreaRef}
               windowDimensions={windowDimensions}
             />
           )}

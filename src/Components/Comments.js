@@ -3,7 +3,8 @@ import { useFetch } from "./Hooks/useFetch";
 import { nanoid } from "nanoid";
 import Comment from "./Comment";
 import AddCommentField from "./AddCommentField";
-import { randomDate } from "./_parsingFunctions";
+import { randomDate, upperCaseFirst } from "./_parsingFunctions";
+
 const Comments = ({
   currentPost,
   currentPostID,
@@ -11,7 +12,6 @@ const Comments = ({
   commentsFetchedLength,
   showComments,
   setMergedState,
-  textAreaRef,
   windowDimensions,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${currentPostID}/comments/?_limit=${commentsFetchedLength}`;
@@ -42,6 +42,7 @@ const Comments = ({
                         likes: 0,
                         replies: 0,
                         commentDate: randomDate(),
+                        body: upperCaseFirst(comment.body, true),
                         user: {
                           ...dataRandomUser.results[i],
                           name: {
@@ -104,9 +105,9 @@ const Comments = ({
         <>
           <AddCommentField
             mergedState={mergedState}
-            textAreaRef={textAreaRef}
-            currentPost={currentPost}
             setMergedState={setMergedState}
+            textAreaRef={currentPost.comments.textAreaRef}
+            currentPost={currentPost}
           />
           {currentPost.comments.dataComments.map((comment, i) => (
             <Comment

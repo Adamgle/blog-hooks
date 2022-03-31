@@ -1,13 +1,11 @@
 import { nanoid } from "nanoid";
 import React from "react";
 import TextAreaAutosizeRef from "./TextAreaAutosizeRef";
-import { getTodaysDate } from "./_parsingFunctions";
+import { getTodaysDate, upperCaseFirst } from "./_parsingFunctions";
 
 const AddCommentField = ({
   mergedState,
-  textAreaRef,
   currentPost,
-  doTextAreaFocus,
   setMergedState,
 }) => {
   const handleChange = (e) => {
@@ -48,7 +46,7 @@ const AddCommentField = ({
                     commentsLength: post.comments.commentsLength + 1,
                     dataComments: [
                       {
-                        body: post.comments.textField,
+                        body: upperCaseFirst(post.comments.textField, true),
                         email: prevState.dataProfile.email,
                         id: nanoid(),
                         name: "",
@@ -103,18 +101,27 @@ const AddCommentField = ({
     // }
   };
 
-  // HANDLE SUBMIT ON ENTER ON MOBILE
+  // HANDLE SUBMIT ON ENTER
   const handleKeyDown = (e) => {
     if (e.keyCode === 13) {
       handleSubmit(e, currentPost.id);
       // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
+      console.log(currentPost.comments.textField);
       if (currentPost.comments.textField) {
+        console.log("done");
         setMergedState((prevState) => ({
           ...prevState,
-          posts: prevState.posts.map((post) => ({
-            ...post,
-            comments: { ...post.comments, doTextAreaFocus: false },
-          })),
+          posts: prevState.posts.map((post) =>
+            post.id === currentPost.id
+              ? {
+                  ...post,
+                  comments: {
+                    ...post.comments,
+                    doTextAreaFocus: false,
+                  },
+                }
+              : post
+          ),
         }));
       }
     }
@@ -137,10 +144,10 @@ const AddCommentField = ({
           onKeyDown={(e) => handleKeyDown(e)}
         >
           <TextAreaAutosizeRef
-            ref={textAreaRef}
-            currentPost={currentPost}
+            ref={currentPost.comments.textAreaRef}
             handleChange={handleChange}
-            doTextAreaFocus={doTextAreaFocus}
+            doTextAreaFocus={currentPost.comments.doTextAreaFocus}
+            currentPost={currentPost}
           />
           <div className="comment-publish-container">
             <button

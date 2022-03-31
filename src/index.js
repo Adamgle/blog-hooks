@@ -5,7 +5,6 @@ import App from "./App";
 import Home from "./Components/Home";
 import Posts from "./Components/Posts";
 import NoMatch from "./Components/NoMatch";
-import CurrentPost from "./Components/CurrentPost";
 import Post from "./Components/Post";
 import "./styles/index.scss";
 const queryClient = new QueryClient();
