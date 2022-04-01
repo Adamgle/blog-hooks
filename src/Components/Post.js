@@ -37,7 +37,7 @@ const Post = () => {
   );
 
   // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
-  // JSON.stringify() WILL THROW AN typeError
+  // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
 
   useEffect(() => {
@@ -160,16 +160,18 @@ const Post = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
-        posts: prevState.posts.filter((post) => {
-          return post.id !== currentPost.id && post;
-        }),
-        dataRandomUser: prevState.dataRandomUser.filter((user) => {
-          return user.id !== currentPost.user.id && user;
-        }),
+        posts: prevState.posts.filter(
+          (post) => post.id !== currentPost.id && post
+        ),
+        dataRandomUser: prevState.dataRandomUser.filter(
+          (user) => user.id !== currentPost.user.id && user
+        ),
       };
     });
   };
-
+  if (observer) {
+    console.log(currentPost.postID, observer);
+  }
   const commentsDynamicStyles = {
     maxWidth:
       windowDimensions.width <= 937

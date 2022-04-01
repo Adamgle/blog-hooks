@@ -19,6 +19,7 @@ const App = () => {
     fetchCountValue: 0,
     pageNumberValue: 1,
   });
+  const [fetchNextPosts, setFetchNextPosts] = useState(false);
 
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
@@ -42,22 +43,29 @@ const App = () => {
     `https://picsum.photos/v2/list?page=2&limit=100`
   );
 
-  useEffect(() => {
-    const data = localStorage.getItem("mergedState");
-    if (data) {
-      setMergedState(JSON.parse(data));
-    }
-  }, []);
+  // useEffect(() => {
+  //   const data = localStorage.getItem("mergedState");
+  //   if (data) {
+  //     setMergedState(JSON.parse(data));
+  //   }
+  // }, []);
 
   // LOAD DATABASES
   useEffect(() => {
+    if (fetchCount !== fetchCountValue || pageNumber !== pageNumberValue) {
+      return;
+    }
+    if (fetchCount !== fetchCountValue || pageNumber !== pageNumberValue) {
+      console.log(fetchCount, fetchCountValue);
+      console.log(pageNumber, pageNumberValue);
+    }
     setDbPosts(
       `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
     );
     setDbRandomUser(
       `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
     );
-  }, [fetchCount, pageNumber, usersSeed]);
+  }, [fetchCount, fetchCountValue, pageNumber, pageNumberValue, usersSeed]);
 
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
@@ -94,10 +102,8 @@ const App = () => {
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
-    // if (localStorage.getItem("mergedState")) {
-    //   return;
-    // }
     // WAIT FOR ALL FETCH CALLS BE PROCCESSED
+
     if (fetchStatus && dataPosts && dataRandomUser && dataRandomPicture) {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
@@ -109,8 +115,7 @@ const App = () => {
         !loadingPosts &&
         !loadingRandomUser &&
         dataPosts &&
-        dataRandomUser &&
-        dataRandomUser.results.length
+        dataRandomUser?.results.length
       ) {
         setMergedState((prevState) => {
           return {
@@ -188,15 +193,18 @@ const App = () => {
     loadingRandomUser,
   ]);
 
+  // THIS IS BUGGED
   useEffect(() => {
     if (fetchStatus) {
-      setMergedState((prevState) => ({
-        ...prevState,
-        posts: prevState.posts.map((post, i) => ({
-          ...post,
-          user: prevState.dataRandomUser[i],
-        })),
-      }));
+      setMergedState((prevState) => {
+        return {
+          ...prevState,
+          posts: prevState.posts.map((post, i) => ({
+            ...post,
+            user: prevState.dataRandomUser[i],
+          })),
+        };
+      });
     }
   }, [fetchStatus, mergedState?.dataRandomUser]);
 
@@ -204,7 +212,7 @@ const App = () => {
     if (mergedState && fetchStatus) {
       setLastElement(mergedState.posts[mergedState.posts.length - 1]);
     }
-  }, [fetchStatus, mergedState]);
+  }, [fetchStatus, mergedState, mergedState?.posts]);
 
   // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
   // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
@@ -224,6 +232,8 @@ const App = () => {
   useEffect(() => {
     // IF (INTERSECTING) -> FETCH CALL WILL BE PERFORMED
     if (intersecting) {
+      console.log(intersecting);
+      setFetchNextPosts(true);
       setUrlDepsValues((prevState) => {
         if (beenFullRequested) {
           return {
@@ -236,6 +246,7 @@ const App = () => {
           pageNumberValue: prevState.pageNumberValue + 1,
         };
       });
+      return;
     }
     return;
   }, [beenFullRequested, intersecting]);
@@ -249,7 +260,7 @@ const App = () => {
           threshold: 0,
         };
 
-        // ON EACH FETCH CALL DIFFERENT INTERSECTION_OBSERVER ARE CREATED
+        // ON EACH FETCH CALL DIFFERENT IntersectionObserver ARE CREATED
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
           setIntersecting(post.isIntersecting);
@@ -260,12 +271,12 @@ const App = () => {
           ) {
             return;
           }
-
-          setUrlDeps({
-            fetchCount: fetchCountValue,
-            pageNumber: pageNumberValue,
-          });
-
+          if (post.isIntersecting) {
+            setUrlDeps({
+              fetchCount: fetchCountValue,
+              pageNumber: pageNumberValue,
+            });
+          }
           createdObserver.unobserve(post.target);
           createdObserver.disconnect();
         }, options);
@@ -273,7 +284,7 @@ const App = () => {
         createdObserver.observe(observer.current);
       }
     }
-  }, [fetchStatus, lastElement, fetchCountValue, pageNumberValue]);
+  }, [fetchCountValue, fetchStatus, lastElement, pageNumberValue]);
 
   // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
   const windowDimensions = useWindowDimensions();
@@ -284,13 +295,37 @@ const App = () => {
   //   navigate("/posts");
   // }, []);
 
-  useEffect(() => {
-    if (mergedState && fetchStatus) {
-      localStorage.setItem("mergedState", JSON.stringify(mergedState));
-    }
-  }, [fetchStatus, mergedState]);
+  // useEffect(() => {
+  //   if (mergedState && fetchStatus) {
+  //     localStorage.setItem("mergedState", JSON.stringify(mergedState));
+  //   }
+  // }, [fetchStatus, mergedState]);
 
   console.log(mergedState);
+
+  // TESTS
+
+  useEffect(() => {
+    if (
+      fetchStatus &&
+      mergedState?.posts.length &&
+      mergedState?.dataRandomUser.length
+    ) {
+      if (mergedState.posts.length !== mergedState.dataRandomUser.length) {
+        console.log(
+          mergedState.posts.length,
+          mergedState.dataRandomUser.length
+        );
+      }
+    }
+  }, [
+    fetchCount,
+    fetchCountValue,
+    fetchStatus,
+    mergedState,
+    pageNumber,
+    pageNumberValue,
+  ]);
 
   return (
     <>
