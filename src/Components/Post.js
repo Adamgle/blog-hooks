@@ -18,7 +18,6 @@ const Post = () => {
     observer,
     windowDimensions,
     currentPost,
-    currentUser,
   } = useOutletContext();
 
   // REFS
@@ -36,20 +35,22 @@ const Post = () => {
       Math.trunc(Math.random() * mergedState.dataRandomPicture.length)
     ].download_url
   );
+
   const textAreaRef = useRef(null);
 
   useEffect(() => {
-    if (mergedState && mergedState.posts) {
+    if (mergedState?.posts) {
       setMergedState((prevState) => {
         return {
           ...prevState,
-          posts: prevState.posts.map((post, i) => {
+          posts: prevState.posts.map((post) => {
             return post.id === currentPost.id
               ? // IF PROP EXIST THEN USE IT ELSE CREATE IT
                 // IF AT LEAST 1 DOES NOT EXITS, THEN CREATE IT
                 post.comments.showComments === undefined
                 ? {
                     ...post,
+                    title: upperCaseFirst(post.title, true),
                     body: `${upperCaseFirst(post.body, true)} ${
                       concatFetchDataRef.current
                     }`,
@@ -111,7 +112,6 @@ const Post = () => {
 
     // LOSE FOCUS ON BUTTON CLICK
     if (currentPost.comments.textAreaRef.current) {
-      console.log(currentPost.comments.textAreaRef.current);
       currentPost.comments.textAreaRef.current.blur();
     }
   };
@@ -137,20 +137,9 @@ const Post = () => {
 
     // AUTOFOCUS ON TEXTAREA FIELD
     if (currentPost.comments.textAreaRef.current) {
-      console.log(currentPost.comments.textAreaRef.current);
       currentPost.comments.textAreaRef.current.focus();
     }
   };
-
-  // useEffect(() => {
-  //   if (currentPost.comments.textAreaRef?.current) {
-  //     if (currentPost.comments.doTextAreaFocus === true) {
-  //       currentPost.comments.textAreaRef.current.focus();
-  //     } else {
-  //       currentPost.comments.textAreaRef.current.blur();
-  //     }
-  //   }
-  // }, [currentPost.comments.doTextAreaFocus, currentPost.comments.textAreaRef]);
 
   const handleLikePost = () => {
     setMergedState((prevState) => {
@@ -174,7 +163,7 @@ const Post = () => {
           return post.id !== currentPost.id && post;
         }),
         dataRandomUser: prevState.dataRandomUser.filter((user) => {
-          return user.id !== currentUser.id && user;
+          return user.id !== currentPost.user.id && user;
         }),
       };
     });
@@ -190,18 +179,22 @@ const Post = () => {
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
+  console.log(currentPost.postID);
   return (
     <>
       {mergedState && fetchStatus && (
         <div className="post" style={commentsDynamicStyles} ref={observer}>
           <div className="post-user">
             <div className="post-user-img">
-              <img src={currentUser.picture.thumbnail} alt="user thumbnail" />
+              <img
+                src={currentPost.user.picture.thumbnail}
+                alt="user thumbnail"
+              />
             </div>
             <div className="post-user-name-date-container">
               <div className="post-user-name-date">
                 <div className="post-user-name post-user-label">
-                  {`${currentUser.name.first} ${currentUser.name.last}`}
+                  {currentPost.user.name.fullName}
                 </div>
                 <div className="post-user-date post-user-label">
                   {currentPost.randomDateRef}
@@ -229,10 +222,10 @@ const Post = () => {
           <div className="post-title">
             {params.postId !== currentPost.postID ? (
               <Link to={currentPost.postID}>
-                <h3>{upperCaseFirst(currentPost.title)}</h3>
+                <h3>{currentPost.title}</h3>
               </Link>
             ) : (
-              <h3>{upperCaseFirst(currentPost.title)}</h3>
+              <h3>{currentPost.title}</h3>
             )}
           </div>
           <div className="post-content">

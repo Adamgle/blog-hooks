@@ -103,12 +103,12 @@ const Comments = ({
         "Loading..."
       ) : (
         <>
-          <AddCommentField
+          {/* <AddCommentField
             mergedState={mergedState}
             setMergedState={setMergedState}
             textAreaRef={currentPost.comments.textAreaRef}
             currentPost={currentPost}
-          />
+          /> */}
           {currentPost.comments.dataComments.map((comment, i) => (
             <Comment
               key={comment.id}

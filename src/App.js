@@ -19,6 +19,8 @@ const App = () => {
     fetchCountValue: 0,
     pageNumberValue: 1,
   });
+  let postIdCounter = 1;
+
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
 
@@ -98,30 +100,47 @@ const App = () => {
         dataRandomUser.results.length
       ) {
         setMergedState((prevState) => {
+          //  MOCK POSTID FOR URL,
+          //  ID CAN'T BE USED 'CAUSE IT'S CHANGING ON EVERY RENDER
+          //  ALTHOUGHT, IT CAN BE STORED IN LOCAL STORAGE THEN IT SHOULD WORK
+          let lastElementPostId =
+            prevState?.posts[prevState.posts.length - 1].postID;
           return {
             posts:
               prevState && prevState.posts
                 ? [
                     ...prevState.posts,
-                    ...dataPosts.map((post, i) => ({
+                    ...dataPosts.map((post, i) => {
+                      lastElementPostId = parseInt(lastElementPostId) + 1;
+                      return {
+                        ...post,
+                        postID:
+                          parseInt(lastElementPostId) >= 100
+                            ? lastElementPostId.toString()
+                            : post.id.toString(),
+                        id: nanoid(),
+                        comments: {},
+                        likes: 0,
+                        isRead: false,
+                        user: dataRandomUser.results[i],
+                      };
+                    }),
+                  ]
+                : dataPosts.map((post, i) => {
+                    lastElementPostId = parseInt(lastElementPostId) + 1;
+                    return {
                       ...post,
-                      postID: post.id.toString(),
+                      postID:
+                        parseInt(lastElementPostId) >= 100
+                          ? lastElementPostId.toString()
+                          : post.id.toString(),
                       id: nanoid(),
                       comments: {},
                       likes: 0,
                       isRead: false,
                       user: dataRandomUser.results[i],
-                    })),
-                  ]
-                : dataPosts.map((post, i) => ({
-                    ...post,
-                    postID: post.id.toString(),
-                    id: nanoid(),
-                    comments: {},
-                    likes: 0,
-                    isRead: false,
-                    user: dataRandomUser.results[i],
-                  })),
+                    };
+                  }),
             dataRandomUser:
               prevState && prevState.dataRandomUser
                 ? [
@@ -129,11 +148,19 @@ const App = () => {
                     ...dataRandomUser.results.map((user) => ({
                       ...user,
                       id: nanoid(),
+                      name: {
+                        ...user.name,
+                        fullName: `${user.name.first} ${user.name.last}`,
+                      },
                     })),
                   ]
                 : dataRandomUser.results.map((user) => ({
                     ...user,
                     id: nanoid(),
+                    name: {
+                      ...user.name,
+                      fullName: `${user.name.first} ${user.name.last}`,
+                    },
                   })),
             dataRandomPicture: dataRandomPicture,
             dataProfile: {
@@ -195,6 +222,7 @@ const App = () => {
 
   // SETS URL DEPS VALUES, AND MAKES IT STATEFULL
   // THIS IS DIFFERENT 'CAUSE THIS IS JUST THE VALUE
+
   useEffect(() => {
     // IF (INTERSECTING) -> FETCH CALL WILL BE PERFORMED
     if (intersecting) {
@@ -254,11 +282,24 @@ const App = () => {
   const windowDimensions = useWindowDimensions();
 
   // REDIRECT TO /POSTS ON MOUNT
+
+  // useEffect(() => {
+  //   navigate("/posts");
+  // }, []);
+
   useEffect(() => {
-    navigate("/posts");
+    const data = localStorage.getItem("mergedState");
+    if (data) {
+      setMergedState(JSON.parse(data));
+    }
   }, []);
 
-  console.log(mergedState);
+  useEffect(() => {
+    if (mergedState && fetchStatus) {
+      localStorage.setItem("mergedState", JSON.stringify(mergedState));
+    }
+  }, [fetchStatus, mergedState]);
+
 
   return (
     <>

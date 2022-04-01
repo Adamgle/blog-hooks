@@ -3,11 +3,7 @@ import React from "react";
 import TextAreaAutosizeRef from "./TextAreaAutosizeRef";
 import { getTodaysDate, upperCaseFirst } from "./_parsingFunctions";
 
-const AddCommentField = ({
-  mergedState,
-  currentPost,
-  setMergedState,
-}) => {
+const AddCommentField = ({ mergedState, currentPost, setMergedState }) => {
   const handleChange = (e) => {
     // SET INPUT TEXT ON STATEFULL VALUE
     setMergedState((prevState) => {
@@ -71,9 +67,8 @@ const AddCommentField = ({
           }),
         };
       });
-      // INCREMENT COMMENTS LENGTH (WHICH IS COMMING FROM POST COMPONENT ->
-      // AS STATE SEPARATE VALUE)
     }
+
     // CLEAR TEXTFIELD AFTER SUBMIT
     setMergedState((prevState) => {
       return {
@@ -95,10 +90,6 @@ const AddCommentField = ({
         }),
       };
     });
-    // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
-    // if (currentPost.comments.textField) {
-    //   setDoTextAreaFocus(false);
-    // }
   };
 
   // HANDLE SUBMIT ON ENTER
@@ -106,9 +97,7 @@ const AddCommentField = ({
     if (e.keyCode === 13) {
       handleSubmit(e, currentPost.id);
       // CLEAR FOCUS AFTER SUBMIT ON TEXTAREA
-      console.log(currentPost.comments.textField);
       if (currentPost.comments.textField) {
-        console.log("done");
         setMergedState((prevState) => ({
           ...prevState,
           posts: prevState.posts.map((post) =>
