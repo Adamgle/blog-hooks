@@ -19,7 +19,6 @@ const App = () => {
     fetchCountValue: 0,
     pageNumberValue: 1,
   });
-  let postIdCounter = 1;
 
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
@@ -43,6 +42,13 @@ const App = () => {
     `https://picsum.photos/v2/list?page=2&limit=100`
   );
 
+  useEffect(() => {
+    const data = localStorage.getItem("mergedState");
+    if (data) {
+      setMergedState(JSON.parse(data));
+    }
+  }, []);
+
   // LOAD DATABASES
   useEffect(() => {
     setDbPosts(
@@ -63,6 +69,10 @@ const App = () => {
   useEffect(() => {
     // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
     // FETCH STATUS ARE CHANGING ONLY ONCE, THEN IT'S ALWAYS SET TO TRUE
+    if (localStorage.getItem("mergedState")) {
+      setFetchStatus(true);
+      return;
+    }
     if (
       !loadingPosts &&
       !loadingRandomUser &&
@@ -84,8 +94,11 @@ const App = () => {
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
+    // if (localStorage.getItem("mergedState")) {
+    //   return;
+    // }
     // WAIT FOR ALL FETCH CALLS BE PROCCESSED
-    if (fetchStatus) {
+    if (fetchStatus && dataPosts && dataRandomUser && dataRandomPicture) {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
       }
@@ -100,40 +113,14 @@ const App = () => {
         dataRandomUser.results.length
       ) {
         setMergedState((prevState) => {
-          //  MOCK POSTID FOR URL,
-          //  ID CAN'T BE USED 'CAUSE IT'S CHANGING ON EVERY RENDER
-          //  ALTHOUGHT, IT CAN BE STORED IN LOCAL STORAGE THEN IT SHOULD WORK
-          let lastElementPostId =
-            prevState?.posts[prevState.posts.length - 1].postID;
           return {
-            posts:
-              prevState && prevState.posts
-                ? [
-                    ...prevState.posts,
-                    ...dataPosts.map((post, i) => {
-                      lastElementPostId = parseInt(lastElementPostId) + 1;
-                      return {
-                        ...post,
-                        postID:
-                          parseInt(lastElementPostId) >= 100
-                            ? lastElementPostId.toString()
-                            : post.id.toString(),
-                        id: nanoid(),
-                        comments: {},
-                        likes: 0,
-                        isRead: false,
-                        user: dataRandomUser.results[i],
-                      };
-                    }),
-                  ]
-                : dataPosts.map((post, i) => {
-                    lastElementPostId = parseInt(lastElementPostId) + 1;
+            posts: prevState?.posts
+              ? [
+                  ...prevState.posts,
+                  ...dataPosts.map((post, i) => {
                     return {
                       ...post,
-                      postID:
-                        parseInt(lastElementPostId) >= 100
-                          ? lastElementPostId.toString()
-                          : post.id.toString(),
+                      postID: post.id,
                       id: nanoid(),
                       comments: {},
                       likes: 0,
@@ -141,20 +128,22 @@ const App = () => {
                       user: dataRandomUser.results[i],
                     };
                   }),
-            dataRandomUser:
-              prevState && prevState.dataRandomUser
-                ? [
-                    ...prevState.dataRandomUser,
-                    ...dataRandomUser.results.map((user) => ({
-                      ...user,
-                      id: nanoid(),
-                      name: {
-                        ...user.name,
-                        fullName: `${user.name.first} ${user.name.last}`,
-                      },
-                    })),
-                  ]
-                : dataRandomUser.results.map((user) => ({
+                ]
+              : dataPosts.map((post, i) => {
+                  return {
+                    ...post,
+                    postID: post.id,
+                    id: nanoid(),
+                    comments: {},
+                    likes: 0,
+                    isRead: false,
+                    user: dataRandomUser.results[i],
+                  };
+                }),
+            dataRandomUser: prevState?.dataRandomUser
+              ? [
+                  ...prevState.dataRandomUser,
+                  ...dataRandomUser.results.map((user) => ({
                     ...user,
                     id: nanoid(),
                     name: {
@@ -162,6 +151,15 @@ const App = () => {
                       fullName: `${user.name.first} ${user.name.last}`,
                     },
                   })),
+                ]
+              : dataRandomUser.results.map((user) => ({
+                  ...user,
+                  id: nanoid(),
+                  name: {
+                    ...user.name,
+                    fullName: `${user.name.first} ${user.name.last}`,
+                  },
+                })),
             dataRandomPicture: dataRandomPicture,
             dataProfile: {
               name: {
@@ -275,7 +273,6 @@ const App = () => {
         createdObserver.observe(observer.current);
       }
     }
-    // mergedState might be a bug
   }, [fetchStatus, lastElement, fetchCountValue, pageNumberValue]);
 
   // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
@@ -288,18 +285,12 @@ const App = () => {
   // }, []);
 
   useEffect(() => {
-    const data = localStorage.getItem("mergedState");
-    if (data) {
-      setMergedState(JSON.parse(data));
-    }
-  }, []);
-
-  useEffect(() => {
     if (mergedState && fetchStatus) {
       localStorage.setItem("mergedState", JSON.stringify(mergedState));
     }
   }, [fetchStatus, mergedState]);
 
+  console.log(mergedState);
 
   return (
     <>

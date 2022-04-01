@@ -60,7 +60,7 @@ const Posts = () => {
   );
 
   const displayPost = mergedState?.posts.map((post) => {
-    return post.postID === params.postId ? (
+    return post.id === params.postId ? (
       <Outlet
         key={post.id}
         context={{
@@ -80,7 +80,7 @@ const Posts = () => {
 
   return (
     <div className="posts-container">
-      <div className="posts">{!params.postId ? displayPosts : displayPost}</div>
+      <div className="posts">{params.postId ? displayPost : displayPosts}</div>
     </div>
   );
 };

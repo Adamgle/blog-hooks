@@ -36,6 +36,8 @@ const Post = () => {
     ].download_url
   );
 
+  // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
+  // JSON.stringify() WILL THROW AN typeError
   const textAreaRef = useRef(null);
 
   useEffect(() => {
@@ -62,7 +64,6 @@ const Post = () => {
                       userCommentsLen: 0,
                       commentsFetchedLength: commentsFetchedLength.current,
                       commentsLength: commentsFetchedLength.current,
-                      textAreaRef: textAreaRef,
                       showComments: false,
                       doTextAreaFocus: false,
                       beenShown: false,
@@ -111,8 +112,8 @@ const Post = () => {
     }));
 
     // LOSE FOCUS ON BUTTON CLICK
-    if (currentPost.comments.textAreaRef.current) {
-      currentPost.comments.textAreaRef.current.blur();
+    if (textAreaRef.current) {
+      textAreaRef.current.blur();
     }
   };
 
@@ -136,8 +137,8 @@ const Post = () => {
     }));
 
     // AUTOFOCUS ON TEXTAREA FIELD
-    if (currentPost.comments.textAreaRef.current) {
-      currentPost.comments.textAreaRef.current.focus();
+    if (textAreaRef.current) {
+      textAreaRef.current.focus();
     }
   };
 
@@ -179,7 +180,7 @@ const Post = () => {
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
-  console.log(currentPost.postID);
+
   return (
     <>
       {mergedState && fetchStatus && (
@@ -220,8 +221,8 @@ const Post = () => {
             <img src={currentPost.randomImageRef} alt="splash" />
           </div>
           <div className="post-title">
-            {params.postId !== currentPost.postID ? (
-              <Link to={currentPost.postID}>
+            {params.postId !== currentPost.id.toString() ? (
+              <Link to={currentPost.id}>
                 <h3>{currentPost.title}</h3>
               </Link>
             ) : (
@@ -289,6 +290,7 @@ const Post = () => {
               doTextAreaFocus={currentPost.comments.doTextAreaFocus}
               commentsFetchedLength={currentPost.comments.commentsFetchedLength}
               windowDimensions={windowDimensions}
+              textAreaRef={textAreaRef}
             />
           )}
         </div>

@@ -11,6 +11,9 @@ export const useFetch = (url) => {
         .then((res) => {
           setState({ data: res, loading: false });
           return res;
+        })
+        .catch((res) => {
+          console.error("Failed to fetch", url);
         });
     }
 

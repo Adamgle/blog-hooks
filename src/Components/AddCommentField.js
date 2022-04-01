@@ -3,7 +3,12 @@ import React from "react";
 import TextAreaAutosizeRef from "./TextAreaAutosizeRef";
 import { getTodaysDate, upperCaseFirst } from "./_parsingFunctions";
 
-const AddCommentField = ({ mergedState, currentPost, setMergedState }) => {
+const AddCommentField = ({
+  mergedState,
+  currentPost,
+  setMergedState,
+  textAreaRef,
+}) => {
   const handleChange = (e) => {
     // SET INPUT TEXT ON STATEFULL VALUE
     setMergedState((prevState) => {
@@ -132,8 +137,14 @@ const AddCommentField = ({ mergedState, currentPost, setMergedState }) => {
           className="comment-form noselect"
           onKeyDown={(e) => handleKeyDown(e)}
         >
-          <TextAreaAutosizeRef
+          {/* <TextAreaAutosizeRef
             ref={currentPost.comments.textAreaRef}
+            handleChange={handleChange}
+            doTextAreaFocus={currentPost.comments.doTextAreaFocus}
+            currentPost={currentPost}
+          /> */}
+          <TextAreaAutosizeRef
+            ref={textAreaRef}
             handleChange={handleChange}
             doTextAreaFocus={currentPost.comments.doTextAreaFocus}
             currentPost={currentPost}
