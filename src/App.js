@@ -43,12 +43,12 @@ const App = () => {
     `https://picsum.photos/v2/list?page=2&limit=100`
   );
 
-  // useEffect(() => {
-  //   const data = localStorage.getItem("mergedState");
-  //   if (data) {
-  //     setMergedState(JSON.parse(data));
-  //   }
-  // }, []);
+  useEffect(() => {
+    const data = localStorage.getItem("mergedState");
+    if (data) {
+      setMergedState(JSON.parse(data));
+    }
+  }, []);
 
   // LOAD DATABASES
   useEffect(() => {
@@ -120,20 +120,22 @@ const App = () => {
         setMergedState((prevState) => {
           return {
             posts: prevState?.posts
-              ? [
-                  ...prevState.posts,
-                  ...dataPosts.map((post, i) => {
-                    return {
-                      ...post,
-                      postID: post.id,
-                      id: nanoid(),
-                      comments: {},
-                      likes: 0,
-                      isRead: false,
-                      user: dataRandomUser.results[i],
-                    };
-                  }),
-                ]
+              ? fetchNextPosts
+                ? [
+                    ...prevState.posts,
+                    ...dataPosts.map((post, i) => {
+                      return {
+                        ...post,
+                        postID: post.id,
+                        id: nanoid(),
+                        comments: {},
+                        likes: 0,
+                        isRead: false,
+                        user: dataRandomUser.results[i],
+                      };
+                    }),
+                  ]
+                : prevState.posts
               : dataPosts.map((post, i) => {
                   return {
                     ...post,
@@ -146,17 +148,19 @@ const App = () => {
                   };
                 }),
             dataRandomUser: prevState?.dataRandomUser
-              ? [
-                  ...prevState.dataRandomUser,
-                  ...dataRandomUser.results.map((user) => ({
-                    ...user,
-                    id: nanoid(),
-                    name: {
-                      ...user.name,
-                      fullName: `${user.name.first} ${user.name.last}`,
-                    },
-                  })),
-                ]
+              ? fetchNextPosts
+                ? [
+                    ...prevState.dataRandomUser,
+                    ...dataRandomUser.results.map((user) => ({
+                      ...user,
+                      id: nanoid(),
+                      name: {
+                        ...user.name,
+                        fullName: `${user.name.first} ${user.name.last}`,
+                      },
+                    })),
+                  ]
+                : prevState.dataRandomUser
               : dataRandomUser.results.map((user) => ({
                   ...user,
                   id: nanoid(),
@@ -246,7 +250,7 @@ const App = () => {
           pageNumberValue: prevState.pageNumberValue + 1,
         };
       });
-      return;
+      // return;
     }
     return;
   }, [beenFullRequested, intersecting]);
@@ -295,11 +299,11 @@ const App = () => {
   //   navigate("/posts");
   // }, []);
 
-  // useEffect(() => {
-  //   if (mergedState && fetchStatus) {
-  //     localStorage.setItem("mergedState", JSON.stringify(mergedState));
-  //   }
-  // }, [fetchStatus, mergedState]);
+  useEffect(() => {
+    if (mergedState && fetchStatus) {
+      localStorage.setItem("mergedState", JSON.stringify(mergedState));
+    }
+  }, [fetchStatus, mergedState]);
 
   console.log(mergedState);
 

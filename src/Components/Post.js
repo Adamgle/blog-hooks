@@ -204,7 +204,7 @@ const Post = () => {
                 </div>
               </div>
 
-              <div className="post-edit-delete-button">
+              <div className="post-edit-delete-button noselect">
                 <div className="post-delete-container post-button-container">
                   <button
                     onClick={deletePost}
