@@ -43,12 +43,13 @@ const App = () => {
     `https://picsum.photos/v2/list?page=2&limit=100`
   );
 
-  useEffect(() => {
-    const data = localStorage.getItem("mergedState");
-    if (data) {
-      setMergedState(JSON.parse(data));
-    }
-  }, []);
+  // SETTING STORAGE TO STATE
+  // useEffect(() => {
+  //   const data = localStorage.getItem("mergedState");
+  //   if (data) {
+  //     setMergedState(JSON.parse(data));
+  //   }
+  // }, []);
 
   // LOAD DATABASES
   useEffect(() => {
@@ -78,6 +79,7 @@ const App = () => {
     // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
     // FETCH STATUS ARE CHANGING ONLY ONCE, THEN IT'S ALWAYS SET TO TRUE
     if (localStorage.getItem("mergedState")) {
+      console.log("done");
       setFetchStatus(true);
       return;
     }
@@ -250,7 +252,6 @@ const App = () => {
           pageNumberValue: prevState.pageNumberValue + 1,
         };
       });
-      // return;
     }
     return;
   }, [beenFullRequested, intersecting]);
@@ -299,37 +300,14 @@ const App = () => {
   //   navigate("/posts");
   // }, []);
 
-  useEffect(() => {
-    if (mergedState && fetchStatus) {
-      localStorage.setItem("mergedState", JSON.stringify(mergedState));
-    }
-  }, [fetchStatus, mergedState]);
+  // SAVE STATE TO LocalStorage
+  // useEffect(() => {
+  //   if (mergedState && fetchStatus) {
+  //     localStorage.setItem("mergedState", JSON.stringify(mergedState));
+  //   }
+  // }, [fetchStatus, mergedState]);
 
   console.log(mergedState);
-
-  // TESTS
-
-  useEffect(() => {
-    if (
-      fetchStatus &&
-      mergedState?.posts.length &&
-      mergedState?.dataRandomUser.length
-    ) {
-      if (mergedState.posts.length !== mergedState.dataRandomUser.length) {
-        console.log(
-          mergedState.posts.length,
-          mergedState.dataRandomUser.length
-        );
-      }
-    }
-  }, [
-    fetchCount,
-    fetchCountValue,
-    fetchStatus,
-    mergedState,
-    pageNumber,
-    pageNumberValue,
-  ]);
 
   return (
     <>

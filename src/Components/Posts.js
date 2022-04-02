@@ -18,10 +18,7 @@ const Posts = () => {
 
   const displayPosts = (
     <>
-      {!localStorage.getItem("mergedState") ||
-      !fetchStatus ||
-      !mergedState ||
-      !lastElement
+      {!fetchStatus || !mergedState || !lastElement
         ? "Loading..."
         : mergedState.posts.map((post) => {
             return post.id === lastElement.id ? (
@@ -56,7 +53,7 @@ const Posts = () => {
               />
             );
           })}
-      {(!loadingPosts || !loadingRandomUser) && (
+      {fetchStatus && (!loadingPosts || !loadingRandomUser) && (
         <div className="await">{!fetchStatus ? "" : "Fetching Data..."}</div>
       )}
     </>

@@ -169,9 +169,7 @@ const Post = () => {
       };
     });
   };
-  if (observer) {
-    console.log(currentPost.postID, observer);
-  }
+
   const commentsDynamicStyles = {
     maxWidth:
       windowDimensions.width <= 937
@@ -223,7 +221,7 @@ const Post = () => {
             <img src={currentPost.randomImageRef} alt="splash" />
           </div>
           <div className="post-title">
-            {params.postId !== currentPost.id.toString() ? (
+            {params.postId !== currentPost.id ? (
               <Link to={currentPost.id}>
                 <h3>{currentPost.title}</h3>
               </Link>
