@@ -54,7 +54,7 @@ const Posts = () => {
             );
           })}
       {fetchStatus && (!loadingPosts || !loadingRandomUser) && (
-        <div className="await">{!fetchStatus ? "" : "Fetching Data..."}</div>
+        <div className="await">Fetching Data...</div>
       )}
     </>
   );

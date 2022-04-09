@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect, useRef } from "react";
 import { useFetch } from "./Components/Hooks/useFetch";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Header from "./Components/Header";
 import useWindowDimensions from "./Components/Hooks/useWindowDimensions";
 
@@ -24,7 +24,7 @@ const App = () => {
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // REFS
 
@@ -189,6 +189,7 @@ const App = () => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     fetchStatus,
     dataPosts,

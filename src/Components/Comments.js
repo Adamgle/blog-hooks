@@ -110,7 +110,7 @@ const Comments = ({
             textAreaRef={textAreaRef}
             currentPost={currentPost}
           />
-          {currentPost.comments.dataComments.map((comment, i) => (
+          {currentPost.comments.dataComments.map((comment) => (
             <Comment
               key={comment.id}
               currentPost={currentPost}
