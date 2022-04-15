@@ -1,9 +1,9 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect, useRef } from "react";
-import { useFetch } from "./Components/Hooks/useFetch";
-import { Outlet, useNavigate, useParams } from "react-router-dom";
 import Header from "./Components/Header";
 import useWindowDimensions from "./Components/Hooks/useWindowDimensions";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { useFetch } from "./Components/Hooks/useFetch";
 
 const App = () => {
   // STATE
@@ -101,7 +101,6 @@ const App = () => {
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
     // WAIT FOR ALL FETCH CALLS BE PROCCESSED
-
     if (fetchStatus && dataPosts && dataRandomUser && dataRandomPicture) {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
@@ -293,11 +292,12 @@ const App = () => {
   const windowDimensions = useWindowDimensions();
 
   // REDIRECT TO /POSTS ON MOUNT
-  console.log(params);
+
   useEffect(() => {
     // TEMPORARY REDIRECT TO POSTS ON MOUNT
     // LATER IT WILL BE HOMEPAGE
     if (!Object.keys(params).length || params.mountParams !== "blog-hooks") {
+      console.log("done")
       navigate("/blog-hooks/posts");
     }
   }, []);

@@ -5,7 +5,6 @@ import {
   Outlet,
   useParams,
   useNavigate,
-  Navigate,
 } from "react-router-dom";
 import {
   generateRandomColors,
@@ -26,6 +25,7 @@ const Posts = () => {
 
   // GET URL PARAMS
   const params = useParams();
+  const navigate = useNavigate();
 
   const displayPosts = (
     <>
@@ -100,7 +100,6 @@ const Posts = () => {
 
   const { current: randomColorRef } = useRef(generateRandomColors(5));
 
-  const navigate = useNavigate();
   useEffect(() => {
     if (mergedState && fetchStatus) {
       const postsIds = mergedState.posts.map((post) => post.id);
