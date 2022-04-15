@@ -13,7 +13,8 @@ render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />}>
+        <Route path="/" element={<App />} />
+        <Route path=":mountParams" element={<App />}>
           <Route index element={<Posts />} />
           <Route path="posts" element={<Posts />}>
             <Route index element={<Post />} />

@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import React, { useState, useEffect, useRef } from "react";
 import { useFetch } from "./Components/Hooks/useFetch";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
 import Header from "./Components/Header";
 import useWindowDimensions from "./Components/Hooks/useWindowDimensions";
 
@@ -24,10 +24,9 @@ const App = () => {
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
 
-  // const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  const params = useParams();
   // REFS
-
   // REF TO OBSERVER
   const observer = useRef(null);
   const { current: usersSeed } = useRef("usersSeed");
@@ -295,9 +294,18 @@ const App = () => {
 
   // REDIRECT TO /POSTS ON MOUNT
 
-  // useEffect(() => {
-  //   navigate("/posts");
-  // }, []);
+  useEffect(() => {
+    // TEMPORARY REDIRECT TO POSTS ON MOUNT
+    // LATER IT WILL BE HOMEPAGE
+    navigate("/blog-hooks/posts");
+  }, []);
+
+  useEffect(() => {
+    console.log(params.mountParams);
+    if (params.mountParams === "/") {
+      navigate("/blog-hooks/posts");
+    }
+  }, [navigate, params.mountParams]);
 
   // SAVE STATE TO LocalStorage
   useEffect(() => {

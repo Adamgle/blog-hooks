@@ -6,7 +6,7 @@ const Header = () => {
 
   return (
     <header>
-      <h1 onClick={() => navigate("/posts")}>
+      <h1 onClick={() => navigate("/blog-hooks/posts")}>
         <Link to="/" style={{ color: "#fff", textDecoration: "none " }}>
           _Log
         </Link>
