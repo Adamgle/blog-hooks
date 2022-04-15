@@ -19,7 +19,6 @@ const Post = () => {
     windowDimensions,
     currentPost,
   } = useOutletContext();
-
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
@@ -59,6 +58,13 @@ const Post = () => {
                     randomDateRef: randomDateRef.current,
                     randomImageRef: randomImageRef.current,
                     sharesCount: sharesCount.current,
+                    tags: [
+                      "Technology",
+                      "Computers",
+                      "Science",
+                      "Math",
+                      "Learning",
+                    ],
                     comments: {
                       ...post.comments,
                       userCommentsLen: 0,
@@ -285,7 +291,7 @@ const Post = () => {
   );
 
   const postOnSelfPath = (
-    <div className="post post-self" style={{ maxWidth: "700px" }}>
+    <div className="post" style={{ margin: "0" }}>
       <div className="post-user">
         <div className="post-user-img">
           <img src={currentPost.user.picture.thumbnail} alt="user thumbnail" />
@@ -315,49 +321,51 @@ const Post = () => {
       <div className="post-content">
         <p>{currentPost.body}</p>
       </div>
-      <div className="post-likes-comments-share-count noselect">
-        <div className="post-likes-count-container post-interaction-count">
-          Likes
-          <div className="post-likes-count">{currentPost.likes}</div>
-        </div>
-        <div className="post-comments-shares-container">
-          <div
-            className="post-comments-count-container post-interaction-count"
-            onClick={handleShowCommentsButton}
-          >
-            Comments
-            <div className="post-comments-count">
-              {currentPost.comments.commentsLength}
+      <div className="post-interactions-container">
+        <div className="post-likes-comments-share-count noselect">
+          <div className="post-likes-count-container post-interaction-count">
+            Likes
+            <div className="post-likes-count">{currentPost.likes}</div>
+          </div>
+          <div className="post-comments-shares-container">
+            <div
+              className="post-comments-count-container post-interaction-count"
+              onClick={handleShowCommentsButton}
+            >
+              Comments
+              <div className="post-comments-count">
+                {currentPost.comments.commentsLength}
+              </div>
+            </div>
+            <div className="post-share-count-container post-interaction-count">
+              Shares
+              <div className="post-share-count">{currentPost.sharesCount}</div>
             </div>
           </div>
-          <div className="post-share-count-container post-interaction-count">
-            Shares
-            <div className="post-share-count">{currentPost.sharesCount}</div>
-          </div>
         </div>
-      </div>
-      <div className="post-likes-comments-share-buttons noselect">
-        <div className="post-likes-comments-share-buttons-inner-container">
-          <div className="post-likes-container">
-            <button
-              className="post-likes post-interaction-button"
-              onClick={handleLikePost}
-            >
-              Like it!
-            </button>
-          </div>
-          <div className="post-show-comments">
-            <button
-              className="post-show-comments-button post-interaction-button "
-              onClick={handleAddCommentButton}
-            >
-              Add Comment
-            </button>
-          </div>
-          <div className="post-share">
-            <button className="post-share-button post-interaction-button ">
-              Share
-            </button>
+        <div className="post-likes-comments-share-buttons noselect">
+          <div className="post-likes-comments-share-buttons-inner-container">
+            <div className="post-likes-container">
+              <button
+                className="post-likes post-interaction-button"
+                onClick={handleLikePost}
+              >
+                Like it!
+              </button>
+            </div>
+            <div className="post-show-comments">
+              <button
+                className="post-show-comments-button post-interaction-button "
+                onClick={handleAddCommentButton}
+              >
+                Add Comment
+              </button>
+            </div>
+            <div className="post-share">
+              <button className="post-share-button post-interaction-button ">
+                Share
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -377,7 +385,7 @@ const Post = () => {
     </div>
   );
 
-  return <>{params.postId ? postOnSelfPath : PostOnPostsPath}</>;
+  return params.postId ? postOnSelfPath : PostOnPostsPath;
 };
 
 export default Post;

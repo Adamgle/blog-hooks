@@ -44,22 +44,19 @@ const App = () => {
   );
 
   // SETTING STORAGE TO STATE
-  // useEffect(() => {
-  //   const data = localStorage.getItem("mergedState");
-  //   if (data) {
-  //     setMergedState(JSON.parse(data));
-  //   }
-  // }, []);
+  useEffect(() => {
+    const data = localStorage.getItem("mergedState");
+    if (data) {
+      setMergedState(JSON.parse(data));
+    }
+  }, []);
 
   // LOAD DATABASES
   useEffect(() => {
     if (fetchCount !== fetchCountValue || pageNumber !== pageNumberValue) {
       return;
     }
-    if (fetchCount !== fetchCountValue || pageNumber !== pageNumberValue) {
-      console.log(fetchCount, fetchCountValue);
-      console.log(pageNumber, pageNumberValue);
-    }
+
     setDbPosts(
       `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
     );
@@ -75,11 +72,11 @@ const App = () => {
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
 
+  // DETERMINE FETCH STATUS
   useEffect(() => {
     // IF NOT LOADING THEN SET FETCH STATUS TO TRUE
     // FETCH STATUS ARE CHANGING ONLY ONCE, THEN IT'S ALWAYS SET TO TRUE
     if (localStorage.getItem("mergedState")) {
-      console.log("done");
       setFetchStatus(true);
       return;
     }
@@ -200,7 +197,8 @@ const App = () => {
     loadingRandomUser,
   ]);
 
-  // THIS IS BUGGED
+  // ADD USER ENTRY TO POSTS PROPERTY SO IT CAN BE ACCESSIBLE
+  // THROUGH ONE PROP "mergedState.posts"
   useEffect(() => {
     if (fetchStatus) {
       setMergedState((prevState) => {
@@ -215,6 +213,7 @@ const App = () => {
     }
   }, [fetchStatus, mergedState?.dataRandomUser]);
 
+  // SETS THE OBSERVER TO LAST POST ON THE PAGE
   useEffect(() => {
     if (mergedState && fetchStatus) {
       setLastElement(mergedState.posts[mergedState.posts.length - 1]);
@@ -226,7 +225,6 @@ const App = () => {
   // USE EFFECT WITH urlDepsValues VALUES IN STATEMENT WILL BE DIFFERENT ON
   // ANOTHER RENDER WHEN CONDITION IS MET, SO THE POSTS WILL BE JUST
   // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH REDENR WILL BE BROKEN
-
   useEffect(() => {
     if (fetchCountValue >= 100 || pageNumberValue >= 21) {
       setBeenFullRequested(true);
@@ -235,11 +233,9 @@ const App = () => {
 
   // SETS URL DEPS VALUES, AND MAKES IT STATEFULL
   // THIS IS DIFFERENT 'CAUSE THIS IS JUST THE VALUE
-
   useEffect(() => {
     // IF (INTERSECTING) -> FETCH CALL WILL BE PERFORMED
     if (intersecting) {
-      console.log(intersecting);
       setFetchNextPosts(true);
       setUrlDepsValues((prevState) => {
         if (beenFullRequested) {
@@ -257,6 +253,8 @@ const App = () => {
     return;
   }, [beenFullRequested, intersecting]);
 
+  // MOUNTS AND IntersectionObserver ATTACHED TO
+  // LAST ELEMENT ON THE PAGE
   useEffect(() => {
     if (fetchStatus) {
       if (observer && observer.current) {
@@ -302,13 +300,13 @@ const App = () => {
   // }, []);
 
   // SAVE STATE TO LocalStorage
-  // useEffect(() => {
-  //   if (mergedState && fetchStatus) {
-  //     localStorage.setItem("mergedState", JSON.stringify(mergedState));
-  //   }
-  // }, [fetchStatus, mergedState]);
+  useEffect(() => {
+    if (mergedState && fetchStatus) {
+      localStorage.setItem("mergedState", JSON.stringify(mergedState));
+    }
+  }, [fetchStatus, mergedState]);
 
-  console.log(mergedState);
+  // console.log(mergedState);
 
   return (
     <>

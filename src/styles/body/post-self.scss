@@ -1,3 +1,143 @@
-.post-self {
-    max-width: 700px;
+.posts-container-self {
+  display: block !important;
+
+  .posts {
+    padding: 0;
+  }
+
+  .post-self {
+    .post {
+      max-width: 800px;
+      border: 0;
+      border-radius: 3px;
+      padding: 20px;
+      justify-content: flex-start;
+      gap: .75rem;
+      .post-user {
+        // CAN BE UNMOUNT IN REACT
+        display: none;
+      }
+      .post-interactions-container {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          width: 100%;
+      }
+    }
+
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    order: 1;
+    margin: 2rem 0;
+    width: 100%;
+
+    .post-self-about-author {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      order: 0;
+      width: 350px;
+      padding: 15px 0 0 15px;
+      gap: 1rem;
+      border-left: 5px solid #3c3939;
+      border-top: 5px solid #3c3939;
+      .post-self-author {
+        display: flex;
+        flex-direction: column;
+        border: 6px solid #2a2929;
+        .post-self-author-inner-container {
+          display: flex;
+          justify-content: flex-start;
+          flex-direction: row;
+          gap: 1rem;
+          padding: 10px;
+        }
+        .post-self-author-about {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding: 10px;
+          h5 {
+            font-size: small;
+            letter-spacing: 1px;
+          }
+        }
+        img {
+          border-radius: 5px;
+        }
+        .post-self-author-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.1rem;
+          font-size: 14px;
+          * {
+            font-weight: bold;
+          }
+        }
+        & > p {
+          font-weight: bold;
+        }
+      }
+
+      .post-self-user-posts-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 6px;
+        & > h4 {
+          letter-spacing: 1.5px;
+          font-size: large;
+        }
+        .post-self-user-posts {
+          display: flex;
+          flex-direction: column;
+          .post-self-user-post-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            cursor: pointer;
+            .post-self-user-post {
+              font-weight: bold;
+              img {
+                width: 100%;
+                height: 120px;
+                object-fit: cover;
+              }
+            }
+          }
+        }
+      }
+      .post-self-tags-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 10px;
+        & > h6 {
+          font-size: large;
+        }
+        .post-self-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 1rem;
+          font-weight: bold;
+
+          & * {
+            padding: 3px 10px;
+            letter-spacing: 0.5px;
+            border-radius: 15px;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    .post-self-recent-posts {
+      padding: 10px;
+      order: 2;
+      border: 1px solid red;
+      min-height: min-content;
+      width: 300px;
+    }
+  }
 }

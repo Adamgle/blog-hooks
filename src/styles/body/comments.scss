@@ -4,6 +4,7 @@
     gap: 1rem;
     width: 100%;
     word-wrap: break-word;
+    word-break: break-all;
     .comment-profile {
         display: flex;
         width: 100%;
@@ -107,6 +108,7 @@
                 text-align: left;
                 padding: 5px 5px 0;
                 word-wrap: break-word;
+                word-break: break-all;
             }
         }
 
