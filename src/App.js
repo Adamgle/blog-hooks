@@ -293,19 +293,14 @@ const App = () => {
   const windowDimensions = useWindowDimensions();
 
   // REDIRECT TO /POSTS ON MOUNT
-
+  console.log(params);
   useEffect(() => {
     // TEMPORARY REDIRECT TO POSTS ON MOUNT
     // LATER IT WILL BE HOMEPAGE
-    navigate("/blog-hooks/posts");
-  }, []);
-
-  useEffect(() => {
-    console.log(params.mountParams);
-    if (params.mountParams === "/") {
+    if (!Object.keys(params).length || params.mountParams !== "blog-hooks") {
       navigate("/blog-hooks/posts");
     }
-  }, [navigate, params.mountParams]);
+  }, []);
 
   // SAVE STATE TO LocalStorage
   useEffect(() => {

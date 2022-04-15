@@ -1,6 +1,12 @@
 import { nanoid } from "nanoid";
 import React, { useEffect, useState, useRef } from "react";
-import { useOutletContext, Outlet, useParams } from "react-router-dom";
+import {
+  useOutletContext,
+  Outlet,
+  useParams,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import {
   generateRandomColors,
   getRandomBackgroundColor,
@@ -94,7 +100,18 @@ const Posts = () => {
 
   const { current: randomColorRef } = useRef(generateRandomColors(5));
 
-  // console.log(currentPost.likes)
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (mergedState && fetchStatus) {
+      const postsIds = mergedState.posts.map((post) => post.id);
+      if (
+        params.mountParams === "blog-hooks" &&
+        !postsIds.includes(params.postId)
+      ) {
+        navigate("/blog-hooks/posts");
+      }
+    }
+  }, [fetchStatus, mergedState, navigate, params.mountParams, params.postId]);
 
   return (
     <div
@@ -127,7 +144,7 @@ const Posts = () => {
                     {mergedState.posts
                       .filter((post) => post.postID === currentPost.postID)
                       .map((post) => (
-                        <div className="post-self-user-post">
+                        <div className="post-self-user-post" key={nanoid()}>
                           <div className="post-self-user-post-img-container">
                             <img
                               src={post.randomImageRef}
