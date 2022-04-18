@@ -6,8 +6,8 @@ import {
   concatFetchedContent,
   generateTopic,
   generateTags,
-  generateRandomColors,
-  getRandomBackgroundColor,
+  generateRandomBackgroundColors,
+  getRandomColorForBackgroundColor,
 } from "./_parsingFunctions";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 
@@ -27,25 +27,37 @@ const Post = () => {
   // CALLBACKS
 
   // REFS
-  const randomDateRef = useRef(randomDate());
-  const concatFetchDataRef = useRef(
+  const { current: randomDateRef } = useRef(randomDate());
+  const { current: concatFetchDataRef } = useRef(
     upperCaseFirst(concatFetchedContent(currentPost.body), true)
   );
 
   // Number used for displaying comments count
-  // then when comment is added, userComments is there added
-  const commentsFetchedLength = useRef(1 + Math.round(Math.random() * 4));
-  const sharesCount = useRef(1 + Math.round(Math.random() * 19));
-  const randomImageRef = useRef(
+  // then when comment is added, userCommentsLen is there added
+  const { current: commentsFetchedLength } = useRef(
+    1 + Math.round(Math.random() * 4)
+  );
+  const { current: sharesCount } = useRef(1 + Math.round(Math.random() * 19));
+  const { current: randomImageRef } = useRef(
     mergedState.dataRandomPicture[
       Math.trunc(Math.random() * mergedState.dataRandomPicture.length)
     ].download_url
   );
   const { current: topicRef } = useRef(generateTopic());
-  const { current: tagsRef } = useRef(generateTags(topicRef));
-  const { current: randomColorRef } = useRef(
-    generateRandomColors(tagsRef.length)
+  const { current: tagsRef } = useRef(
+    generateTags(topicRef).sort((a, b) => b.length - a.length)
   );
+  const { current: randomBackgroundColorRef } = useRef(
+    generateRandomBackgroundColors(tagsRef.length)
+  );
+  const { current: colorsTagsRef } = useRef(
+    randomBackgroundColorRef.map((color) =>
+      getRandomColorForBackgroundColor(color)
+    )
+  );
+
+  console.log(tagsRef);
+
   // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
@@ -64,19 +76,20 @@ const Post = () => {
                     ...post,
                     title: upperCaseFirst(post.title, true),
                     body: `${upperCaseFirst(post.body, true)} ${
-                      concatFetchDataRef.current
+                      concatFetchDataRef
                     }`,
-                    randomDateRef: randomDateRef.current,
-                    randomImageRef: randomImageRef.current,
-                    sharesCount: sharesCount.current,
+                    randomDateRef: randomDateRef,
+                    randomImageRef: randomImageRef,
+                    sharesCount: sharesCount,
                     topic: topicRef,
                     tags: tagsRef,
-                    colorTags: randomColorRef,
+                    colorsTags: colorsTagsRef,
+                    backgroundColorsTags: randomBackgroundColorRef,
                     comments: {
                       ...post.comments,
                       userCommentsLen: 0,
-                      commentsFetchedLength: commentsFetchedLength.current,
-                      commentsLength: commentsFetchedLength.current,
+                      commentsFetchedLength: commentsFetchedLength,
+                      commentsLength: commentsFetchedLength,
                       showComments: false,
                       doTextAreaFocus: false,
                       beenShown: false,
@@ -296,8 +309,6 @@ const Post = () => {
       )}
     </div>
   );
-
-  console.log(currentPost, currentPost.postID);
 
   const postOnSelfPath = (
     <div className="post" style={{ margin: "0" }}>

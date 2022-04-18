@@ -91,7 +91,7 @@ const getTodaysDate = () => {
     .join(". ");
 };
 
-const generateRandomColors = (numOfColors = 1) => {
+const generateRandomBackgroundColors = (numOfColors = 1) => {
   let letters = "0123456789ABCDEF";
   let color = "";
   let colors = [];
@@ -106,7 +106,7 @@ const generateRandomColors = (numOfColors = 1) => {
   return colors;
 };
 
-const getRandomBackgroundColor = (backgroundColor) => {
+const getRandomColorForBackgroundColor = (backgroundColor) => {
   function getRGB(c) {
     return parseInt(c, 16) || c;
   }
@@ -247,8 +247,8 @@ export {
   upperCaseFirst,
   concatFetchedContent,
   getTodaysDate,
-  generateRandomColors,
-  getRandomBackgroundColor,
+  generateRandomBackgroundColors,
+  getRandomColorForBackgroundColor,
   generateTopic,
   generateTags,
 };

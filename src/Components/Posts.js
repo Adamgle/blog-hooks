@@ -1,15 +1,12 @@
 import { nanoid } from "nanoid";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useOutletContext,
   Outlet,
   useParams,
   useNavigate,
+  Link,
 } from "react-router-dom";
-import {
-  generateRandomColors,
-  getRandomBackgroundColor,
-} from "./_parsingFunctions";
 import InteractionsData from "./IneractionsData";
 
 const Posts = () => {
@@ -143,25 +140,40 @@ const Posts = () => {
                 <div className="post-self-user-posts">
                   <div className="post-self-user-post-container">
                     {mergedState.posts
-                      .filter((post) => post.postID === currentPost.postID)
+                      .filter((post) => post.user.name.fullName === currentPost.user.name.fullName)
                       .map((post) => (
                         <div className="post-self-user-post" key={nanoid()}>
                           <div className="post-self-user-post-img-container">
-                            <img
-                              src={post.randomImageRef}
-                              alt="hero"
-                              className="post-self-user-post-img"
+                            <Link to={`/blog-hooks/posts/${post.id}`}>
+                              <img
+                                src={post.randomImageRef}
+                                alt="hero"
+                                className="post-self-user-post-img"
+                              />
+                            </Link>
+                          </div>
+                          <div className="post-self-user-title-interactions-wrapper">
+                            <Link
+                              to={`/blog-hooks/posts/${post.id}`}
+                              style={{ textDecoration: "none", color: "#fff" }}
+                            >
+                              <div className="post-self-user-post-title">
+                                {post.title}
+                              </div>
+                            </Link>
+                            <InteractionsData
+                              currentPost={post}
+                              comments={true}
+                              likes={true}
+                              containerStyle={{
+                                justifyContent: "flex-start",
+                                fontWeight: "400",
+                                fontSize: "12px",
+                                gap: ".75rem"
+                              }}
+                              itemStyle={{ cursor: "auto" }}
                             />
                           </div>
-                          <div className="post-self-user-post-title">
-                            {post.title}
-                          </div>
-                          <InteractionsData
-                            currentPost={currentPost}
-                            comments={true}
-                            likes={true}
-                            style={{ justifyContent: "flex-start" }}
-                          />
                         </div>
                       ))}
                   </div>
@@ -174,10 +186,8 @@ const Posts = () => {
                     <span
                       key={nanoid()}
                       style={{
-                        backgroundColor: currentPost.colorTags[i],
-                        color: getRandomBackgroundColor(
-                          currentPost.colorTags[i]
-                        ),
+                        backgroundColor: currentPost.backgroundColorsTags[i],
+                        color: currentPost.colorsTags[i],
                       }}
                     >
                       {tag}

@@ -37,6 +37,7 @@ const Header = () => {
           </li>
           <li>Contact</li>
           <li>About us</li>
+          <li onClick={() => localStorage.clear()}>Clear Storage</li>
         </ul>
       </nav>
     </header>
