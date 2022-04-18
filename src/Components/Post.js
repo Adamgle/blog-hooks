@@ -75,9 +75,10 @@ const Post = () => {
                 ? {
                     ...post,
                     title: upperCaseFirst(post.title, true),
-                    body: `${upperCaseFirst(post.body, true)} ${
-                      concatFetchDataRef
-                    }`,
+                    body: `${upperCaseFirst(
+                      post.body,
+                      true
+                    )} ${concatFetchDataRef}`,
                     randomDateRef: randomDateRef,
                     randomImageRef: randomImageRef,
                     sharesCount: sharesCount,
@@ -206,6 +207,19 @@ const Post = () => {
         ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
         : `${windowDimensions.width - 27}px`, // >=700 viewport
   };
+
+  useEffect(() => {
+    return () => {
+      setMergedState((prevState) => ({
+        ...prevState,
+        posts: prevState.posts.map((post) =>
+          post.id === currentPost.id
+            ? { ...post, comments: { ...post.comments, showComments: false } }
+            : post
+        ),
+      }));
+    };
+  }, []);
 
   const PostOnPostsPath = mergedState && fetchStatus && (
     <div className="post" style={commentsDynamicStyles} ref={observer}>
