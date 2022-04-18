@@ -1,3 +1,5 @@
+import React, { useRef, useCallback, useMemo } from "react";
+
 const upperCaseFirst = (str, addDot) => {
   return (
     str
@@ -61,6 +63,7 @@ const randomDate = () => {
 
 const concatFetchedContent = (str, count = 1) => {
   const items = [];
+  // console.log("run")
   for (let k = 0; k < count; k++) {
     const array = str.split(" ");
     for (var i = array.length - 1; i > 0; i--) {
@@ -137,6 +140,108 @@ const getRandomBackgroundColor = (backgroundColor) => {
   return getTextColor(backgroundColor);
 };
 
+const generateTopic = () => {
+  const topics = ["technology", "politics", "science", "lifestyle", "biznes"];
+  return topics[Math.trunc(Math.random() * topics.length)];
+};
+
+const generateTags = (topic) => {
+  // 5 - 10
+  const topics = {
+    technology: [
+      "Computers",
+      "Programming",
+      "AI",
+      "Front-end",
+      "Back-end",
+      "Javacript",
+      "C++",
+      "Java",
+      "Web Development",
+      "Software Development",
+      "Networking",
+    ],
+    politics: [
+      "War",
+      "Fraud",
+      "Lie",
+      "Coruption",
+      "Joe Biden",
+      "Donal Trump",
+      "Propaganda",
+      "Vladimir Putin",
+      "Help Ukraine",
+      "News",
+    ],
+    science: [
+      "Math",
+      "Biology",
+      "IT",
+      "Computer Science",
+      "Psychology",
+      "Space",
+      "Astronomy",
+      "AI",
+      "Anatomy",
+      "Diet",
+      "Equations",
+    ],
+    lifestyle: [
+      "Cleaning",
+      "Washing",
+      "Shopping",
+      "Cooking",
+      "School",
+      "College",
+      "Learning",
+      "Good Habits",
+      "Life Hacks",
+      "Netflix",
+      "Movies",
+    ],
+    biznes: [
+      "Inflation",
+      "Biznes Plan",
+      "Start-up",
+      "Jobs",
+      "Starting a Company",
+      "Donaitions",
+      "Banking",
+      "NFT",
+      "Bitcoin",
+      "Etherum",
+      "Cryptocurrencies",
+    ],
+  };
+  const tagsNum = Math.round(
+    topics[topic].length / 2 + (Math.random() * topics[topic].length) / 2
+  );
+  const getArrayOfTags = () => {
+    const tags = [];
+    for (let i = 0; i < tagsNum; i++) {
+      let randomIndex = Math.trunc(Math.random() * topics[topic].length);
+      let currentTag = topics[topic][randomIndex];
+      if (tags.includes(currentTag)) {
+        // CURRENT TAG CAN'T BE USED THERE 'CAUSE
+        // VARIABLE VALUE IS NOT AFFECTED BY THE WHILE LOOP
+        while (tags.includes(topics[topic][randomIndex])) {
+          randomIndex = Math.trunc(Math.random() * topics[topic].length);
+        }
+      }
+      // CURRENT TAG CAN'T BE USED THERE 'CAUSE
+      // VARIABLE VALUE IS NOT AFFECTED BY THE WHILE LOOP
+      // VALUE OF THE VARIABLE IS ALWAYS THE SAME
+      // SO THE RANDOMIZAITION DOES NO EXITS
+      // ALTHOUTH, IT CAN BE USE THERE IF VARIABLE IS BEEING OVERWRITTEN
+      // IN THE WHILE LOOP
+      tags.push(topics[topic][randomIndex]);
+    }
+    return tags;
+  };
+
+  return getArrayOfTags();
+};
+
 export {
   randomDate,
   upperCaseFirst,
@@ -144,4 +249,6 @@ export {
   getTodaysDate,
   generateRandomColors,
   getRandomBackgroundColor,
+  generateTopic,
+  generateTags,
 };

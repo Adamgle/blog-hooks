@@ -1,4 +1,5 @@
 import React from "react";
+import InteractionsData from "./IneractionsData";
 
 const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
   const likeComment = () => {
@@ -38,9 +39,7 @@ const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
             <div className="comment-date">{currentComment.commentDate}</div>
           </div>
         </div>
-        <div className="comment-content">
-          {currentComment.body}
-        </div>
+        <div className="comment-content">{currentComment.body}</div>
       </div>
       <div className="comment-interactions noselect">
         <div className="comment-interactions-container">
@@ -58,20 +57,13 @@ const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
             </button>
           </div>
         </div>
-        <div className="comment-interactions-count">
-          <div className="comment-interactions-likes-container comment-interaction-count-container">
-            Likes
-            <div className="comment-interactions-likes-count comment-interaction-count">
-              {currentComment.likes}
-            </div>
-          </div>
-          <div className="comment-interactions-replies-container comment-interaction-count-container">
-            Replies
-            <div className="comment-interactions-replies-count comment-interaction-count">
-              {currentComment.replies}
-            </div>
-          </div>
-        </div>
+        <InteractionsData
+          currentPost={currentPost}
+          currentComment={currentComment}
+          comments={false}
+          likes={true}
+          shares={true}
+        />
       </div>
     </div>
   );

@@ -1,61 +1,79 @@
 .noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Old versions of Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 .post-interaction-button {
-    font-family: "Roboto", sans-serif;
-    letter-spacing: 1px;
-    width: 100%;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 8px 20px;
-    border-radius: 50px;
-    border: 0;
-    outline: 0;
-    background-color: #2d3035;
-    color: #fff;
-    cursor: pointer;
+  font-family: "Roboto", sans-serif;
+  letter-spacing: 1px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 8px 20px;
+  border-radius: 50px;
+  border: 0;
+  outline: 0;
+  background-color: #2d3035;
+  color: #fff;
+  cursor: pointer;
 }
 .post-interaction-count {
-    display: flex;
-    font-weight: bold;
-    gap: 0.5rem;
-    cursor: pointer;
+  display: flex;
+  font-weight: bold;
+  gap: 0.5rem;
+  cursor: pointer;
 }
 .picture-profile {
-    width: 48px;
-    height: 48px;
-    border-radius: 50px;
-    object-fit: cover;
+  width: 48px;
+  height: 48px;
+  border-radius: 50px;
+  object-fit: cover;
 }
 .post-user-label {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row;
-    font-style: italic;
-    font-weight: bold;
-    font-size: 14px;
-    width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  font-style: italic;
+  font-weight: bold;
+  font-size: 14px;
+  width: 100%;
 }
 .post-button-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    .post-button {
-        background-color: transparent;
-        letter-spacing: 0.5px;
-        font-weight: bold;
-        font-size: 14px;
-        color: #fff;
-        border: 0;
-        outline: 0;
-        &:hover {
-            cursor: pointer;
-        }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .post-button {
+    background-color: transparent;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    border: 0;
+    outline: 0;
+    &:hover {
+      cursor: pointer;
     }
+  }
+}
+.interactions-count {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 13.33px;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  .interaction-count-container {
+    display: flex;
+    gap: 0.5rem;
+    letter-spacing: 0.4px;
+
+    cursor: pointer;
+    .interaction-count {
+      //
+    }
+  }
 }

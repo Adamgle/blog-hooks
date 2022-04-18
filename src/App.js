@@ -297,11 +297,10 @@ const App = () => {
     // TEMPORARY REDIRECT TO POSTS ON MOUNT
     // LATER IT WILL BE HOMEPAGE
     if (!Object.keys(params).length || params.mountParams !== "blog-hooks") {
-      console.log("done")
+      console.log("done");
       navigate("/blog-hooks/posts");
     }
   }, []);
-
   // SAVE STATE TO LocalStorage
   useEffect(() => {
     if (mergedState && fetchStatus) {
@@ -310,6 +309,7 @@ const App = () => {
   }, [fetchStatus, mergedState]);
 
   // console.log(mergedState);
+
 
   return (
     <>

@@ -10,6 +10,7 @@ import {
   generateRandomColors,
   getRandomBackgroundColor,
 } from "./_parsingFunctions";
+import InteractionsData from "./IneractionsData";
 
 const Posts = () => {
   const {
@@ -87,6 +88,7 @@ const Posts = () => {
       />
     ) : null;
   });
+  // console.log(mergedState?.posts.forEach((post) => console.log(post.postID)));
 
   const [currentPost, setCurrentPost] = useState(null);
 
@@ -97,8 +99,6 @@ const Posts = () => {
       );
     }
   }, [mergedState, fetchStatus, params.postId]);
-
-  const { current: randomColorRef } = useRef(generateRandomColors(5));
 
   useEffect(() => {
     if (mergedState && fetchStatus) {
@@ -124,16 +124,18 @@ const Posts = () => {
             <div className="post-self-about-author">
               <div className="post-self-author">
                 <div className="post-self-author-inner-container">
-                  <img src={currentPost.user.picture.medium} alt="author" />
+                  <div className="post-self-author-image-about-container">
+                    <img src={currentPost.user.picture.medium} alt="author" />
+                    <h5>ABOUT</h5>
+                  </div>
                   <div className="post-self-author-info">
                     <p>{currentPost.user.name.fullName}</p>
                     <p>{currentPost.user.email}</p>
                   </div>
                 </div>
                 <div className="post-self-author-about">
-                  <h5>ABOUT</h5>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Error, fugiat.
+                  Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sint
+                  suscipit atque dolores illum aspernatur recusandae.
                 </div>
               </div>
               <div className="post-self-user-posts-container">
@@ -154,6 +156,12 @@ const Posts = () => {
                           <div className="post-self-user-post-title">
                             {post.title}
                           </div>
+                          <InteractionsData
+                            currentPost={currentPost}
+                            comments={true}
+                            likes={true}
+                            style={{ justifyContent: "flex-start" }}
+                          />
                         </div>
                       ))}
                   </div>
@@ -166,8 +174,10 @@ const Posts = () => {
                     <span
                       key={nanoid()}
                       style={{
-                        backgroundColor: randomColorRef[i],
-                        color: getRandomBackgroundColor(randomColorRef[i]),
+                        backgroundColor: currentPost.colorTags[i],
+                        color: getRandomBackgroundColor(
+                          currentPost.colorTags[i]
+                        ),
                       }}
                     >
                       {tag}

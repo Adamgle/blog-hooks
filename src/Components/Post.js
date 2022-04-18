@@ -4,6 +4,10 @@ import {
   upperCaseFirst,
   randomDate,
   concatFetchedContent,
+  generateTopic,
+  generateTags,
+  generateRandomColors,
+  getRandomBackgroundColor,
 } from "./_parsingFunctions";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 
@@ -19,6 +23,9 @@ const Post = () => {
     windowDimensions,
     currentPost,
   } = useOutletContext();
+
+  // CALLBACKS
+
   // REFS
   const randomDateRef = useRef(randomDate());
   const concatFetchDataRef = useRef(
@@ -34,7 +41,11 @@ const Post = () => {
       Math.trunc(Math.random() * mergedState.dataRandomPicture.length)
     ].download_url
   );
-
+  const { current: topicRef } = useRef(generateTopic());
+  const { current: tagsRef } = useRef(generateTags(topicRef));
+  const { current: randomColorRef } = useRef(
+    generateRandomColors(tagsRef.length)
+  );
   // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
@@ -58,13 +69,9 @@ const Post = () => {
                     randomDateRef: randomDateRef.current,
                     randomImageRef: randomImageRef.current,
                     sharesCount: sharesCount.current,
-                    tags: [
-                      "Technology",
-                      "Computers",
-                      "Science",
-                      "Math",
-                      "Learning",
-                    ],
+                    topic: topicRef,
+                    tags: tagsRef,
+                    colorTags: randomColorRef,
                     comments: {
                       ...post.comments,
                       userCommentsLen: 0,
@@ -290,6 +297,8 @@ const Post = () => {
     </div>
   );
 
+  console.log(currentPost, currentPost.postID);
+
   const postOnSelfPath = (
     <div className="post" style={{ margin: "0" }}>
       <div className="post-user">
@@ -316,11 +325,13 @@ const Post = () => {
         <img src={currentPost.randomImageRef} alt="splash" width={500} />
       </div>
       <div className="post-items-container">
-        <div className="post-title">
-          <h3>{currentPost.title}</h3>
-        </div>
-        <div className="post-content">
-          <p>{currentPost.body}</p>
+        <div className="post-title-content-container">
+          <div className="post-title">
+            <h3>{currentPost.title}</h3>
+          </div>
+          <div className="post-content">
+            <p>{currentPost.body}</p>
+          </div>
         </div>
         <div className="post-interactions-container">
           <div className="post-likes-comments-share-count noselect">

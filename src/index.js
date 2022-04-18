@@ -1,5 +1,5 @@
 import { render } from "react-dom";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "react-query";
 import App from "./App";
 import Home from "./Components/Home";
@@ -11,7 +11,7 @@ const queryClient = new QueryClient();
 
 render(
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<App />} />
         <Route path=":mountParams" element={<App />}>
@@ -24,7 +24,7 @@ render(
           <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   </QueryClientProvider>,
   document.getElementById("root")
 );
