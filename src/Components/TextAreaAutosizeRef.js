@@ -4,14 +4,14 @@ import TextareaAutosize from "react-textarea-autosize";
 const TextAreaAutosizeRef = React.forwardRef(
   ({ handleChange, currentPost, doTextAreaFocus }, ref) => {
     useEffect(() => {
-      const currentRef = ref.current;
+      const textArea = ref.current;
       if (doTextAreaFocus) {
-        currentRef.focus();
+        textArea.focus();
       } else {
-        currentRef.blur();
+        textArea.blur();
       }
       return () => {
-        currentRef.blur();
+        textArea.blur();
       };
     }, [doTextAreaFocus, ref]);
 

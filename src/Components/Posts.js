@@ -13,23 +13,32 @@ const Posts = () => {
   const {
     mergedState,
     setMergedState,
+
+    sortMethod,
     fetchStatus,
     loadingPosts,
     loadingRandomUser,
     observer,
     lastElement,
     windowDimensions,
+    intersecting,
+    setSortMethod,
   } = useOutletContext();
 
   // GET URL PARAMS
   const params = useParams();
   const navigate = useNavigate();
 
+  console.log(mergedState);
+
   const displayPosts = (
     <>
-      {!fetchStatus || !mergedState || !lastElement
-        ? "Loading..."
-        : mergedState.posts.map((post) => {
+      {!fetchStatus || !mergedState || !lastElement ? (
+        "Loading..."
+      ) : (
+        <>
+          <FilterSelect sortMethod={sortMethod} setSortMethod={setSortMethod} />
+          {mergedState.posts.map((post) => {
             return post.id === lastElement.id ? (
               // ADD OBSERVER IF LAST POST ARE BEING INTERATED
               <Outlet
@@ -62,11 +71,14 @@ const Posts = () => {
               />
             );
           })}
-      {fetchStatus && (!loadingPosts || !loadingRandomUser) && (
+        </>
+      )}
+      {fetchStatus && intersecting && (!loadingPosts || !loadingRandomUser) && (
         <div className="await">Fetching Data...</div>
       )}
     </>
   );
+
   const displayPost = mergedState?.posts.map((post) => {
     return post.id === params.postId ? (
       <Outlet
@@ -85,7 +97,6 @@ const Posts = () => {
       />
     ) : null;
   });
-  // console.log(mergedState?.posts.forEach((post) => console.log(post.postID)));
 
   const [currentPost, setCurrentPost] = useState(null);
 
@@ -97,6 +108,8 @@ const Posts = () => {
     }
   }, [mergedState, fetchStatus, params.postId]);
 
+  // BUG THERE
+  // THIS useEffect CLEARS URL HISTORY
   useEffect(() => {
     if (mergedState && fetchStatus) {
       const postsIds = mergedState.posts.map((post) => post.id);
@@ -104,7 +117,7 @@ const Posts = () => {
         params.mountParams === "blog-hooks" &&
         !postsIds.includes(params.postId)
       ) {
-        navigate("/blog-hooks/posts");
+        navigate("/blog-hooks/posts", { replace: true });
       }
     }
   }, [fetchStatus, mergedState, navigate, params.mountParams, params.postId]);
@@ -140,7 +153,11 @@ const Posts = () => {
                 <div className="post-self-user-posts">
                   <div className="post-self-user-post-container">
                     {mergedState.posts
-                      .filter((post) => post.user.name.fullName === currentPost.user.name.fullName)
+                      .filter(
+                        (post) =>
+                          post.user.name.fullName ===
+                          currentPost.user.name.fullName
+                      )
                       .map((post) => (
                         <div className="post-self-user-post" key={nanoid()}>
                           <div className="post-self-user-post-img-container">
@@ -169,7 +186,7 @@ const Posts = () => {
                                 justifyContent: "flex-start",
                                 fontWeight: "400",
                                 fontSize: "12px",
-                                gap: ".75rem"
+                                gap: ".75rem",
                               }}
                               itemStyle={{ cursor: "auto" }}
                             />
@@ -204,6 +221,20 @@ const Posts = () => {
         )}
       </div>
     </div>
+  );
+};
+
+const FilterSelect = ({ sortMethod, setSortMethod }) => {
+  return (
+    <form>
+      <select
+        value={sortMethod}
+        onChange={(e) => setSortMethod(e.target.value)}
+      >
+        <option value="initial">Recent</option>
+        <option value="byDate">Oldest</option>
+      </select>
+    </form>
   );
 };
 

@@ -7,6 +7,7 @@ import Posts from "./Components/Posts";
 import NoMatch from "./Components/NoMatch";
 import Post from "./Components/Post";
 import "./styles/index.scss";
+import React from "react";
 const queryClient = new QueryClient();
 
 render(

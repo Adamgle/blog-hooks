@@ -2,7 +2,7 @@ import React from "react";
 import InteractionsData from "./IneractionsData";
 
 const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
-  const likeComment = () => {
+  const handleLikeComment = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
@@ -46,7 +46,7 @@ const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
           <div className="comment-interaction-like-container comment-interaction-container">
             <button
               className="comment-interaction-like comment-interaction"
-              onClick={likeComment}
+              onClick={handleLikeComment}
             >
               Like it!
             </button>
@@ -62,7 +62,8 @@ const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
           currentComment={currentComment}
           comments={false}
           likes={true}
-          shares={true}
+ 
+          replies={true}
         />
       </div>
     </div>

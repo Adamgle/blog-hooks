@@ -1,9 +1,10 @@
 import { nanoid } from "nanoid";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Header from "./Components/Header";
 import useWindowDimensions from "./Components/Hooks/useWindowDimensions";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useFetch } from "./Components/Hooks/useFetch";
+import { sortByDate } from "./Components/_parsingFunctions";
 
 const App = () => {
   // STATE
@@ -23,6 +24,12 @@ const App = () => {
 
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
+
+  const [sortMethod, setSortMethod] = useState("initial");
+  const [sorted, setSorted] = useState({
+    initial: null,
+    byDate: null,
+  });
 
   const navigate = useNavigate();
   const params = useParams();
@@ -45,8 +52,13 @@ const App = () => {
   // SETTING STORAGE TO STATE
   useEffect(() => {
     const data = localStorage.getItem("mergedState");
+    // const sortMethod = localStorage.getItem("sortMethod");
+    // const sorted = localStorage.getItem("sorted");
     if (data) {
+      // setMergedState(JSON.parse(sorted)[sortMethod]);
       setMergedState(JSON.parse(data));
+      // setSortMethod(sortMethod);
+      // setSorted(JSON.parse(sorted));
     }
   }, []);
 
@@ -55,7 +67,6 @@ const App = () => {
     if (fetchCount !== fetchCountValue || pageNumber !== pageNumberValue) {
       return;
     }
-
     setDbPosts(
       `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
     );
@@ -297,33 +308,72 @@ const App = () => {
     // TEMPORARY REDIRECT TO POSTS ON MOUNT
     // LATER IT WILL BE HOMEPAGE
     if (!Object.keys(params).length || params.mountParams !== "blog-hooks") {
-      console.log("done");
-      navigate("/blog-hooks/posts");
+      navigate("/blog-hooks/posts", { replace: true });
     }
   }, []);
-  // SAVE STATE TO LocalStorage
-  useEffect(() => {
-    if (mergedState && fetchStatus) {
-      localStorage.setItem("mergedState", JSON.stringify(mergedState));
-    }
-  }, [fetchStatus, mergedState]);
 
   // console.log(mergedState);
 
+  const handleSorting = useCallback(
+    (state) => {
+      if (state && state.posts) {
+        console.log("Done Done Done Done Done Done Done Done Done ");
+        return sortByDate(mergedState);
+      }
+    },
+    [mergedState]
+  );
+
+  useEffect(() => {
+    if (mergedState?.posts) {
+      setSorted((prevState) => ({
+        ...prevState,
+        initial: mergedState,
+        [sortMethod]: {
+          ...mergedState,
+          posts:
+            sortMethod === "byDate" &&
+            mergedState.posts.every((post) => post.randomDateRef)
+              ? handleSorting(mergedState)
+              : mergedState.posts,
+        },
+      }));
+    }
+  }, [handleSorting, mergedState, sortMethod]);
+
+  // console.log(sorted);
+  // console.log(mergedState?.posts.map((post) => post.postID));
+  // console.log(mergedState?.posts);
+
+  // SAVE STATE TO LocalStorage
+  useEffect(() => {
+    if (mergedState && fetchStatus) {
+      // localStorage.setItem("sortMethod", sortMethod);
+      // localStorage.setItem("sorted", JSON.stringify(sorted));
+      // const currentState = JSON.parse(localStorage.getItem("sorted"))[
+      // currentSortMethod
+      // ];
+      localStorage.setItem("mergedState", JSON.stringify(sorted[sortMethod]));
+    }
+  }, [fetchStatus, mergedState, sortMethod, sorted]);
 
   return (
     <>
       <Header />
       <Outlet
         context={{
-          mergedState,
+          mergedState: sorted[sortMethod],
           setMergedState,
+          sorted,
+          sortMethod,
+          setSortMethod,
           fetchStatus,
           loadingPosts,
           loadingRandomUser,
           observer,
           lastElement,
           windowDimensions,
+          intersecting,
         }}
       />
     </>

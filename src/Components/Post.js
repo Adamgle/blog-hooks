@@ -14,7 +14,7 @@ import { Link, useOutletContext, useParams } from "react-router-dom";
 const Post = () => {
   const params = useParams();
 
-  // CONTEXT
+  // CONTEXT FROM REACT ROUTER
   const {
     mergedState,
     setMergedState,
@@ -23,8 +23,6 @@ const Post = () => {
     windowDimensions,
     currentPost,
   } = useOutletContext();
-
-  // CALLBACKS
 
   // REFS
   const { current: randomDateRef } = useRef(randomDate());
@@ -56,12 +54,14 @@ const Post = () => {
     )
   );
 
-  console.log(tagsRef);
-
   // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
 
+  // THIS EFFECT RUNS JUST ONCE AND THE VALUES IN THERE
+  // ARE BEEING UPDATED ANYWHERE ELSE
+  // THIS IS JUST STATE MERGER AND THE STATE IS UPDATED
+  // BY SEPERATE LINES OF CODE
   useEffect(() => {
     if (mergedState?.posts) {
       setMergedState((prevState) => {
@@ -69,7 +69,11 @@ const Post = () => {
           ...prevState,
           posts: prevState.posts.map((post) => {
             return post.id === currentPost.id
-              ? // IF PROP EXIST THEN USE IT ELSE CREATE IT
+              ? // CONDITION WHICH TELLS THAT WHEN USER GO TO ANOTHER SUPPAGE
+                // AND THE COMPONENT WILL UNMOUNT, CONDITION WILL NO RUN ONCE AGAIN
+                // BUT IT WILL USE THE OLD DATA FIRST CREATED
+
+                // IF PROP EXIST THEN USE IT ELSE CREATE IT
                 // IF AT LEAST 1 DOES NOT EXITS, THEN CREATE IT
                 post.comments.showComments === undefined
                 ? {
@@ -108,6 +112,7 @@ const Post = () => {
         };
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleShowCommentsButton = () => {
@@ -183,7 +188,7 @@ const Post = () => {
   };
 
   // ON ADMIN
-  const deletePost = () => {
+  const handleDeletePost = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
@@ -197,17 +202,20 @@ const Post = () => {
     });
   };
 
-  const commentsDynamicStyles = {
-    maxWidth:
-      windowDimensions.width <= 937
-        ? "863px"
-        : windowDimensions.width > 937
-        ? "900px"
-        : windowDimensions.width <= 900 && windowDimensions.width > 700
-        ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
-        : `${windowDimensions.width - 27}px`, // >=700 viewport
-  };
+  // const commentsDynamicStyles = {
+  //   maxWidth:
+  //     windowDimensions.width <= 937
+  //       ? "863px"
+  //       : windowDimensions.width > 937
+  //       ? "900px"
+  //       : windowDimensions.width <= 900 && windowDimensions.width > 700
+  //       ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
+  //       : `${windowDimensions.width - 27}px`, // >=700 viewport
+  // };
 
+  // CLEARS showComments WHEN COMPONENT UNMOUNTS
+  // E.G. USER ARE NAVIGATING TO DIFFERENT POST FROM
+  // THE PATH ON PostOnPostsPath
   useEffect(() => {
     return () => {
       setMergedState((prevState) => ({
@@ -222,7 +230,8 @@ const Post = () => {
   }, []);
 
   const PostOnPostsPath = mergedState && fetchStatus && (
-    <div className="post" style={commentsDynamicStyles} ref={observer}>
+    // style={commentsDynamicStyles}
+    <div className="post" ref={observer}>
       <div className="post-user">
         <div className="post-user-img">
           <img src={currentPost.user.picture.thumbnail} alt="user thumbnail" />
@@ -239,7 +248,7 @@ const Post = () => {
           <div className="post-edit-delete-button noselect">
             <div className="post-delete-container post-button-container">
               <button
-                onClick={deletePost}
+                onClick={handleDeletePost}
                 className="post-delete-button post-button"
               >
                 Delete
