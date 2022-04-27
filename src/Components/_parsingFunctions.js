@@ -240,9 +240,12 @@ const generateTags = (topic) => {
 };
 
 const sortByDate = (state) => {
+  // if (!state) {
+  //   return;
+  // }
   const reverseKeysWithValues = (obj) =>
     Object.fromEntries(Object.entries(obj).map((a) => a.reverse()));
-    
+
   const monthEqvl = {
     Jan: "1",
     Feb: "2",

@@ -8,25 +8,29 @@ const AddCommentField = ({
   currentPost,
   setMergedState,
   textAreaRef,
+  sortMethod,
 }) => {
   const handleChange = (e) => {
     // SET INPUT TEXT ON STATEFULL VALUE
     setMergedState((prevState) => {
       return {
         ...prevState,
-        posts: prevState.posts.map((post) => {
-          if (post.id === currentPost.id) {
-            return {
-              ...post,
-              comments: {
-                ...post.comments,
-                doTextAreaFocus: true,
-                textField: e.target.value,
-              },
-            };
-          }
-          return post;
-        }),
+        [sortMethod]: {
+          ...prevState[sortMethod],
+          posts: prevState[sortMethod].posts.map((post) => {
+            if (post.id === currentPost.id) {
+              return {
+                ...post,
+                comments: {
+                  ...post.comments,
+                  doTextAreaFocus: true,
+                  textField: e.target.value,
+                },
+              };
+            }
+            return post;
+          }),
+        },
       };
     });
   };
@@ -38,38 +42,42 @@ const AddCommentField = ({
       setMergedState((prevState) => {
         return {
           ...prevState,
-          posts: prevState.posts.map((post) => {
-            return post.id === currentPost.id
-              ? {
-                  ...post,
-                  comments: {
-                    ...post.comments,
-                    commentsLength: post.comments.commentsLength + 1,
-                    dataComments: [
-                      {
-                        body: upperCaseFirst(post.comments.textField, true),
-                        email: prevState.dataProfile.email,
-                        id: nanoid(),
-                        name: "",
-                        picture: prevState.dataProfile.picture.thumbnail,
-                        postId: post.id,
-                        likes: 0,
-                        replies: 0,
-                        commentDate: getTodaysDate(),
-                        user: {
-                          ...prevState.dataProfile,
-                          name: {
-                            ...prevState.dataProfile.name,
-                            fullName: `${prevState.dataProfile.name.first} ${prevState.dataProfile.name.last}`,
+          [sortMethod]: {
+            ...prevState[sortMethod],
+            posts: prevState[sortMethod].posts.map((post) => {
+              return post.id === currentPost.id
+                ? {
+                    ...post,
+                    comments: {
+                      ...post.comments,
+                      commentsLength: post.comments.commentsLength + 1,
+                      dataComments: [
+                        {
+                          body: upperCaseFirst(post.comments.textField, true),
+                          email: prevState[sortMethod].dataProfile.email,
+                          id: nanoid(),
+                          name: "",
+                          picture:
+                            prevState[sortMethod].dataProfile.picture.thumbnail,
+                          postId: post.id,
+                          likes: 0,
+                          replies: 0,
+                          commentDate: getTodaysDate(),
+                          user: {
+                            ...prevState[sortMethod].dataProfile,
+                            name: {
+                              ...prevState[sortMethod].dataProfile.name,
+                              fullName: `${prevState[sortMethod].dataProfile.name.first} ${prevState[sortMethod].dataProfile.name.last}`,
+                            },
                           },
                         },
-                      },
-                      ...post.comments.dataComments,
-                    ],
-                  },
-                }
-              : post;
-          }),
+                        ...post.comments.dataComments,
+                      ],
+                    },
+                  }
+                : post;
+            }),
+          },
         };
       });
     }
@@ -78,21 +86,24 @@ const AddCommentField = ({
     setMergedState((prevState) => {
       return {
         ...prevState,
-        posts: prevState.posts.map((post) => {
-          if (post.id === currentPost.id) {
-            return {
-              ...post,
-              comments: {
-                ...post.comments,
-                doTextAreaFocus: post.comments.textField
-                  ? false
-                  : post.doTextAreaFocus,
-                textField: "",
-              },
-            };
-          }
-          return post;
-        }),
+        [sortMethod]: {
+          ...prevState[sortMethod],
+          posts: prevState[sortMethod].posts.map((post) => {
+            if (post.id === currentPost.id) {
+              return {
+                ...post,
+                comments: {
+                  ...post.comments,
+                  doTextAreaFocus: post.comments.textField
+                    ? false
+                    : post.doTextAreaFocus,
+                  textField: "",
+                },
+              };
+            }
+            return post;
+          }),
+        },
       };
     });
   };
@@ -105,17 +116,20 @@ const AddCommentField = ({
       if (currentPost.comments.textField) {
         setMergedState((prevState) => ({
           ...prevState,
-          posts: prevState.posts.map((post) =>
-            post.id === currentPost.id
-              ? {
-                  ...post,
-                  comments: {
-                    ...post.comments,
-                    doTextAreaFocus: false,
-                  },
-                }
-              : post
-          ),
+          [sortMethod]: {
+            ...prevState[sortMethod],
+            posts: prevState[sortMethod].posts.map((post) =>
+              post.id === currentPost.id
+                ? {
+                    ...post,
+                    comments: {
+                      ...post.comments,
+                      doTextAreaFocus: false,
+                    },
+                  }
+                : post
+            ),
+          },
         }));
       }
     }

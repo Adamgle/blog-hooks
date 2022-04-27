@@ -8,7 +8,10 @@ import { sortByDate } from "./Components/_parsingFunctions";
 
 const App = () => {
   // STATE
-  const [mergedState, setMergedState] = useState(null);
+  const [mergedState, setMergedState] = useState({
+    initial: null,
+    byDate: null,
+  });
   const [fetchStatus, setFetchStatus] = useState(false);
   const [beenFullRequested, setBeenFullRequested] = useState(null);
   const [intersecting, setIntersecting] = useState(false);
@@ -33,6 +36,7 @@ const App = () => {
 
   const navigate = useNavigate();
   const params = useParams();
+
   // REFS
   // REF TO OBSERVER
   const observer = useRef(null);
@@ -52,13 +56,10 @@ const App = () => {
   // SETTING STORAGE TO STATE
   useEffect(() => {
     const data = localStorage.getItem("mergedState");
-    // const sortMethod = localStorage.getItem("sortMethod");
-    // const sorted = localStorage.getItem("sorted");
+    const sortMethod = localStorage.getItem("sortMethod");
     if (data) {
-      // setMergedState(JSON.parse(sorted)[sortMethod]);
       setMergedState(JSON.parse(data));
-      // setSortMethod(sortMethod);
-      // setSorted(JSON.parse(sorted));
+      setSortMethod(sortMethod);
     }
   }, []);
 
@@ -127,70 +128,73 @@ const App = () => {
       ) {
         setMergedState((prevState) => {
           return {
-            posts: prevState?.posts
-              ? fetchNextPosts
-                ? [
-                    ...prevState.posts,
-                    ...dataPosts.map((post, i) => {
-                      return {
-                        ...post,
-                        postID: post.id,
-                        id: nanoid(),
-                        comments: {},
-                        likes: 0,
-                        isRead: false,
-                        user: dataRandomUser.results[i],
-                      };
-                    }),
-                  ]
-                : prevState.posts
-              : dataPosts.map((post, i) => {
-                  return {
-                    ...post,
-                    postID: post.id,
-                    id: nanoid(),
-                    comments: {},
-                    likes: 0,
-                    isRead: false,
-                    user: dataRandomUser.results[i],
-                  };
-                }),
-            dataRandomUser: prevState?.dataRandomUser
-              ? fetchNextPosts
-                ? [
-                    ...prevState.dataRandomUser,
-                    ...dataRandomUser.results.map((user) => ({
-                      ...user,
+            ...prevState,
+            initial: {
+              posts: prevState.initial?.posts
+                ? fetchNextPosts
+                  ? [
+                      ...prevState.initial.posts,
+                      ...dataPosts.map((post, i) => {
+                        return {
+                          ...post,
+                          postID: post.id,
+                          id: nanoid(),
+                          comments: {},
+                          likes: 0,
+                          isRead: false,
+                          user: dataRandomUser.results[i],
+                        };
+                      }),
+                    ]
+                  : prevState.initial.posts
+                : dataPosts.map((post, i) => {
+                    return {
+                      ...post,
+                      postID: post.id,
                       id: nanoid(),
-                      name: {
-                        ...user.name,
-                        fullName: `${user.name.first} ${user.name.last}`,
-                      },
-                    })),
-                  ]
-                : prevState.dataRandomUser
-              : dataRandomUser.results.map((user) => ({
-                  ...user,
-                  id: nanoid(),
-                  name: {
-                    ...user.name,
-                    fullName: `${user.name.first} ${user.name.last}`,
-                  },
-                })),
-            dataRandomPicture: dataRandomPicture,
-            dataProfile: {
-              name: {
-                title: "",
-                first: "Adam",
-                last: "",
+                      comments: {},
+                      likes: 0,
+                      isRead: false,
+                      user: dataRandomUser.results[i],
+                    };
+                  }),
+              dataRandomUser: prevState.initial?.dataRandomUser
+                ? fetchNextPosts
+                  ? [
+                      ...prevState.initial?.dataRandomUser,
+                      ...dataRandomUser.results.map((user) => ({
+                        ...user,
+                        id: nanoid(),
+                        name: {
+                          ...user.name,
+                          fullName: `${user.name.first} ${user.name.last}`,
+                        },
+                      })),
+                    ]
+                  : prevState.initial.dataRandomUser
+                : dataRandomUser.results.map((user) => ({
+                    ...user,
+                    id: nanoid(),
+                    name: {
+                      ...user.name,
+                      fullName: `${user.name.first} ${user.name.last}`,
+                    },
+                  })),
+              dataRandomPicture: dataRandomPicture,
+              dataProfile: {
+                name: {
+                  title: "",
+                  first: "Adam",
+                  last: "",
+                },
+                picture: {
+                  thumbnail:
+                    "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
+                },
+                email: "adam.dev@gmail.com",
               },
-              picture: {
-                thumbnail:
-                  "https://brokeinlondon.com/wp-content/uploads/2012/01/Facebook-no-profile-picture-icon-620x389.jpg",
-              },
-              email: "adam.dev@gmail.com",
+              isAdmin: false,
             },
-            isAdmin: false,
           };
         });
       }
@@ -213,27 +217,35 @@ const App = () => {
       setMergedState((prevState) => {
         return {
           ...prevState,
-          posts: prevState.posts.map((post, i) => ({
-            ...post,
-            user: prevState.dataRandomUser[i],
-          })),
+          initial: {
+            ...prevState.initial,
+            posts: prevState.initial.posts.map((post, i) => ({
+              ...post,
+              user: prevState.initial.dataRandomUser[i],
+            })),
+          },
         };
       });
     }
-  }, [fetchStatus, mergedState?.dataRandomUser]);
+    //
+  }, [fetchStatus, mergedState.initial?.dataRandomUser]);
 
   // SETS THE OBSERVER TO LAST POST ON THE PAGE
   useEffect(() => {
-    if (mergedState && fetchStatus) {
-      setLastElement(mergedState.posts[mergedState.posts.length - 1]);
+    if (mergedState.initial && fetchStatus) {
+      if (mergedState[sortMethod]) {
+        const postsLength = mergedState[sortMethod].posts.length;
+        setLastElement(mergedState[sortMethod].posts[postsLength - 1]);
+      }
     }
-  }, [fetchStatus, mergedState, mergedState?.posts]);
+    // [fetchStatus, mergedState[sortMethod], mergedState[sortMethod]?.posts]);
+  }, [fetchStatus, mergedState, sortMethod]);
 
   // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
   // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
   // USE EFFECT WITH urlDepsValues VALUES IN STATEMENT WILL BE DIFFERENT ON
   // ANOTHER RENDER WHEN CONDITION IS MET, SO THE POSTS WILL BE JUST
-  // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH REDENR WILL BE BROKEN
+  // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH RENDER WILL BE BROKEN
   useEffect(() => {
     if (fetchCountValue >= 100 || pageNumberValue >= 21) {
       setBeenFullRequested(true);
@@ -312,57 +324,57 @@ const App = () => {
     }
   }, []);
 
-  // console.log(mergedState);
-
-  const handleSorting = useCallback(
-    (state) => {
-      if (state && state.posts) {
-        console.log("Done Done Done Done Done Done Done Done Done ");
-        return sortByDate(mergedState);
-      }
-    },
-    [mergedState]
-  );
+  // const handleSorting = useCallback(
+  //   (state) => {
+  //     console.log(state);
+  //     if (state["initial"]?.posts) {
+  //       console.log("Done Done Done Done Done Done Done Done Done ");
+  //       return sortByDate(mergedState[sortMethod]);
+  //     }
+  //   },
+  //   [sortMethod]
+  // );
 
   useEffect(() => {
-    if (mergedState?.posts) {
-      setSorted((prevState) => ({
-        ...prevState,
-        initial: mergedState,
-        [sortMethod]: {
-          ...mergedState,
-          posts:
-            sortMethod === "byDate" &&
-            mergedState.posts.every((post) => post.randomDateRef)
-              ? handleSorting(mergedState)
-              : mergedState.posts,
-        },
-      }));
+    if (fetchStatus) {
+      setMergedState((prevState) => {
+        console.log("done");
+        console.log(prevState["initial"]);
+        if (prevState["initial"]) {
+          return {
+            ...prevState,
+            [sortMethod]:
+              sortMethod === "byDate"
+                ? {
+                    ...prevState.initial,
+                    posts: sortByDate(prevState["initial"]),
+                  }
+                : prevState[sortMethod],
+          };
+        }
+        return prevState;
+      });
     }
-  }, [handleSorting, mergedState, sortMethod]);
-
-  // console.log(sorted);
-  // console.log(mergedState?.posts.map((post) => post.postID));
-  // console.log(mergedState?.posts);
+  }, [fetchStatus, sortMethod]);
 
   // SAVE STATE TO LocalStorage
   useEffect(() => {
     if (mergedState && fetchStatus) {
-      // localStorage.setItem("sortMethod", sortMethod);
-      // localStorage.setItem("sorted", JSON.stringify(sorted));
-      // const currentState = JSON.parse(localStorage.getItem("sorted"))[
-      // currentSortMethod
-      // ];
-      localStorage.setItem("mergedState", JSON.stringify(sorted[sortMethod]));
+      localStorage.setItem("mergedState", JSON.stringify(mergedState));
+      localStorage.setItem("sortMethod", sortMethod);
     }
-  }, [fetchStatus, mergedState, sortMethod, sorted]);
+  }, [fetchStatus, mergedState, sortMethod]);
+
+  console.log(mergedState.initial);
+  console.log(mergedState.byDate);
+  console.log(intersecting);
 
   return (
     <>
       <Header />
       <Outlet
         context={{
-          mergedState: sorted[sortMethod],
+          mergedState: mergedState[sortMethod],
           setMergedState,
           sorted,
           sortMethod,

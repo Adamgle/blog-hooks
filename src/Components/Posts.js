@@ -13,7 +13,6 @@ const Posts = () => {
   const {
     mergedState,
     setMergedState,
-
     sortMethod,
     fetchStatus,
     loadingPosts,
@@ -28,8 +27,6 @@ const Posts = () => {
   // GET URL PARAMS
   const params = useParams();
   const navigate = useNavigate();
-
-  console.log(mergedState);
 
   const displayPosts = (
     <>
@@ -47,6 +44,7 @@ const Posts = () => {
                   observer,
                   mergedState,
                   setMergedState,
+                  sortMethod,
                   fetchStatus,
                   loadingPosts,
                   loadingRandomUser,
@@ -61,6 +59,7 @@ const Posts = () => {
                 context={{
                   mergedState,
                   setMergedState,
+                  sortMethod,
                   fetchStatus,
                   loadingPosts,
                   loadingRandomUser,
@@ -86,6 +85,7 @@ const Posts = () => {
         context={{
           mergedState,
           setMergedState,
+          sortMethod,
           fetchStatus,
           loadingPosts,
           loadingRandomUser,

@@ -1,26 +1,35 @@
 import React from "react";
 import InteractionsData from "./IneractionsData";
 
-const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
+const Comment = ({
+  currentComment,
+  setMergedState,
+  currentPost,
+  user,
+  sortMethod,
+}) => {
   const handleLikeComment = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
-        posts: prevState.posts.map((post) => {
-          return post.id === currentPost.id
-            ? {
-                ...post,
-                comments: {
-                  ...post.comments,
-                  dataComments: post.comments.dataComments.map((comment) => {
-                    return comment.id === currentComment.id
-                      ? { ...comment, likes: comment.likes + 1 }
-                      : comment;
-                  }),
-                },
-              }
-            : post;
-        }),
+        [sortMethod]: {
+          ...prevState[sortMethod],
+          posts: prevState[sortMethod].posts.map((post) => {
+            return post.id === currentPost.id
+              ? {
+                  ...post,
+                  comments: {
+                    ...post.comments,
+                    dataComments: post.comments.dataComments.map((comment) => {
+                      return comment.id === currentComment.id
+                        ? { ...comment, likes: comment.likes + 1 }
+                        : comment;
+                    }),
+                  },
+                }
+              : post;
+          }),
+        },
       };
     });
   };
@@ -62,7 +71,6 @@ const Comment = ({ currentComment, setMergedState, currentPost, user }) => {
           currentComment={currentComment}
           comments={false}
           likes={true}
- 
           replies={true}
         />
       </div>

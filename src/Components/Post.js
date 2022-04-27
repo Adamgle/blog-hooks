@@ -17,6 +17,7 @@ const Post = () => {
   // CONTEXT FROM REACT ROUTER
   const {
     mergedState,
+    sortMethod,
     setMergedState,
     fetchStatus,
     observer,
@@ -67,48 +68,51 @@ const Post = () => {
       setMergedState((prevState) => {
         return {
           ...prevState,
-          posts: prevState.posts.map((post) => {
-            return post.id === currentPost.id
-              ? // CONDITION WHICH TELLS THAT WHEN USER GO TO ANOTHER SUPPAGE
-                // AND THE COMPONENT WILL UNMOUNT, CONDITION WILL NO RUN ONCE AGAIN
-                // BUT IT WILL USE THE OLD DATA FIRST CREATED
+          initial: {
+            ...prevState.initial,
+            posts: prevState.initial.posts.map((post) => {
+              return post.id === currentPost.id
+                ? // CONDITION WHICH TELLS THAT WHEN USER GO TO ANOTHER SUPPAGE
+                  // AND THE COMPONENT WILL UNMOUNT, CONDITION WILL NO RUN ONCE AGAIN
+                  // BUT IT WILL USE THE OLD DATA FIRST CREATED
 
-                // IF PROP EXIST THEN USE IT ELSE CREATE IT
-                // IF AT LEAST 1 DOES NOT EXITS, THEN CREATE IT
-                post.comments.showComments === undefined
-                ? {
-                    ...post,
-                    title: upperCaseFirst(post.title, true),
-                    body: `${upperCaseFirst(
-                      post.body,
-                      true
-                    )} ${concatFetchDataRef}`,
-                    randomDateRef: randomDateRef,
-                    randomImageRef: randomImageRef,
-                    sharesCount: sharesCount,
-                    topic: topicRef,
-                    tags: tagsRef,
-                    colorsTags: colorsTagsRef,
-                    backgroundColorsTags: randomBackgroundColorRef,
-                    comments: {
-                      ...post.comments,
-                      userCommentsLen: 0,
-                      commentsFetchedLength: commentsFetchedLength,
-                      commentsLength: commentsFetchedLength,
-                      showComments: false,
-                      doTextAreaFocus: false,
-                      beenShown: false,
-                    },
-                  }
-                : {
-                    ...post,
-                    comments: {
-                      ...post.comments,
-                      showComments: false,
-                    },
-                  }
-              : post;
-          }),
+                  // IF PROP EXIST THEN USE IT ELSE CREATE IT
+                  // IF AT LEAST 1 DOES NOT EXITS, THEN CREATE IT
+                  post.comments.showComments === undefined
+                  ? {
+                      ...post,
+                      title: upperCaseFirst(post.title, true),
+                      body: `${upperCaseFirst(
+                        post.body,
+                        true
+                      )} ${concatFetchDataRef}`,
+                      randomDateRef: randomDateRef,
+                      randomImageRef: randomImageRef,
+                      sharesCount: sharesCount,
+                      topic: topicRef,
+                      tags: tagsRef,
+                      colorsTags: colorsTagsRef,
+                      backgroundColorsTags: randomBackgroundColorRef,
+                      comments: {
+                        ...post.comments,
+                        userCommentsLen: 0,
+                        commentsFetchedLength: commentsFetchedLength,
+                        commentsLength: commentsFetchedLength,
+                        showComments: false,
+                        doTextAreaFocus: false,
+                        beenShown: false,
+                      },
+                    }
+                  : {
+                      ...post,
+                      comments: {
+                        ...post.comments,
+                        showComments: false,
+                      },
+                    }
+                : post;
+            }),
+          },
         };
       });
     }
@@ -128,19 +132,22 @@ const Post = () => {
 
     setMergedState((prevState) => ({
       ...prevState,
-      posts: prevState.posts.map((post) =>
-        post.id === currentPost.id
-          ? {
-              ...post,
-              comments: {
-                ...post.comments,
-                showComments: !post.comments.showComments,
-                beenShown: true,
-                doTextAreaFocus: false,
-              },
-            }
-          : post
-      ),
+      [sortMethod]: {
+        ...prevState[sortMethod],
+        posts: prevState[sortMethod].posts.map((post) =>
+          post.id === currentPost.id
+            ? {
+                ...post,
+                comments: {
+                  ...post.comments,
+                  showComments: !post.comments.showComments,
+                  beenShown: true,
+                  doTextAreaFocus: false,
+                },
+              }
+            : post
+        ),
+      },
     }));
 
     // LOSE FOCUS ON BUTTON CLICK
@@ -153,19 +160,22 @@ const Post = () => {
     // SHOW COMMENTS ON CLICK
     setMergedState((prevState) => ({
       ...prevState,
-      posts: prevState.posts.map((post) =>
-        post.id === currentPost.id
-          ? {
-              ...post,
-              comments: {
-                ...post.comments,
-                showComments: true,
-                beenShown: true,
-                doTextAreaFocus: true,
-              },
-            }
-          : post
-      ),
+      [sortMethod]: {
+        ...prevState[sortMethod],
+        posts: prevState[sortMethod].posts.map((post) =>
+          post.id === currentPost.id
+            ? {
+                ...post,
+                comments: {
+                  ...post.comments,
+                  showComments: true,
+                  beenShown: true,
+                  doTextAreaFocus: true,
+                },
+              }
+            : post
+        ),
+      },
     }));
 
     // AUTOFOCUS ON TEXTAREA FIELD
@@ -178,11 +188,14 @@ const Post = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
-        posts: prevState.posts.map((post) => {
-          return currentPost.id === post.id
-            ? { ...post, likes: post.likes + 1 }
-            : post;
-        }),
+        [sortMethod]: {
+          ...prevState[sortMethod],
+          posts: prevState[sortMethod].posts.map((post) => {
+            return currentPost.id === post.id
+              ? { ...post, likes: post.likes + 1 }
+              : post;
+          }),
+        },
       };
     });
   };
@@ -192,12 +205,15 @@ const Post = () => {
     setMergedState((prevState) => {
       return {
         ...prevState,
-        posts: prevState.posts.filter(
-          (post) => post.id !== currentPost.id && post
-        ),
-        dataRandomUser: prevState.dataRandomUser.filter(
-          (user) => user.id !== currentPost.user.id && user
-        ),
+        [sortMethod]: {
+          ...prevState[sortMethod],
+          posts: prevState[sortMethod].posts.filter(
+            (post) => post.id !== currentPost.id && post
+          ),
+          dataRandomUser: prevState[sortMethod].dataRandomUser.filter(
+            (user) => user.id !== currentPost.user.id && user
+          ),
+        },
       };
     });
   };
@@ -220,11 +236,14 @@ const Post = () => {
     return () => {
       setMergedState((prevState) => ({
         ...prevState,
-        posts: prevState.posts.map((post) =>
-          post.id === currentPost.id
-            ? { ...post, comments: { ...post.comments, showComments: false } }
-            : post
-        ),
+        [sortMethod]: {
+          ...prevState[sortMethod],
+          posts: prevState[sortMethod].posts.map((post) =>
+            post.id === currentPost.id
+              ? { ...post, comments: { ...post.comments, showComments: false } }
+              : post
+          ),
+        },
       }));
     };
   }, []);
@@ -322,6 +341,7 @@ const Post = () => {
           currentPost={currentPost}
           currentPostID={currentPost.postID}
           mergedState={mergedState}
+          sortMethod={sortMethod}
           setMergedState={setMergedState}
           showComments={currentPost.comments.showComments}
           doTextAreaFocus={currentPost.comments.doTextAreaFocus}
@@ -420,6 +440,7 @@ const Post = () => {
         {currentPost.comments.beenShown && (
           <Comments
             currentPost={currentPost}
+            sortMethod={sortMethod}
             currentPostID={currentPost.postID}
             mergedState={mergedState}
             setMergedState={setMergedState}
