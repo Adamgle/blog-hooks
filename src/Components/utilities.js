@@ -239,10 +239,11 @@ const generateTags = (topic) => {
   return getArrayOfTags();
 };
 
-const sortByDate = (state) => {
-  // if (!state) {
-  //   return;
-  // }
+const sortByDate = (state, withState) => {
+  if (!state || !state?.posts.every((post) => post.randomDateRef)) {
+    return;
+  }
+
   const reverseKeysWithValues = (obj) =>
     Object.fromEntries(Object.entries(obj).map((a) => a.reverse()));
 
@@ -355,7 +356,22 @@ const sortByDate = (state) => {
     }
   }
 
-  return sorted;
+  return withState
+    ? {
+        ...state,
+        posts: sorted,
+      }
+    : sorted;
+};
+
+const sortPreviousState = (state, sortMethod) => {
+  const postsSortedAscending = state[sortMethod]?.posts.sort(
+    (a, b) => a.postID - b.postID
+  );
+  return {
+    ...state[sortMethod],
+    posts: postsSortedAscending,
+  };
 };
 
 export {
@@ -368,4 +384,5 @@ export {
   generateTopic,
   generateTags,
   sortByDate,
+  sortPreviousState,
 };

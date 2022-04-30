@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import React from "react";
 import TextAreaAutosizeRef from "./TextAreaAutosizeRef";
-import { getTodaysDate, upperCaseFirst } from "./_parsingFunctions";
+import { getTodaysDate, upperCaseFirst } from "./utilities";
 
 const AddCommentField = ({
   mergedState,

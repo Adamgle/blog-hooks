@@ -8,7 +8,7 @@ import {
   generateTags,
   generateRandomBackgroundColors,
   getRandomColorForBackgroundColor,
-} from "./_parsingFunctions";
+} from "./utilities";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 
 const Post = () => {

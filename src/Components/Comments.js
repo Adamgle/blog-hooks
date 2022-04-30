@@ -3,7 +3,7 @@ import { useFetch } from "./Hooks/useFetch";
 import { nanoid } from "nanoid";
 import Comment from "./Comment";
 import AddCommentField from "./AddCommentField";
-import { randomDate, upperCaseFirst } from "./_parsingFunctions";
+import { randomDate, upperCaseFirst } from "./utilities";
 
 const Comments = ({
   currentPost,
@@ -16,7 +16,7 @@ const Comments = ({
   windowDimensions,
   textAreaRef,
 }) => {
-  const dbComments = `https://jsonplaceholder.typicode.com/posts/${currentPostID}/comments/?_limit=${commentsFetchedLength}`;
+  const dbComments = `https://jsonplaceholder.typicode.com/posts/${currentPost.fetchedID}/comments/?_limit=${commentsFetchedLength}`;
   const dbRandomUser = `https://randomuser.me/api/?results=${commentsFetchedLength}&noinfo`;
 
   const { data: dataComments, loading: loadingComments } = useFetch(dbComments);

@@ -1,9 +1,9 @@
 import { nanoid } from "nanoid";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Header from "./Components/Header";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useFetch } from "./Components/Hooks/useFetch";
-import { sortByDate } from "./Components/_parsingFunctions";
+import { sortByDate, sortPreviousState } from "./Components/utilities";
 
 const App = () => {
   // STATE
@@ -27,6 +27,8 @@ const App = () => {
       pageNumberValue: 1,
     },
   });
+
+  const [counter, setCounter] = useState(0);
 
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
@@ -145,10 +147,13 @@ const App = () => {
     dataRandomUser,
     dataRandomPicture,
   ]);
+  // let mockId = 0;
+  let postID = useRef(0);
 
   // MERGE DATA FROM FETCH CALLS TO ONE STATEFULL OBJECT TYPE VALUE
   useEffect(() => {
     // WAIT FOR ALL FETCH CALLS BE PROCCESSED
+
     if (fetchStatus && dataPosts && dataRandomUser && dataRandomPicture) {
       if (dataPosts.length !== dataRandomUser.results.length) {
         return;
@@ -171,9 +176,11 @@ const App = () => {
                   ? [
                       ...prevState.initial.posts,
                       ...dataPosts.map((post, i) => {
+                        postID.current += 1;
                         return {
                           ...post,
-                          postID: post.id,
+                          postID: postID.current,
+                          fetchedID: post.id,
                           id: nanoid(),
                           comments: {},
                           likes: 0,
@@ -184,9 +191,11 @@ const App = () => {
                     ]
                   : prevState.initial.posts
                 : dataPosts.map((post, i) => {
+                    postID.current += 1;
                     return {
                       ...post,
-                      postID: post.id,
+                      postID: postID.current,
+                      fetchedID: post.id,
                       id: nanoid(),
                       comments: {},
                       likes: 0,
@@ -255,10 +264,12 @@ const App = () => {
           ...prevState,
           initial: {
             ...prevState.initial,
-            posts: prevState.initial.posts.map((post, i) => ({
-              ...post,
-              user: prevState.initial.dataRandomUser[i],
-            })),
+            posts: prevState.initial.posts.map((post, i) => {
+              return {
+                ...post,
+                user: prevState.initial.dataRandomUser[i],
+              };
+            }),
           },
         };
       });
@@ -392,25 +403,52 @@ const App = () => {
     }
   }, [navigate, params]);
 
+  const memoizedSortedDate = useMemo(() => {
+    if (mergedState.initial?.posts) {
+      return sortByDate(mergedState.initial, true);
+    }
+  }, [mergedState.initial]);
+
+  const beenDifferentThanInitial = useRef(false);
+  const previousSortMethod = useRef(null);
+
   useEffect(() => {
     if (fetchStatus) {
       setMergedState((prevState) => {
-        if (prevState["initial"]) {
+        if (prevState.initial) {
+          if (sortMethod !== "initial") {
+            beenDifferentThanInitial.current = true;
+            previousSortMethod.current = sortMethod;
+          }
+          console.log(beenDifferentThanInitial.current, previousSortMethod);
           return {
             ...prevState,
             [sortMethod]:
               sortMethod === "byDate"
-                ? {
-                    ...prevState.initial,
-                    posts: sortByDate(prevState["initial"]),
-                  }
-                : prevState[sortMethod],
+                ? memoizedSortedDate
+                : sortMethod === "initial"
+                ? beenDifferentThanInitial.current
+                  ? sortPreviousState(prevState, previousSortMethod.current)
+                  : prevState[sortMethod]
+                : prevState.initial,
           };
         }
         return prevState;
       });
     }
+    console.log("RUN RUN RUN");
   }, [fetchStatus, sortMethod]);
+
+  console.log(observer);
+
+  // useEffect(() => {
+  //   if (sortMethod !== "initial") {
+  //     setMergedState((prevState) => ({
+  //       ...prevState,
+  //       posts: prevState[sortMethod]
+  //     }))
+  //   }
+  // }, [sortMethod])
 
   // SAVE STATE TO LocalStorage also fetchDeps
   useEffect(() => {
@@ -424,8 +462,11 @@ const App = () => {
     }
   }, [fetchStatus, mergedState, sortMethod, infiniteFetchingDeps]);
 
-  console.log(mergedState[sortMethod]);
-  console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
+  // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
+
+  if (!localStorage.getItem("sortMethod")) {
+    localStorage.clear();
+  }
 
   return (
     <>
