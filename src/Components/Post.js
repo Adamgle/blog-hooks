@@ -23,6 +23,8 @@ const Post = () => {
     observer,
     windowDimensions,
     currentPost,
+    observedElement,
+    setObservedElement,
   } = useOutletContext();
 
   // REFS
@@ -232,6 +234,7 @@ const Post = () => {
   // CLEARS showComments WHEN COMPONENT UNMOUNTS
   // E.G. USER ARE NAVIGATING TO DIFFERENT POST FROM
   // THE PATH ON PostOnPostsPath
+
   useEffect(() => {
     return () => {
       setMergedState((prevState) => ({
@@ -454,6 +457,7 @@ const Post = () => {
       </div>
     </div>
   );
+
 
   return params.postId ? postOnSelfPath : PostOnPostsPath;
 };

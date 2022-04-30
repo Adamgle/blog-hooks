@@ -348,12 +348,13 @@ const App = () => {
       if (observer && observer.current) {
         const options = {
           root: null,
-          rootMargin: "300px",
+          rootMargin: "0px",
           threshold: 0,
         };
 
         // ON EACH FETCH CALL DIFFERENT IntersectionObserver ARE CREATED
         const createdObserver = new IntersectionObserver((entries) => {
+          console.log(entries);
           const post = entries[0];
           setInfiniteFetchingDeps((prevState) => ({
             ...prevState,
@@ -420,7 +421,6 @@ const App = () => {
             beenDifferentThanInitial.current = true;
             previousSortMethod.current = sortMethod;
           }
-          console.log(beenDifferentThanInitial.current, previousSortMethod);
           return {
             ...prevState,
             [sortMethod]:
@@ -436,7 +436,6 @@ const App = () => {
         return prevState;
       });
     }
-    console.log("RUN RUN RUN");
   }, [fetchStatus, sortMethod]);
 
   console.log(observer);
@@ -463,6 +462,8 @@ const App = () => {
   }, [fetchStatus, mergedState, sortMethod, infiniteFetchingDeps]);
 
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
+
+  // const [observedElement, setObservedElement] = useState(Array(5).fill(null));
 
   if (
     !localStorage.getItem("sortMethod") ||
