@@ -1,7 +1,6 @@
 import { nanoid } from "nanoid";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "./Components/Header";
-import useWindowDimensions from "./Components/Hooks/useWindowDimensions";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useFetch } from "./Components/Hooks/useFetch";
 import { sortByDate } from "./Components/_parsingFunctions";
@@ -13,34 +12,46 @@ const App = () => {
     byDate: null,
   });
   const [fetchStatus, setFetchStatus] = useState(false);
-  const [beenFullRequested, setBeenFullRequested] = useState(null);
-  const [intersecting, setIntersecting] = useState(false);
-  const [{ fetchCount, pageNumber }, setUrlDeps] = useState({
-    fetchCount: 0,
-    pageNumber: 1,
+
+  const [infiniteFetchingDeps, setInfiniteFetchingDeps] = useState({
+    beenFullRequested: null,
+    intersecting: false,
+    fetchNextPosts: false,
+    changeUrlValues: false,
+    urlDeps: {
+      fetchCount: 0,
+      pageNumber: 1,
+    },
+    urlDepsValues: {
+      fetchCountValue: 0,
+      pageNumberValue: 1,
+    },
   });
-  const [{ fetchCountValue, pageNumberValue }, setUrlDepsValues] = useState({
-    fetchCountValue: 0,
-    pageNumberValue: 1,
-  });
-  const [fetchNextPosts, setFetchNextPosts] = useState(false);
 
   // LAST POST
   const [lastElement, setLastElement] = useState(null);
 
   const [sortMethod, setSortMethod] = useState("initial");
-  const [sorted, setSorted] = useState({
-    initial: null,
-    byDate: null,
-  });
+
+  // REFS
+  const observer = useRef(null);
+  const { current: usersSeed } = useRef("usersSeed");
 
   const navigate = useNavigate();
   const params = useParams();
 
-  // REFS
-  // REF TO OBSERVER
-  const observer = useRef(null);
-  const { current: usersSeed } = useRef("usersSeed");
+  // DESTRUCTER infinteFetchingDeps SO THAT IT CAN BE EASILY ACCESSIBLE VIA ONE VAR NAME
+  // WITH PERSISTENCE OF ONE OBJECT THAT HOLDS THE DATA
+  const {
+    beenFullRequested,
+    intersecting,
+    fetchNextPosts,
+    changeUrlValues,
+    urlDeps,
+    urlDepsValues,
+  } = infiniteFetchingDeps;
+  const { fetchCount, pageNumber } = urlDeps;
+  const { fetchCountValue, pageNumberValue } = urlDepsValues;
 
   // DB'S
   const [dbPosts, setDbPosts] = useState(
@@ -57,24 +68,49 @@ const App = () => {
   useEffect(() => {
     const data = localStorage.getItem("mergedState");
     const sortMethod = localStorage.getItem("sortMethod");
+    const infiniteFetchingDeps = localStorage.getItem("infiniteFetchingDeps");
     if (data) {
       setMergedState(JSON.parse(data));
       setSortMethod(sortMethod);
+      // SET fetchNextPosts TO FALSE ON MOUNT, SO THAT STALE DATA
+      // WON'T BE SPREAD TO STATE
+      setInfiniteFetchingDeps({
+        ...JSON.parse(infiniteFetchingDeps),
+        fetchNextPosts: false,
+      });
     }
   }, []);
 
   // LOAD DATABASES
   useEffect(() => {
-    if (fetchCount !== fetchCountValue || pageNumber !== pageNumberValue) {
+    if (
+      fetchCount !== fetchCountValue ||
+      pageNumber !== pageNumberValue ||
+      !changeUrlValues
+    ) {
       return;
     }
-    setDbPosts(
-      `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
-    );
-    setDbRandomUser(
-      `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
-    );
-  }, [fetchCount, fetchCountValue, pageNumber, pageNumberValue, usersSeed]);
+
+    if (
+      fetchCount === fetchCountValue &&
+      pageNumber === pageNumberValue &&
+      changeUrlValues
+    ) {
+      setDbPosts(
+        `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
+      );
+      setDbRandomUser(
+        `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
+      );
+    }
+  }, [
+    fetchCount,
+    fetchCountValue,
+    pageNumber,
+    pageNumberValue,
+    usersSeed,
+    changeUrlValues,
+  ]);
 
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
@@ -248,7 +284,11 @@ const App = () => {
   // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH RENDER WILL BE BROKEN
   useEffect(() => {
     if (fetchCountValue >= 100 || pageNumberValue >= 21) {
-      setBeenFullRequested(true);
+      // setBeenFullRequested(true);
+      setInfiniteFetchingDeps((prevState) => ({
+        ...prevState,
+        beenFullRequested: true,
+      }));
     }
   }, [fetchCountValue, pageNumberValue]);
 
@@ -257,17 +297,33 @@ const App = () => {
   useEffect(() => {
     // IF (INTERSECTING) -> FETCH CALL WILL BE PERFORMED
     if (intersecting) {
-      setFetchNextPosts(true);
-      setUrlDepsValues((prevState) => {
+      setInfiniteFetchingDeps((prevState) => {
         if (beenFullRequested) {
           return {
-            fetchCountValue: Math.trunc(Math.random() * 95),
-            pageNumberValue: Math.trunc(Math.random() * 20),
+            ...prevState,
+            changeUrlValues: false,
+            urlDepsValues: {
+              fetchCountValue: Math.trunc(Math.random() * 95),
+              pageNumberValue: Math.trunc(Math.random() * 20),
+            },
           };
         }
         return {
-          fetchCountValue: prevState.fetchCountValue + 5,
-          pageNumberValue: prevState.pageNumberValue + 1,
+          ...prevState,
+          fetchNextPosts: true,
+          changeUrlValues: false,
+          urlDepsValues: {
+            fetchCountValue:
+              prevState.urlDeps.fetchCount + 5 ===
+              prevState.urlDepsValues.fetchCountValue + 5
+                ? prevState.urlDepsValues.fetchCountValue + 5
+                : prevState.urlDeps.fetchCount + 5,
+            pageNumberValue:
+              prevState.urlDeps.pageNumber + 1 ===
+              prevState.urlDepsValues.pageNumberValue + 1
+                ? prevState.urlDepsValues.pageNumberValue + 1
+                : prevState.urlDeps.pageNumber + 5,
+          },
         };
       });
     }
@@ -288,7 +344,10 @@ const App = () => {
         // ON EACH FETCH CALL DIFFERENT IntersectionObserver ARE CREATED
         const createdObserver = new IntersectionObserver((entries) => {
           const post = entries[0];
-          setIntersecting(post.isIntersecting);
+          setInfiniteFetchingDeps((prevState) => ({
+            ...prevState,
+            intersecting: post.isIntersecting,
+          }));
           if (
             !post.isIntersecting ||
             fetchCountValue >= 100 ||
@@ -297,49 +356,45 @@ const App = () => {
             return;
           }
           if (post.isIntersecting) {
-            setUrlDeps({
-              fetchCount: fetchCountValue,
-              pageNumber: pageNumberValue,
-            });
+            setInfiniteFetchingDeps((prevState) => ({
+              ...prevState,
+              urlDeps: {
+                fetchCount: fetchCountValue,
+                pageNumber: pageNumberValue,
+              },
+              changeUrlValues: true,
+            }));
           }
-          createdObserver.unobserve(post.target);
-          createdObserver.disconnect();
+          if (post.isIntersecting) {
+            createdObserver.unobserve(post.target);
+            createdObserver.disconnect();
+          }
         }, options);
 
         createdObserver.observe(observer.current);
       }
     }
-  }, [fetchCountValue, fetchStatus, lastElement, pageNumberValue]);
-
-  // HOOK WHICH RETURNS WIDTH AND HEIGHT FOR CURRENT VIEWPORT
-  const windowDimensions = useWindowDimensions();
+  }, [
+    fetchCount,
+    fetchCountValue,
+    fetchStatus,
+    lastElement,
+    pageNumber,
+    pageNumberValue,
+  ]);
 
   // REDIRECT TO /POSTS ON MOUNT
-
   useEffect(() => {
     // TEMPORARY REDIRECT TO POSTS ON MOUNT
     // LATER IT WILL BE HOMEPAGE
     if (!Object.keys(params).length || params.mountParams !== "blog-hooks") {
       navigate("/blog-hooks/posts", { replace: true });
     }
-  }, []);
-
-  // const handleSorting = useCallback(
-  //   (state) => {
-  //     console.log(state);
-  //     if (state["initial"]?.posts) {
-  //       console.log("Done Done Done Done Done Done Done Done Done ");
-  //       return sortByDate(mergedState[sortMethod]);
-  //     }
-  //   },
-  //   [sortMethod]
-  // );
+  }, [navigate, params]);
 
   useEffect(() => {
     if (fetchStatus) {
       setMergedState((prevState) => {
-        console.log("done");
-        console.log(prevState["initial"]);
         if (prevState["initial"]) {
           return {
             ...prevState,
@@ -357,17 +412,20 @@ const App = () => {
     }
   }, [fetchStatus, sortMethod]);
 
-  // SAVE STATE TO LocalStorage
+  // SAVE STATE TO LocalStorage also fetchDeps
   useEffect(() => {
     if (mergedState && fetchStatus) {
       localStorage.setItem("mergedState", JSON.stringify(mergedState));
       localStorage.setItem("sortMethod", sortMethod);
+      localStorage.setItem(
+        "infiniteFetchingDeps",
+        JSON.stringify(infiniteFetchingDeps)
+      );
     }
-  }, [fetchStatus, mergedState, sortMethod]);
+  }, [fetchStatus, mergedState, sortMethod, infiniteFetchingDeps]);
 
-  console.log(mergedState.initial);
-  console.log(mergedState.byDate);
-  console.log(intersecting);
+  console.log(mergedState[sortMethod]);
+  console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
 
   return (
     <>
@@ -376,7 +434,6 @@ const App = () => {
         context={{
           mergedState: mergedState[sortMethod],
           setMergedState,
-          sorted,
           sortMethod,
           setSortMethod,
           fetchStatus,
@@ -384,7 +441,6 @@ const App = () => {
           loadingRandomUser,
           observer,
           lastElement,
-          windowDimensions,
           intersecting,
         }}
       />
