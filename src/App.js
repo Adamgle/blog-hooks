@@ -464,7 +464,10 @@ const App = () => {
 
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
 
-  if (!localStorage.getItem("sortMethod")) {
+  if (
+    !localStorage.getItem("sortMethod") ||
+    !localStorage.getItem("infiniteFetchingDeps")
+  ) {
     localStorage.clear();
   }
 
