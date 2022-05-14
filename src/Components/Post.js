@@ -20,11 +20,12 @@ const Post = () => {
     sortMethod,
     setMergedState,
     fetchStatus,
-    observer,
     windowDimensions,
     currentPost,
-    observedElement,
-    setObservedElement,
+    setObservedElements,
+    lastFivePosts,
+    loadingPosts,
+    loadingRandomUsers,
   } = useOutletContext();
 
   // REFS
@@ -32,7 +33,6 @@ const Post = () => {
   const { current: concatFetchDataRef } = useRef(
     upperCaseFirst(concatFetchedContent(currentPost.body), true)
   );
-
   // Number used for displaying comments count
   // then when comment is added, userCommentsLen is there added
   const { current: commentsFetchedLength } = useRef(
@@ -60,7 +60,7 @@ const Post = () => {
   // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
-
+  const postRef = useRef(null);
   // THIS EFFECT RUNS JUST ONCE AND THE VALUES IN THERE
   // ARE BEEING UPDATED ANYWHERE ELSE
   // THIS IS JUST STATE MERGER AND THE STATE IS UPDATED
@@ -241,7 +241,7 @@ const Post = () => {
         ...prevState,
         [sortMethod]: {
           ...prevState[sortMethod],
-          posts: prevState[sortMethod].posts.map((post) =>
+          posts: prevState[sortMethod]?.posts.map((post) =>
             post.id === currentPost.id
               ? { ...post, comments: { ...post.comments, showComments: false } }
               : post
@@ -251,9 +251,24 @@ const Post = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (lastFivePosts?.filter((post) => post.id === currentPost.id).length) {
+      setObservedElements((prevState) =>
+        prevState.length >= 5
+          ? [...new Set([...prevState, postRef])].slice(-5)
+          : [...new Set([...prevState, postRef])]
+      );
+    }
+  }, [
+    currentPost.id,
+    lastFivePosts,
+    mergedState.posts.length,
+    setObservedElements,
+  ]);
+
   const PostOnPostsPath = mergedState && fetchStatus && (
     // style={commentsDynamicStyles}
-    <div className="post" ref={observer}>
+    <div className="post" ref={postRef}>
       <div className="post-user">
         <div className="post-user-img">
           <img src={currentPost.user.picture.thumbnail} alt="user thumbnail" />
@@ -457,7 +472,6 @@ const Post = () => {
       </div>
     </div>
   );
-
 
   return params.postId ? postOnSelfPath : PostOnPostsPath;
 };

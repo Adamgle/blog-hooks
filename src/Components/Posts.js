@@ -15,13 +15,12 @@ const Posts = () => {
     setMergedState,
     sortMethod,
     fetchStatus,
-    loadingPosts,
-    loadingRandomUser,
-    observer,
-    lastElement,
     windowDimensions,
     intersecting,
     setSortMethod,
+    observedElements,
+    setObservedElements,
+    lastFivePosts,
   } = useOutletContext();
 
   // GET URL PARAMS
@@ -30,30 +29,13 @@ const Posts = () => {
 
   const displayPosts = (
     <>
-      {!fetchStatus || !mergedState || !lastElement ? (
+      {!fetchStatus || !mergedState ? (
         "Loading..."
       ) : (
         <>
           <FilterSelect sortMethod={sortMethod} setSortMethod={setSortMethod} />
           {mergedState.posts.map((post) => {
-            return post.id === lastElement.id ? (
-              // ADD OBSERVER IF LAST POST ARE BEING INTERATED
-              <Outlet
-                key={post.id}
-                context={{
-                  observer,
-                  mergedState,
-                  setMergedState,
-                  sortMethod,
-                  fetchStatus,
-                  loadingPosts,
-                  loadingRandomUser,
-                  lastElement,
-                  windowDimensions,
-                  currentPost: post,
-                }}
-              />
-            ) : (
+            return (
               <Outlet
                 key={post.id}
                 context={{
@@ -61,20 +43,19 @@ const Posts = () => {
                   setMergedState,
                   sortMethod,
                   fetchStatus,
-                  loadingPosts,
-                  loadingRandomUser,
-                  lastElement,
                   windowDimensions,
                   currentPost: post,
+                  observedElements,
+                  setObservedElements,
+                  lastFivePosts,
                 }}
               />
             );
+            // ADD OBSERVER IF LAST POST ARE BEING INTERATED
           })}
         </>
       )}
-      {fetchStatus && intersecting && (!loadingPosts || !loadingRandomUser) && (
-        <div className="await">Fetching Data...</div>
-      )}
+      {intersecting && <div className="await">Fetching Data...</div>}
     </>
   );
 
@@ -87,12 +68,12 @@ const Posts = () => {
           setMergedState,
           sortMethod,
           fetchStatus,
-          loadingPosts,
-          loadingRandomUser,
-          observer,
-          lastElement,
           windowDimensions,
           currentPost: post,
+          // unnecessary
+          observedElements,
+          setObservedElements,
+          lastFivePosts,
         }}
       />
     ) : null;

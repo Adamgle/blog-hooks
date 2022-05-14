@@ -65,3 +65,9 @@ TODO 27.04.2022
        -> WHERE POST + 1 = {..., postID + 1})
     -> WHEN INTERSECTING ON SOMETHING ELSE THAN INITIAL STATE, SPREAD NEWLY FETCHED POSTS 
     -> TO THIS STATE (STATE !== INITIAL)
+
+TODO 07.05.2022
+    -> GET RID OF fetchCountValue && pageNumberValue
+    -> CHANGE NAMING OF fetchCount && pageNumber
+    -> CHECK IF fetchStatus IS NECESSARY FOR APLICATION TO WORK
+    -> 
