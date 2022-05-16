@@ -425,7 +425,7 @@ const App = () => {
 
   return (
     <>
-      <Header />
+      <Header sortMethod={sortMethod} setSortMethod={setSortMethod} />
       <Outlet
         context={{
           mergedState: mergedState[sortMethod],

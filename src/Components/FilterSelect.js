@@ -1,6 +1,6 @@
 const FilterSelect = ({ sortMethod, setSortMethod }) => {
   return (
-    <form>
+    <form >
       <select
         value={sortMethod}
         onChange={(e) => setSortMethod(e.target.value)}

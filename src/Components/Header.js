@@ -1,12 +1,13 @@
 import React from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import FilterSelect from "./FilterSelect";
 
-const Header = () => {
+const Header = ({sortMethod, setSortMethod}) => {
   const navigate = useNavigate();
 
   return (
     <header>
-      <h1 onClick={() => navigate("/blog-hooks/posts", {replace: true})}>
+      <h1 onClick={() => navigate("/blog-hooks/posts", { replace: true })}>
         <Link to="/" style={{ color: "#fff", textDecoration: "none " }}>
           _Log
         </Link>
@@ -37,6 +38,7 @@ const Header = () => {
           </li>
           <li>Contact</li>
           <li>About us</li>
+          <FilterSelect sortMethod={sortMethod} setSortMethod={setSortMethod} />
           <li onClick={() => localStorage.clear()}>Clear Storage</li>
         </ul>
       </nav>
