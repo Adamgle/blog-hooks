@@ -8,6 +8,7 @@ import {
   Link,
 } from "react-router-dom";
 import InteractionsData from "./IneractionsData";
+import FilterSelect from "./FilterSelect";
 
 const Posts = () => {
   const {
@@ -51,7 +52,6 @@ const Posts = () => {
                 }}
               />
             );
-            // ADD OBSERVER IF LAST POST ARE BEING INTERATED
           })}
         </>
       )}
@@ -202,20 +202,6 @@ const Posts = () => {
         )}
       </div>
     </div>
-  );
-};
-
-const FilterSelect = ({ sortMethod, setSortMethod }) => {
-  return (
-    <form>
-      <select
-        value={sortMethod}
-        onChange={(e) => setSortMethod(e.target.value)}
-      >
-        <option value="initial">Recent</option>
-        <option value="byDate">Oldest</option>
-      </select>
-    </form>
   );
 };
 

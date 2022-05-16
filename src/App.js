@@ -17,15 +17,15 @@ const App = () => {
     intersecting: false,
     startInfinityFetching: false,
     urlDepsChanged: false,
+    lastFivePosts: [],
     urlDeps: {
-      fetchCount: 0,
-      pageNumber: 1,
+      urlPostsValue: 0,
+      urlUserValue: 1,
     },
   });
 
   const [sortMethod, setSortMethod] = useState("initial");
   const [observedElements, setObservedElements] = useState([]);
-  const [lastFivePosts, setLastFivePosts] = useState();
 
   // REFS
   const { current: usersSeed } = useRef("usersSeed");
@@ -42,17 +42,18 @@ const App = () => {
     beenFullRequested,
     intersecting,
     startInfinityFetching,
+    lastFivePosts,
     urlDepsChanged,
     urlDeps,
   } = infiniteFetchingDeps;
-  const { fetchCount, pageNumber } = urlDeps;
+  const { urlPostsValue, urlUserValue } = urlDeps;
 
   // DB'S
   const [dbPosts, setDbPosts] = useState(
-    `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
+    `https://jsonplaceholder.typicode.com/posts?_start=${urlPostsValue}&_limit=5`
   );
-  const [dbRandomUser, setDbRandomUser] = useState(
-    `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
+  const [dbUsers, setDbUsers] = useState(
+    `https://randomuser.me/api/?page=${urlUserValue}&results=5&seed=${usersSeed}`
   );
   const [dbRandomPicture] = useState(
     `https://picsum.photos/v2/list?page=2&limit=100`
@@ -73,39 +74,41 @@ const App = () => {
     }
   }, []);
 
-  // LOAD DATABASES
-  useEffect(() => {
-    if (fetchCount >= 100 || pageNumber >= 21) {
-      return;
-    }
-    setDbPosts(
-      `https://jsonplaceholder.typicode.com/posts?_start=${fetchCount}&_limit=5`
-    );
-    setDbRandomUser(
-      `https://randomuser.me/api/?page=${pageNumber}&results=5&seed=${usersSeed}`
-    );
-  }, [fetchCount, pageNumber, usersSeed]);
-
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
-  const { data: dataRandomUser, loading: loadingRandomUser } =
-    useFetch(dbRandomUser);
+  const { data: dataUsers, loading: loadingUsers } =
+    useFetch(dbUsers);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
+
+  // LOAD DATABASES
+  useEffect(() => {
+    if (urlPostsValue >= 100 || urlUserValue >= 21) {
+      return;
+    }
+    if (!loadingPosts && !loadingUsers) {
+      setDbPosts(
+        `https://jsonplaceholder.typicode.com/posts?_start=${urlPostsValue}&_limit=5`
+      );
+      setDbUsers(
+        `https://randomuser.me/api/?page=${urlUserValue}&results=5&seed=${usersSeed}`
+      );
+    }
+  }, [urlPostsValue, urlUserValue, usersSeed, loadingPosts, loadingUsers]);
 
   useEffect(() => {
     setInfiniteFetchingDeps((prevState) => ({
       ...prevState,
       urlDepsChanged: true,
     }));
-  }, [dbPosts, dbRandomUser]);
+  }, [dbPosts, dbUsers]);
 
   useEffect(() => {
     setInfiniteFetchingDeps((prevState) => ({
       ...prevState,
       intersecting: false,
     }));
-  }, [dataPosts, dataRandomUser]);
+  }, [dataPosts, dataUsers]);
 
   // DETERMINE FETCH STATUS
   useEffect(() => {
@@ -117,20 +120,20 @@ const App = () => {
     }
     if (
       !loadingPosts &&
-      !loadingRandomUser &&
+      !loadingUsers &&
       !loadingRandomPicture &&
       dataPosts &&
-      dataRandomUser?.results.length &&
+      dataUsers?.results.length &&
       dataRandomPicture
     ) {
       setFetchStatus(true);
     }
   }, [
     loadingPosts,
-    loadingRandomUser,
+    loadingUsers,
     loadingRandomPicture,
     dataPosts,
-    dataRandomUser,
+    dataUsers,
     dataRandomPicture,
   ]);
 
@@ -139,6 +142,16 @@ const App = () => {
     // "ELSE IF" IS PERFORMED FOR INFINITY SCROLLING,
     // WHEN USER GOES ALL THE WAY DOWN THE PAGE, ANOTHER 5 POSTS
     // WILL BE FETCHED AND STATUS WILL BE DIFFERENT
+    if (
+      loadingPosts ||
+      loadingUsers ||
+      loadingRandomPicture ||
+      !dataPosts ||
+      !dataUsers ||
+      !dataRandomPicture
+    ) {
+      return;
+    }
     if (!startInfinityFetching && !intersecting) {
       setMergedState((prevState) => {
         return fetchStatus
@@ -155,10 +168,10 @@ const App = () => {
                     comments: {},
                     likes: 0,
                     isRead: false,
-                    user: dataRandomUser.results[i],
+                    user: dataUsers.results[i],
                   };
                 }),
-                dataRandomUser: dataRandomUser.results.map((user) => ({
+                dataUsers: dataUsers.results.map((user) => ({
                   ...user,
                   id: nanoid(),
                   name: {
@@ -190,7 +203,7 @@ const App = () => {
       }));
     } else if (startInfinityFetching && intersecting && urlDepsChanged) {
       setMergedState((prevState) => {
-        return !loadingPosts && !loadingRandomUser
+        return !loadingPosts && !loadingUsers
           ? {
               ...prevState,
               initial: {
@@ -207,13 +220,13 @@ const App = () => {
                       comments: {},
                       likes: 0,
                       isRead: false,
-                      user: dataRandomUser.results[i],
+                      user: dataUsers.results[i],
                     };
                   }),
                 ],
-                dataRandomUser: [
-                  ...prevState.initial?.dataRandomUser,
-                  ...dataRandomUser.results.map((user) => ({
+                dataUsers: [
+                  ...prevState.initial?.dataUsers,
+                  ...dataUsers.results.map((user) => ({
                     ...user,
                     id: nanoid(),
                     name: {
@@ -231,10 +244,10 @@ const App = () => {
     fetchStatus,
     dataPosts,
     dataRandomPicture,
-    dataRandomUser,
+    dataUsers,
     loadingPosts,
     loadingRandomPicture,
-    loadingRandomUser,
+    loadingUsers,
     intersecting,
     startInfinityFetching,
     urlDepsChanged,
@@ -252,7 +265,7 @@ const App = () => {
             posts: prevState.initial.posts.map((post, i) => {
               return {
                 ...post,
-                user: prevState.initial.dataRandomUser[i],
+                user: prevState.initial.dataUsers[i],
               };
             }),
           },
@@ -260,67 +273,60 @@ const App = () => {
       });
     }
     //
-  }, [fetchStatus, mergedState.initial?.dataRandomUser]);
+  }, [fetchStatus, mergedState.initial?.dataUsers]);
 
   // SETS THE OBSERVER TO LAST 5 POSTS ON THE PAGE
   useEffect(() => {
-    if (!loadingPosts && !loadingRandomUser) {
+    if (!loadingPosts && !loadingUsers) {
       if (mergedState[sortMethod] && fetchStatus) {
         const postsLength = mergedState[sortMethod].posts.length;
-        setLastFivePosts(mergedState[sortMethod].posts.slice(postsLength - 5));
+        setInfiniteFetchingDeps((prevState) => ({
+          ...prevState,
+          lastFivePosts: mergedState[sortMethod].posts.slice(postsLength - 5),
+        }));
       }
     }
-  }, [fetchStatus, mergedState, sortMethod, loadingPosts, loadingRandomUser]);
-
-  // FLAG WHICH TELLS, 100 POSTS || 20 USERS ARE FETCHED OR IS FETCHING
-  // THIS IS REQUIERED 'CAUSE IF THE RAW STATEMENT WILL BE USED IN THE
-  // USE EFFECT WITH urlDepsValues VALUES IN STATEMENT WILL BE DIFFERENT ON
-  // ANOTHER RENDER WHEN CONDITION IS MET, SO THE POSTS WILL BE JUST
-  // INCREMENTED BY 5 AND 1 SO THE RANDOMIZATION ON EACH RENDER WILL BE BROKEN
+  }, [fetchStatus, mergedState, sortMethod, loadingPosts, loadingUsers]);
 
   useEffect(() => {
-    if (fetchCount >= 100 || pageNumber >= 21) {
+    if (urlPostsValue >= 100 || urlUserValue >= 21) {
       setInfiniteFetchingDeps((prevState) => ({
         ...prevState,
         beenFullRequested: true,
       }));
     }
-  }, [fetchCount, pageNumber]);
+  }, [urlPostsValue, urlUserValue]);
 
   // MOUNTS IntersectionObserver ATTACHED TO LAST FIVE ITEMS ON THE PAGE
-
   useEffect(() => {
-    if (intersecting) {
+    if (intersecting && !loadingPosts && !loadingUsers) {
       setInfiniteFetchingDeps((prevState) =>
         beenFullRequested
           ? {
               ...prevState,
               urlDeps: {
-                fetchCount: Math.trunc(Math.random() * 95),
-                pageNumber: Math.trunc(Math.random() * 20),
+                urlPostsValue: Math.trunc(Math.random() * 95),
+                urlUserValue: Math.trunc(Math.random() * 20),
               },
             }
           : {
               ...prevState,
               startInfinityFetching: true,
               urlDeps: {
-                fetchCount: prevState.urlDeps.fetchCount + 5,
-                pageNumber: prevState.urlDeps.pageNumber + 1,
+                urlPostsValue: prevState.urlDeps.urlPostsValue + 5,
+                urlUserValue: prevState.urlDeps.urlUserValue + 1,
               },
             }
       );
     }
-  }, [beenFullRequested, intersecting]);
-
-  console.log(observedElements);
+  }, [beenFullRequested, intersecting, loadingPosts, loadingUsers]);
 
   useEffect(() => {
     if (
-      fetchStatus &&
       observedElements.length === 5 &&
       observedElements[0].current &&
       !loadingPosts &&
-      !loadingRandomUser
+      !loadingUsers
     ) {
       // ON EACH FETCH CALL DIFFERENT IntersectionObserver ARE CREATED
       const createdObserver = new IntersectionObserver(
@@ -353,7 +359,7 @@ const App = () => {
         createdObserver.observe(post.current);
       });
     }
-  }, [fetchStatus, observedElements, loadingPosts, loadingRandomUser]);
+  }, [observedElements, loadingPosts, loadingUsers]);
 
   // REDIRECT TO /POSTS ON MOUNT
   useEffect(() => {
@@ -398,7 +404,7 @@ const App = () => {
 
   // SAVE STATE TO LocalStorage also fetchDeps
   useEffect(() => {
-    if (mergedState && fetchStatus) {
+    if (mergedState[sortMethod] && fetchStatus) {
       localStorage.setItem("mergedState", JSON.stringify(mergedState));
       localStorage.setItem("sortMethod", sortMethod);
       localStorage.setItem(
@@ -408,7 +414,7 @@ const App = () => {
     }
   }, [fetchStatus, mergedState, sortMethod, infiniteFetchingDeps]);
 
-  // console.log(mergedState[sortMethod]);
+  console.log(mergedState[sortMethod]);
   console.log(
     mergedState[sortMethod]?.posts
       .map((post, i) => ((i + 1) % 5 === 0 ? post.fetchedID : null))
@@ -418,7 +424,7 @@ const App = () => {
 
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.fetchedID));
 
-  // console.log(fetchCount, pageNumber);
+  // console.log(urlPostsValue, urlUserValue);
 
   return (
     <>
@@ -431,7 +437,7 @@ const App = () => {
           setSortMethod,
           fetchStatus,
           loadingPosts,
-          loadingRandomUser,
+          loadingUsers,
           intersecting,
           observedElements,
           setObservedElements,

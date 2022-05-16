@@ -1,4 +1,4 @@
-import { render } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, HashRouter } from "react-router-dom";
 import App from "./App";
 import Home from "./Components/Home";
@@ -8,7 +8,9 @@ import Post from "./Components/Post";
 import "./styles/index.scss";
 import React from "react";
 
-render(
+const root = createRoot(document.getElementById("root"));
+
+root.render(
   <HashRouter>
     <Routes>
       <Route path="/" element={<App />} />
@@ -22,6 +24,5 @@ render(
         <Route path="*" element={<NoMatch />} />
       </Route>
     </Routes>
-  </HashRouter>,
-  document.getElementById("root")
+  </HashRouter>
 );

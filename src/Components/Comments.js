@@ -83,21 +83,6 @@ const Comments = ({
     sortMethod,
   ]);
 
-  // COMPUTE CURRENT VIEWPORT
-  // IF USER PASS A LOT OF TEXT IN ONE WORD "LONG STRING WITHOUT WHITE CHARACTER"
-  // -> IN TEXTFIELD THEN APPLICATION UI WILL BROKE ->
-  // THIS STATEMENT HANDLES THAT THE CONTAINER WILL FIT TO VIEWPORT ->
-  // WITH CONSIDERATION ON PADDING, MARGINS AND BORDERS SO THAT ->
-  // TEXT WILL FIT TO CONTAINER CAUSING WORD WRAP "OR LETTERS WRAP"
-  // const commentsDynamicStyles = {
-  //   maxWidth:
-  //     windowDimensions.width > 900
-  //       ? "863px"
-  //       : windowDimensions.width <= 900 && windowDimensions.width > 700
-  //       ? `${windowDimensions.width - 77}px` // 900 - 701 viewport
-  //       : `${windowDimensions.width - 67}px`, // >=700 viewport
-  // };
-
   return (
     <div
       className={`comments-container ${!showComments ? "hidden" : ""}`}

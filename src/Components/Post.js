@@ -24,8 +24,6 @@ const Post = () => {
     currentPost,
     setObservedElements,
     lastFivePosts,
-    loadingPosts,
-    loadingRandomUsers,
   } = useOutletContext();
 
   // REFS
@@ -212,7 +210,7 @@ const Post = () => {
           posts: prevState[sortMethod].posts.filter(
             (post) => post.id !== currentPost.id && post
           ),
-          dataRandomUser: prevState[sortMethod].dataRandomUser.filter(
+          dataUsers: prevState[sortMethod].dataUsers.filter(
             (user) => user.id !== currentPost.user.id && user
           ),
         },
@@ -220,21 +218,9 @@ const Post = () => {
     });
   };
 
-  // const commentsDynamicStyles = {
-  //   maxWidth:
-  //     windowDimensions.width <= 937
-  //       ? "863px"
-  //       : windowDimensions.width > 937
-  //       ? "900px"
-  //       : windowDimensions.width <= 900 && windowDimensions.width > 700
-  //       ? `${windowDimensions.width - 47}px` // 900 - 701 viewport
-  //       : `${windowDimensions.width - 27}px`, // >=700 viewport
-  // };
-
   // CLEARS showComments WHEN COMPONENT UNMOUNTS
   // E.G. USER ARE NAVIGATING TO DIFFERENT POST FROM
   // THE PATH ON PostOnPostsPath
-
   useEffect(() => {
     return () => {
       setMergedState((prevState) => ({
@@ -301,7 +287,7 @@ const Post = () => {
         <img src={currentPost.randomImageRef} alt="splash" />
       </div>
       <div className="post-title">
-        <Link to={currentPost.id}>
+        <Link to={currentPost.id} className="post-title-link">
           <h3>{currentPost.title}</h3>
         </Link>
       </div>
