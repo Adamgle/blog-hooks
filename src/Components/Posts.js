@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import InteractionsData from "./IneractionsData";
 import FilterSelect from "./FilterSelect";
-
+import PostSelf from "./PostSelf";
 const Posts = () => {
   const {
     mergedState,
@@ -27,6 +27,7 @@ const Posts = () => {
   // GET URL PARAMS
   const params = useParams();
   const navigate = useNavigate();
+  const [currentPost, setCurrentPost] = useState(null);
 
   const displayPosts = (
     <>
@@ -70,16 +71,10 @@ const Posts = () => {
           fetchStatus,
           windowDimensions,
           currentPost: post,
-          // unnecessary
-          observedElements,
-          setObservedElements,
-          lastFivePosts,
         }}
       />
     ) : null;
   });
-
-  const [currentPost, setCurrentPost] = useState(null);
 
   useEffect(() => {
     if (mergedState && fetchStatus) {

@@ -76,8 +76,7 @@ const App = () => {
 
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
-  const { data: dataUsers, loading: loadingUsers } =
-    useFetch(dbUsers);
+  const { data: dataUsers, loading: loadingUsers } = useFetch(dbUsers);
   const { data: dataRandomPicture, loading: loadingRandomPicture } =
     useFetch(dbRandomPicture);
 
@@ -414,12 +413,10 @@ const App = () => {
     }
   }, [fetchStatus, mergedState, sortMethod, infiniteFetchingDeps]);
 
+  // TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+
   console.log(mergedState[sortMethod]);
-  console.log(
-    mergedState[sortMethod]?.posts
-      .map((post, i) => ((i + 1) % 5 === 0 ? post.fetchedID : null))
-      .filter(Boolean)
-  );
+
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
 
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.fetchedID));

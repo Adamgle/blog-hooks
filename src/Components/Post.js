@@ -10,6 +10,7 @@ import {
   getRandomColorForBackgroundColor,
 } from "./utilities";
 import { Link, useOutletContext, useParams } from "react-router-dom";
+import PostSelf from "./PostSelf";
 
 const Post = () => {
   const params = useParams();
@@ -254,7 +255,11 @@ const Post = () => {
 
   const PostOnPostsPath = mergedState && fetchStatus && (
     // style={commentsDynamicStyles}
-    <div className="post" ref={postRef}>
+    <div
+      className="post"
+      ref={postRef}
+      // style={{ display: params.postId ? "none" : "flex" }}
+    >
       <div className="post-user">
         <div className="post-user-img">
           <img src={currentPost.user.picture.thumbnail} alt="user thumbnail" />
@@ -358,7 +363,14 @@ const Post = () => {
   );
 
   const postOnSelfPath = (
-    <div className="post" style={{ margin: "0" }}>
+    <div
+      className="post"
+      style={{
+        margin: "0",
+        display:
+          params.postId && params.postId === currentPost.id ? "flex" : "none",
+      }}
+    >
       <div className="post-user">
         <div className="post-user-img">
           <img src={currentPost.user.picture.thumbnail} alt="user thumbnail" />
@@ -459,7 +471,20 @@ const Post = () => {
     </div>
   );
 
-  return params.postId ? postOnSelfPath : PostOnPostsPath;
+  return params.postId ? (
+    <PostSelf
+      currentPost={currentPost}
+      handleShowCommentsButton={handleShowCommentsButton}
+      handleLikePost={handleLikePost}
+      handleAddCommentButton={handleAddCommentButton}
+      mergedState={mergedState}
+      sortMethod={sortMethod}
+      textAreaRef={textAreaRef}
+      setMergedState={setMergedState}
+    />
+  ) : (
+    PostOnPostsPath
+  );
 };
 
 export default Post;
