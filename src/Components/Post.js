@@ -60,6 +60,7 @@ const Post = () => {
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
   const postRef = useRef(null);
+
   // THIS EFFECT RUNS JUST ONCE AND THE VALUES IN THERE
   // ARE BEEING UPDATED ANYWHERE ELSE
   // THIS IS JUST STATE MERGER AND THE STATE IS UPDATED
@@ -367,6 +368,7 @@ const Post = () => {
       sortMethod={sortMethod}
       textAreaRef={textAreaRef}
       setMergedState={setMergedState}
+      params={params}
     />
   ) : (
     PostOnPostsPath

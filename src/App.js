@@ -48,17 +48,6 @@ const App = () => {
   } = infiniteFetchingDeps;
   const { urlPostsValue, urlUserValue } = urlDeps;
 
-  // DB'S
-  const [dbPosts, setDbPosts] = useState(
-    `https://jsonplaceholder.typicode.com/posts?_start=${urlPostsValue}&_limit=5`
-  );
-  const [dbUsers, setDbUsers] = useState(
-    `https://randomuser.me/api/?page=${urlUserValue}&results=5&seed=${usersSeed}`
-  );
-  const [dbRandomPicture] = useState(
-    `https://picsum.photos/v2/list?page=2&limit=100`
-  );
-
   // SETTING STORAGE TO STATE
   useEffect(() => {
     const data = localStorage.getItem("mergedState");
@@ -73,6 +62,17 @@ const App = () => {
       });
     }
   }, []);
+
+  // DB'S
+  const [dbPosts, setDbPosts] = useState(
+    `https://jsonplaceholder.typicode.com/posts?_start=${urlPostsValue}&_limit=5`
+  );
+  const [dbUsers, setDbUsers] = useState(
+    `https://randomuser.me/api/?page=${urlUserValue}&results=5&seed=${usersSeed}`
+  );
+  const [dbRandomPicture] = useState(
+    `https://picsum.photos/v2/list?page=2&limit=100`
+  );
 
   // FETCH CALLS
   const { data: dataPosts, loading: loadingPosts } = useFetch(dbPosts);
@@ -178,7 +178,16 @@ const App = () => {
                     fullName: `${user.name.first} ${user.name.last}`,
                   },
                 })),
-                dataRandomPicture: dataRandomPicture,
+                dataRandomPicture: dataRandomPicture.map((e) => {
+                  return {
+                    ...e,
+                    download_url:
+                      e.download_url
+                        .split("/")
+                        .slice(0, e.download_url.split("/").length - 2)
+                        .join("/") + "/760/400",
+                  };
+                }),
                 dataProfile: {
                   name: {
                     title: "",
@@ -419,7 +428,11 @@ const App = () => {
 
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
 
-  // console.log(mergedState[sortMethod]?.posts.map((post) => post.fetchedID));
+  console.log(
+    mergedState[sortMethod]?.posts
+      .map((post, i) => (i % 5 === 0 ? post.fetchedID - 1: null))
+      .filter(Boolean)
+  );
 
   // console.log(urlPostsValue, urlUserValue);
 

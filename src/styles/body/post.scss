@@ -83,6 +83,8 @@
       }
       .post-image-splash {
         width: 100%;
+        min-width: 760px;
+        min-height: 400px;
         display: block;
         img {
           width: 100%;

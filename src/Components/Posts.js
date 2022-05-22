@@ -95,9 +95,12 @@ const Posts = () => {
 
   return (
     <div className={"posts-container"}>
-      <div className="posts">
-        {params.postId && currentPost ? displayPost : displayPosts}
-      </div>
+      {params.postId && currentPost ? (
+        <div className="post-self-container">{displayPost}</div>
+      ) : (
+        <div className="posts">{displayPosts}</div>
+      )}
+
     </div>
   );
 };
