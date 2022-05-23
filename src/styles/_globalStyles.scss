@@ -9,23 +9,37 @@
 }
 .post-interaction-button {
   font-family: "Roboto", sans-serif;
+  box-sizing: content-box;
   letter-spacing: 1px;
-  width: 100%;
   font-size: 16px;
   font-weight: bold;
-  padding: 8px 20px;
-  border-radius: 50px;
   border: 0;
   outline: 0;
   background-color: #2d3035;
   color: #fff;
+  font-size: 15px;
+  padding: 5px 15px;
+  border-radius: 5px;
   cursor: pointer;
+  @media (max-width: 800px) {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    // background-color: #2d3035;
+    // padding: 5px;
+    // border-radius: 5px;
+    // padding: 5px 10px;
+    // border: 1px solid red;
+  }
 }
 .post-interaction-count {
   display: flex;
   font-weight: bold;
   gap: 0.5rem;
   cursor: pointer;
+  @media (max-width: 800px) {
+    font-size: 12px;
+  }
 }
 .picture-profile {
   width: 48px;

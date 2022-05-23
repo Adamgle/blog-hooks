@@ -2,7 +2,7 @@ import Comments from "./Comments";
 import { nanoid } from "nanoid";
 import { Link } from "react-router-dom";
 import InteractionsData from "./IneractionsData";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 
 const PostSelf = ({
   currentPost,

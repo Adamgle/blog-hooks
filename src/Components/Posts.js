@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import React, { useEffect, useState } from "react";
 import {
   useOutletContext,
@@ -100,7 +99,6 @@ const Posts = () => {
       ) : (
         <div className="posts">{displayPosts}</div>
       )}
-
     </div>
   );
 };

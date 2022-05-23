@@ -287,57 +287,63 @@ const Post = () => {
       <div className="post-image-splash">
         <img src={currentPost.randomImageRef} alt="splash" />
       </div>
-      <div className="post-title">
-        <Link to={currentPost.id} className="post-title-link">
-          <h3>{currentPost.title}</h3>
-        </Link>
-      </div>
-      <div className="post-content">
-        <p>{currentPost.body}</p>
-      </div>
-      <div className="post-likes-comments-share-count noselect">
-        <div className="post-likes-count-container post-interaction-count">
-          Likes
-          <div className="post-likes-count">{currentPost.likes}</div>
+      <div className="post-title-content-container">
+        <div className="post-title">
+          <Link to={currentPost.id} className="post-title-link">
+            <h3>{currentPost.title}</h3>
+          </Link>
         </div>
-        <div className="post-comments-shares-container">
-          <div
-            className="post-comments-count-container post-interaction-count"
-            onClick={handleShowCommentsButton}
-          >
-            Comments
-            <div className="post-comments-count">
-              {currentPost.comments.commentsLength}
+        <div className="post-content">
+          <p>{currentPost.body}</p>
+        </div>
+      </div>
+      <div className="post-interactions-counts-buttons-container">
+        <div className="post-likes-comments-share-count noselect">
+          <div className="post-likes-count-container post-interaction-count">
+            Likes
+            <div className="post-likes-count">{currentPost.likes}</div>
+          </div>
+          <div className="post-comments-shares-container">
+            <div
+              className="post-comments-count-container post-interaction-count"
+              onClick={handleShowCommentsButton}
+            >
+              Comments
+              <div className="post-comments-count">
+                {currentPost.comments.commentsLength}
+              </div>
+            </div>
+            <div className="post-share-count-container post-interaction-count">
+              Shares
+              <div className="post-share-count">{currentPost.sharesCount}</div>
             </div>
           </div>
-          <div className="post-share-count-container post-interaction-count">
-            Shares
-            <div className="post-share-count">{currentPost.sharesCount}</div>
-          </div>
         </div>
-      </div>
-      <div className="post-likes-comments-share-buttons noselect">
-        <div className="post-likes-comments-share-buttons-inner-container">
-          <div className="post-likes-container">
-            <button
-              className="post-likes post-interaction-button"
-              onClick={handleLikePost}
-            >
-              Like it!
-            </button>
-          </div>
-          <div className="post-show-comments">
-            <button
-              className="post-show-comments-button post-interaction-button "
-              onClick={handleAddCommentButton}
-            >
-              Add Comment
-            </button>
-          </div>
-          <div className="post-share">
-            <button className="post-share-button post-interaction-button ">
-              Share
-            </button>
+        <div className="post-likes-comments-share-buttons noselect">
+          <div className="post-likes-comments-share-buttons-inner-container">
+            <div className="post-likes-container">
+              <button
+                className="post-likes post-interaction-button"
+                onClick={handleLikePost}
+              >
+                Like it!
+              </button>
+            </div>
+            <div className="post-likes-comments-share-container">
+              <div className="post-show-comments">
+                <button
+                  className="post-show-comments-button post-interaction-button "
+                  onClick={handleAddCommentButton}
+                >
+                  Add Comment
+                </button>
+              </div>
+              <div className="post-share">
+                <button className="post-share-button post-interaction-button ">
+                  Share
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

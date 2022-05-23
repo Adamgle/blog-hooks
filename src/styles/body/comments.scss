@@ -9,6 +9,13 @@
     display: flex;
     width: 100%;
     gap: 1rem;
+    margin-bottom: 15px;
+    .comment-picture-profile {
+      @media (max-width: 800px) {
+        width: 40px;
+        height: 40px;
+      }
+    }
     .comment-profile-name {
       display: flex;
       flex-direction: column;
@@ -17,7 +24,7 @@
       width: 100%;
       .comment-form {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         .comment-textarea {
           font-family: "Roboto", sans-serif;
@@ -29,7 +36,7 @@
           border: 0;
           outline: 0;
           resize: none;
-          border-radius: 50px;
+          border-radius: 10px 0 0 10px;
           &::placeholder {
             letter-spacing: 0.25px;
           }
@@ -39,27 +46,30 @@
         }
         .comment-publish-container {
           display: flex;
-          width: 20%;
-          display: flex;
-          align-self: flex-start;
-          justify-self: flex-start;
-          @media (max-width: 700px) {
-            width: 30%;
-          }
           justify-content: center;
+          height: 100%;
+          flex-grow: 1;
+          width: auto;
+          border-left: 4px solid #000;
+          border-right: 4px solid #000;
           .comment-publish {
             display: flex;
+            height: 100%;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
             font-family: "Roboto", sans-serif;
-            border-radius: 20px;
-            padding: 10px 15px;
+            padding: 5px;
             background-color: #2a2b2c;
-            letter-spacing: 1px;
+            letter-spacing: 1.25px;
+            font-size: 14px;
             outline: 0;
             border: 0;
             color: #fff;
             font-weight: bold;
             text-align: center;
             &:hover {
+              // background-color: #1c1c1c;
               cursor: pointer;
             }
           }
@@ -69,6 +79,8 @@
   }
   .comments-label {
     font-weight: bold;
+    // line-height: 2;
+    margin-bottom: 5px;
   }
   .comment {
     display: flex;
@@ -84,10 +96,15 @@
         display: flex;
         gap: 1rem;
         border-radius: 50px;
+
         .comment-picture {
           width: 48px;
           border-radius: 50px;
           object-fit: cover;
+          @media (max-width: 800px) {
+            height: 40px;
+            width: 40px;
+          }
         }
         .comment-name-date {
           display: flex;
@@ -117,8 +134,8 @@
       justify-content: space-between;
       width: 100%;
       padding-bottom: 1rem;
-      padding-left:  10px;
-      padding-right:  10px;
+      padding-left: 10px;
+      padding-right: 10px;
 
       .comment-interactions-container {
         display: flex;
