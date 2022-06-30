@@ -2,9 +2,9 @@ import React from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import FilterSelect from "./FilterSelect";
 
-const Header = ({sortMethod, setSortMethod}) => {
+const Header = ({ sortMethod, setSortMethod }) => {
   const navigate = useNavigate();
-
+  
   return (
     <header>
       <h1 onClick={() => navigate("/blog-hooks/posts", { replace: true })}>

@@ -9,13 +9,14 @@ header {
     margin: 0 auto;
     color: #fff;
     position: sticky;
+    font-size: 80%;
     top: 0;
     h1 {
         letter-spacing: 1px;
     }
     ul {
         display: flex;
-        gap: 1.25rem;
+        gap: 1rem;
         list-style-type: none;
         li {
             cursor: pointer;

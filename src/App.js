@@ -1,15 +1,15 @@
 import { nanoid } from "nanoid";
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Header from "./Components/Header";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useFetch } from "./Components/Hooks/useFetch";
-import { sortByDate, sortPreviousState } from "./Components/utilities";
+import { sortByDate } from "./Components/utilities";
+import { sortPreviousState } from "./Components/utilities";
 
 const App = () => {
   // STATE
   const [mergedState, setMergedState] = useState({
     initial: null,
-    byDate: null,
   });
   const [fetchStatus, setFetchStatus] = useState(false);
   const [infiniteFetchingDeps, setInfiniteFetchingDeps] = useState({
@@ -29,10 +29,10 @@ const App = () => {
 
   // REFS
   const { current: usersSeed } = useRef("usersSeed");
-  const beenDifferentThanInitial = useRef(false);
-  const previousSortMethod = useRef(null);
   const postID = useRef(0);
+  const beenSorted = useRef(false);
 
+  // HOOKS
   const navigate = useNavigate();
   const params = useParams();
 
@@ -331,6 +331,7 @@ const App = () => {
 
   useEffect(() => {
     if (
+      // sortMethod === "initial" &&
       observedElements.length === 5 &&
       observedElements[0].current &&
       !loadingPosts &&
@@ -363,11 +364,14 @@ const App = () => {
           threshold: 0,
         }
       );
-      observedElements.forEach((post) => {
-        createdObserver.observe(post.current);
-      });
+      if (sortMethod === "initial") {
+        observedElements.forEach((post) => {
+          if (post.current && typeof post.current === "object")
+            createdObserver.observe(post.current);
+        });
+      }
     }
-  }, [observedElements, loadingPosts, loadingUsers]);
+  }, [observedElements, loadingPosts, loadingUsers, sortMethod]);
 
   // REDIRECT TO /POSTS ON MOUNT
   useEffect(() => {
@@ -378,36 +382,35 @@ const App = () => {
     }
   }, [navigate, params]);
 
-  const memoizedSortedDate = useMemo(() => {
-    if (mergedState.initial?.posts) {
-      return sortByDate(mergedState.initial, true);
-    }
-  }, [mergedState.initial]);
-
   useEffect(() => {
     if (fetchStatus) {
       setMergedState((prevState) => {
-        if (prevState.initial) {
-          if (sortMethod !== "initial") {
-            beenDifferentThanInitial.current = true;
-            previousSortMethod.current = sortMethod;
-          }
-          return {
-            ...prevState,
-            [sortMethod]:
-              sortMethod === "byDate"
-                ? memoizedSortedDate
-                : sortMethod === "initial"
-                ? beenDifferentThanInitial.current
-                  ? sortPreviousState(prevState, previousSortMethod.current)
-                  : prevState[sortMethod]
-                : prevState.initial,
-          };
+        if (prevState.initial && prevState.initial.posts) {
+          const sortedState = sortByDate(
+            prevState.initial,
+            true,
+            sortMethod === "byDateLatest"
+              ? true
+              : sortMethod === "byDateOldest" && false
+          );
+
+          if (sortMethod !== "initial") beenSorted.current = true;
+
+          return sortMethod === "initial"
+            ? {
+                ...prevState,
+                initial: beenSorted.current
+                  ? sortPreviousState(prevState)
+                  : prevState.initial,
+              }
+            : {
+                ...prevState,
+                sorted: sortedState,
+              };
         }
         return prevState;
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchStatus, sortMethod]);
 
   // SAVE STATE TO LocalStorage also fetchDeps
@@ -424,26 +427,39 @@ const App = () => {
 
   // TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING
 
-  console.log(mergedState[sortMethod]);
+  console.log(mergedState);
+  // console.log(mergedState[sortMethod]?.posts.map((post) => post.fetchedID));
+
+  // console.log(mergedState[sortMethod]?.posts);
+  // for (let prop in mergedState) {
+  //   if (mergedState[prop]?.posts) {
+  //     console.log(
+  //       Array(3)
+  //         .fill(0)
+  //         .map(_ => mergedState[prop]?.posts.length)
+  //     );
+  //   }
+  // }
 
   // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
 
-  console.log(
-    mergedState[sortMethod]?.posts
-      .map((post, i) => (i % 5 === 0 ? post.fetchedID - 1: null))
-      .filter(Boolean)
-  );
+  // console.log(
+  //   mergedState[sortMethod]?.posts
+  //     .map((post, i) => (i % 5 === 0 ? post.fetchedID - 1: null))
+  //     .filter(Boolean)
+  // );
 
-  // console.log(urlPostsValue, urlUserValue);
-
+  console.log(sortMethod);
+  
   return (
     <>
       <Header sortMethod={sortMethod} setSortMethod={setSortMethod} />
       <Outlet
         context={{
-          mergedState: mergedState[sortMethod],
+          mergedState:
+            mergedState[sortMethod !== "initial" ? "sorted" : "initial"],
           setMergedState,
-          sortMethod,
+          sortMethod: sortMethod !== "initial" ? "sorted" : "initial",
           setSortMethod,
           fetchStatus,
           loadingPosts,

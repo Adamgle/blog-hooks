@@ -38,11 +38,13 @@ const Comment = ({
     <div className="comment">
       <div className="comment-inner-container">
         <div className="comment-picture-container">
-          <img
-            className="comment-picture"
-            src={user.picture.thumbnail}
-            alt="thumbnail"
-          />
+          <div className="comment-picture-inner-container">
+            <img
+              className="comment-picture"
+              src={user.picture.thumbnail}
+              alt="thumbnail"
+            />
+          </div>
           <div className="comment-name-date">
             <div className="comment-name">{user.name.fullName}</div>
             <div className="comment-date">{currentComment.commentDate}</div>

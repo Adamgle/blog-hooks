@@ -12,21 +12,20 @@ import {
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import PostSelf from "./PostSelf";
 
-const Post = () => {
+const Post = ({ displayPostSelf }) => {
   const params = useParams();
 
   // CONTEXT FROM REACT ROUTER
   const {
     mergedState,
-    sortMethod,
     setMergedState,
     fetchStatus,
     windowDimensions,
     currentPost,
     setObservedElements,
     lastFivePosts,
+    sortMethod,
   } = useOutletContext();
-
   // REFS
   const { current: randomDateRef } = useRef(randomDate());
   const { current: concatFetchDataRef } = useRef(
@@ -60,6 +59,10 @@ const Post = () => {
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
   const postRef = useRef(null);
+
+  // console.log(mergedState);
+  // console.log(mergedState[sortMethod]);
+  // console.log(sortMethod);
 
   // THIS EFFECT RUNS JUST ONCE AND THE VALUES IN THERE
   // ARE BEEING UPDATED ANYWHERE ELSE
@@ -252,10 +255,15 @@ const Post = () => {
     lastFivePosts,
     mergedState.posts.length,
     setObservedElements,
+    sortMethod,
   ]);
 
   const PostOnPostsPath = mergedState && fetchStatus && (
-    <div className="post" ref={postRef}>
+    <div
+      className="post"
+      ref={postRef}
+      style={{ display: params.postId ? "none" : "flex" }}
+    >
       <div className="post-user">
         <div className="post-user-img">
           <img src={currentPost.user.picture.thumbnail} alt="user thumbnail" />
@@ -329,7 +337,7 @@ const Post = () => {
                 Like it!
               </button>
             </div>
-            <div className="post-likes-comments-share-container">
+            <div className="post-comments-share-container">
               <div className="post-show-comments">
                 <button
                   className="post-show-comments-button post-interaction-button "

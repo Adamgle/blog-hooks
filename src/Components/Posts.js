@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   useOutletContext,
   Outlet,
@@ -22,7 +22,7 @@ const Posts = () => {
   // GET URL PARAMS
   const params = useParams();
   const navigate = useNavigate();
-  const [currentPost, setCurrentPost] = useState(null);
+  // const [currentPost, setCurrentPost] = useState(null);
 
   const displayPosts = (
     <>
@@ -70,13 +70,13 @@ const Posts = () => {
     ) : null;
   });
 
-  useEffect(() => {
-    if (mergedState && fetchStatus) {
-      setCurrentPost(
-        () => mergedState?.posts.filter((post) => post.id === params.postId)[0]
-      );
-    }
-  }, [mergedState, fetchStatus, params.postId]);
+  // useEffect(() => {
+  //   if (mergedState && fetchStatus) {
+  //     setCurrentPost(
+  //       () => mergedState?.posts.filter((post) => post.id === params.postId)[0]
+  //     );
+  //   }
+  // }, [mergedState, fetchStatus, params.postId]);
 
   // BUG THERE
   // THIS useEffect CLEARS URL HISTORY
@@ -94,8 +94,8 @@ const Posts = () => {
 
   return (
     <div className={"posts-container"}>
-      {params.postId && currentPost ? (
-        <div className="post-self-container">{displayPost}</div>
+      {params.postId ? (
+        displayPost
       ) : (
         <div className="posts">{displayPosts}</div>
       )}

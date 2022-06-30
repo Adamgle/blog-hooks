@@ -239,7 +239,138 @@ const generateTags = (topic) => {
   return getArrayOfTags();
 };
 
-const sortByDate = (state, withState) => {
+// const sortByDate = (sortMethod, state, withState) => {
+//   if (!state || !state?.posts.every((post) => post.randomDateRef)) {
+//     return;
+//   }
+
+//   const reverseKeysWithValues = (obj) =>
+//     Object.fromEntries(Object.entries(obj).map((a) => a.reverse()));
+
+//   const monthEqvl = {
+//     Jan: "1",
+//     Feb: "2",
+//     Mar: "3",
+//     Apr: "4",
+//     May: "5",
+//     Jun: "6",
+//     Jul: "7",
+//     Aug: "8",
+//     Sep: "9",
+//     Oct: "10",
+//     Nov: "11",
+//     Dec: "12",
+//   };
+
+//   const reverseMonthEqvl = reverseKeysWithValues(monthEqvl);
+//   const stateCopy = { ...state, posts: [...state.posts] };
+
+//   let sorted = [];
+//   let obj = {};
+
+//   const years = stateCopy.posts.sort(
+//     (a, b) =>
+//       parseInt(a.randomDateRef.split(". ")[2]) -
+//       parseInt(b.randomDateRef.split(". ")[2])
+//   );
+
+//   // eslint-disable-next-line array-callback-return
+//   const parseDates = years.map((post) => {
+//     for (let prop in monthEqvl) {
+//       if (prop === post.randomDateRef.split(". ")[0]) {
+//         return {
+//           ...post,
+//           randomDateRef: post.randomDateRef.replace(
+//             post.randomDateRef.split(". ")[0],
+//             monthEqvl[prop]
+//           ),
+//         };
+//       }
+//     }
+//   });
+
+//   // CREATE YEARS OBJ
+//   parseDates.forEach((post) => {
+//     for (let prop in post) {
+//       if (prop === "randomDateRef") {
+//         const year = post[prop].split(". ")[2];
+//         obj[year] = {};
+//       }
+//     }
+//   });
+
+//   // CREATE MONTH OBJ AND DAYS ARRAY ATTACHED TO IT
+//   parseDates.forEach((post) => {
+//     for (let prop in obj) {
+//       const year = post.randomDateRef.split(". ")[2];
+//       const month = post.randomDateRef.split(". ")[0];
+//       if (year === prop) {
+//         obj[year] = {
+//           ...obj[year],
+//           [month]: {
+//             days: [],
+//           },
+//         };
+//       }
+//     }
+//   });
+
+//   parseDates.forEach((post) => {
+//     for (let prop in obj) {
+//       const year = post.randomDateRef.split(". ")[2];
+//       const month = post.randomDateRef.split(". ")[0];
+
+//       if (prop === year) {
+//         for (let propMonth in obj[prop]) {
+//           if (propMonth === month) {
+//             obj[prop][propMonth].days = [...obj[prop][propMonth].days, post];
+//           }
+//         }
+//       }
+//     }
+//   });
+
+//   for (let prop in obj) {
+//     for (let propMonth in obj[prop]) {
+//       obj[prop][propMonth].days = obj[prop][propMonth].days.sort((a, b) => {
+//         return (
+//           parseInt(a.randomDateRef.split(". ")[1]) -
+//           parseInt(b.randomDateRef.split(". ")[1])
+//         );
+//       });
+//     }
+//   }
+
+//   for (let prop in obj) {
+//     for (let propMonth in obj[prop]) {
+//       sorted = [
+//         ...sorted,
+//         ...obj[prop][propMonth].days.map((post) => ({
+//           ...post,
+//           randomDateRef: post.randomDateRef.replace(
+//             post.randomDateRef.split(". ")[0],
+//             reverseMonthEqvl[post.randomDateRef.split(". ")[0]]
+//           ),
+//         })),
+//       ];
+//     }
+//   }
+
+//   return sortMethod === "byDateOldest"
+//     ? withState
+//       ? {
+//           ...state,
+//           posts: sorted,
+//         }
+//       : sorted
+//     : sortMethod === "byDateNewest"
+//     ? withState
+//       ? { ...state, posts: sorted.reverse() }
+//       : sorted.reverse()
+//     : sorted;
+// };
+
+const sortByDate = (state, withState, reverseOrder) => {
   if (!state || !state?.posts.every((post) => post.randomDateRef)) {
     return;
   }
@@ -359,17 +490,18 @@ const sortByDate = (state, withState) => {
   return withState
     ? {
         ...state,
-        posts: sorted,
+        posts: reverseOrder && typeof reverseOrder === "boolean" ? [...sorted].reverse() : sorted,
       }
     : sorted;
 };
 
-const sortPreviousState = (state, sortMethod) => {
-  const postsSortedAscending = state[sortMethod]?.posts.sort(
+const sortPreviousState = (state) => {
+  const postsSortedAscending = state.sorted?.posts.sort(
     (a, b) => a.postID - b.postID
   );
+
   return {
-    ...state[sortMethod],
+    ...state.sorted,
     posts: postsSortedAscending,
   };
 };

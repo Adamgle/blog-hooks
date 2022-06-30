@@ -13,7 +13,6 @@ const PostSelf = ({
   sortMethod,
   textAreaRef,
   setMergedState,
-  params,
 }) => {
   const { current: splashImageUrl } = useRef(
     currentPost.randomImageRef
@@ -21,15 +20,9 @@ const PostSelf = ({
       .slice(0, currentPost.randomImageRef.split("/").length - 2)
       .join("/") + "/800/400"
   );
-  // const { current: aboutImage } = useRef(
-  //   currentPost.randomImageRef
-  //     .split("/")
-  //     .slice(0, currentPost.randomImageRef.split("/").length - 2)
-  //     .join("/") + "/328/160"
-  // );
-  console.log();
+
   return (
-    <>
+    <div className="post-self-container">
       <div className="post-self-author-container">
         <div className="post-self-author">
           <div className="post-self-author-inner-container">
@@ -193,18 +186,20 @@ const PostSelf = ({
                     Like it!
                   </button>
                 </div>
-                <div className="post-show-comments">
-                  <button
-                    className="post-show-comments-button post-interaction-button "
-                    onClick={handleAddCommentButton}
-                  >
-                    Add Comment
-                  </button>
-                </div>
-                <div className="post-share">
-                  <button className="post-share-button post-interaction-button ">
-                    Share
-                  </button>
+                <div className="post-comments-shares-container">
+                  <div className="post-show-comments">
+                    <button
+                      className="post-show-comments-button post-interaction-button "
+                      onClick={handleAddCommentButton}
+                    >
+                      Add Comment
+                    </button>
+                  </div>
+                  <div className="post-share">
+                    <button className="post-share-button post-interaction-button ">
+                      Share
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -227,7 +222,7 @@ const PostSelf = ({
         </div>
       </div>
       <div className="post-self-recent-posts">recent-posts</div>
-    </>
+    </div>
   );
 };
 
