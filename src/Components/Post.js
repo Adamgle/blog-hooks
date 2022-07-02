@@ -25,6 +25,8 @@ const Post = ({ displayPostSelf }) => {
     setObservedElements,
     lastFivePosts,
     sortMethod,
+    observer,
+    setPostsRefs,
   } = useOutletContext();
   // REFS
   const { current: randomDateRef } = useRef(randomDate());
@@ -54,15 +56,36 @@ const Post = ({ displayPostSelf }) => {
       getRandomColorForBackgroundColor(color)
     )
   );
-
   // textAreaRef CAN'T BE STORED IN mergedState CAUSE OF CIRCULAR STRUCTER
   // JSON.stringify() WILL THROW AN Error
   const textAreaRef = useRef(null);
+  // LAST FIVE POSTS WILL HAVE REFERENCE, REST WILL BE NULL
   const postRef = useRef(null);
 
   // console.log(mergedState);
   // console.log(mergedState[sortMethod]);
   // console.log(sortMethod);
+  // useEffect(() => {
+  //   if (
+  //     !lastFivePosts.map((post) => post.postID).includes(currentPost.postID) &&
+  //     observer
+  //   ) {
+  //     console.log(postRef.current);
+  //     observer.disconnect();
+  //   }
+  // }, [currentPost.postID, lastFivePosts, observer, sortMethod]);
+
+  // useEffect(() => {
+  //   if (observer) {
+  //     observer.disconnect();
+  //   }
+  // }, [sortMethod, observer]);
+
+  useEffect(() => {
+    if (postRef.current) {
+      setPostsRefs((prevState) => [...prevState, postRef.current]);
+    }
+  }, [setPostsRefs]);
 
   // THIS EFFECT RUNS JUST ONCE AND THE VALUES IN THERE
   // ARE BEEING UPDATED ANYWHERE ELSE
@@ -258,14 +281,15 @@ const Post = ({ displayPostSelf }) => {
     sortMethod,
   ]);
 
-  // console.log(postRef)
-  // console.log(lastFivePosts);
-
   const PostOnPostsPath = mergedState && fetchStatus && (
     <div
       className="post"
-      ref={postRef}
-      style={{ display: params.postId ? "none" : "flex" }}
+      ref={
+        lastFivePosts?.map((post) => post.postID).includes(currentPost.postID)
+          ? postRef
+          : null
+      }
+      // style={{ display: params.postId ? "none" : "flex" }}
     >
       <div className="post-user">
         <div className="post-user-img">

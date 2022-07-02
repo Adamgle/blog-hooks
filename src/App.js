@@ -26,7 +26,8 @@ const App = () => {
 
   const [sortMethod, setSortMethod] = useState("initial");
   const [observedElements, setObservedElements] = useState([]);
-
+  const [postsRefs, setPostsRefs] = useState([]);
+  console.log(postsRefs);
   // REFS
   const { current: usersSeed } = useRef("usersSeed");
   const postID = useRef(0);
@@ -101,6 +102,19 @@ const App = () => {
       );
     }
   }, [urlPostsValue, urlUserValue, usersSeed, loadingPosts, loadingUsers]);
+
+  // useEffect(() => {
+  //   // CLEAR OBSERVED POSTS AFTER SORTING METHOD CHANGE
+
+  //   if (postsRefs && postsRefs.length && observer) {
+  //     observer.disconnect();
+  //     postsRefs.slice(0, postsRefs.length - 5).forEach((post) => {
+  //       if (postsRefs.every(Boolean)) {
+  //         observer.unobserve(post);
+  //       }
+  //     });
+  //   }
+  // }, [observer, postsRefs, sortMethod, stateContainerName]);
 
   useEffect(() => {
     setInfiniteFetchingDeps((prevState) => ({
@@ -323,6 +337,7 @@ const App = () => {
     fetchStatus,
     mergedState,
     stateContainerName,
+    sortMethod,
     loadingPosts,
     loadingUsers,
   ]);
@@ -362,15 +377,16 @@ const App = () => {
 
   useEffect(() => {
     if (
-      // sortMethod === "initial" &&
       observedElements.length === 5 &&
       observedElements[0].current &&
       !loadingPosts &&
       !loadingUsers
     ) {
-      // ON EACH FETCH CALL DIFFERENT IntersectionObserver ARE CREATED
+      // ON EACH FETCH CALL DIFFERENT IntersectionObserver IS CREATED
       const createdObserver = new IntersectionObserver(
-        (entries) => {
+        (entries, observer) => {
+          // setObserver(observer);
+
           const isPostIntersecting = entries.some(
             (post) => post.isIntersecting === true
           );
@@ -383,10 +399,11 @@ const App = () => {
           if (!isPostIntersecting) {
             return;
           }
+          console.log(entries);
           entries.forEach((post) => {
-            createdObserver.unobserve(post.target);
+            observer.unobserve(post.target);
           });
-          createdObserver.disconnect();
+          observer.disconnect();
         },
         {
           root: null,
@@ -394,14 +411,26 @@ const App = () => {
           threshold: 0,
         }
       );
-      // if (sortMethod === "initial") {
       observedElements.forEach((post) => {
         if (post.current && typeof post.current === "object")
           createdObserver.observe(post.current);
       });
-      // }
+
+      // WHEN SORT METHOD CHANGES observedElements ARE DIFFERENT
+      // BUT IntersectionObserver IS STILL MOUNTED TO IT
+      // THIS FUNCTION CLEARS STALE IntersectionObserver
+      // AND CREATES A NEW ONE, MOUNTED TO LAST FIVE POSTS ON THE PAGE
+      return () => {
+        createdObserver.disconnect();
+      };
     }
-  }, [observedElements, loadingPosts, loadingUsers, sortMethod]);
+  }, [
+    observedElements,
+    loadingPosts,
+    loadingUsers,
+    sortMethod,
+    stateContainerName,
+  ]);
 
   // REDIRECT TO /POSTS ON MOUNT
   useEffect(() => {
@@ -484,6 +513,7 @@ const App = () => {
           observedElements,
           setObservedElements,
           lastFivePosts,
+          setPostsRefs,
         }}
       />
     </>

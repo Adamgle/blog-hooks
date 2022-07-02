@@ -17,6 +17,7 @@ const Posts = () => {
     observedElements,
     setObservedElements,
     lastFivePosts,
+    setPostsRefs,
   } = useOutletContext();
 
   // GET URL PARAMS
@@ -44,6 +45,7 @@ const Posts = () => {
                   observedElements,
                   setObservedElements,
                   lastFivePosts,
+                  setPostsRefs,
                 }}
               />
             );
@@ -65,6 +67,7 @@ const Posts = () => {
           fetchStatus,
           windowDimensions,
           currentPost: post,
+          setPostsRefs,
         }}
       />
     ) : null;
