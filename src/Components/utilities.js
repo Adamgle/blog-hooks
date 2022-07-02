@@ -496,12 +496,12 @@ const sortByDate = (state, withState, reverseOrder) => {
 };
 
 const sortPreviousState = (state) => {
-  const postsSortedAscending = state.sorted?.posts.sort(
+  const postsSortedAscending = state?.posts.sort(
     (a, b) => a.postID - b.postID
   );
 
   return {
-    ...state.sorted,
+    ...state,
     posts: postsSortedAscending,
   };
 };

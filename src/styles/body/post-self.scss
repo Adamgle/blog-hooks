@@ -24,6 +24,7 @@
     .post-image-splash {
       min-width: 800px;
       min-height: 400px;
+      max-height: 400px;
       img {
         object-position: 50% 80%;
         object-fit: cover;
@@ -123,6 +124,7 @@
           }
           img {
             border-radius: 5px;
+            max-height: 72px;
           }
         }
         .post-self-author-info {
@@ -174,11 +176,11 @@
             .post-self-user-post-img-container {
               min-width: 328px;
               min-height: 160px;
+              max-height: 160px;
               cursor: pointer;
               .post-self-user-post-img {
                 width: 100%;
-                max-width: 328px;
-                max-height: 160px;
+                height: 100%;
               }
             }
             .post-self-user-title-interactions-wrapper {

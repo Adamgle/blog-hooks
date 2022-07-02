@@ -73,9 +73,9 @@ const Post = ({ displayPostSelf }) => {
       setMergedState((prevState) => {
         return {
           ...prevState,
-          initial: {
-            ...prevState.initial,
-            posts: prevState.initial.posts.map((post) => {
+          [sortMethod]: {
+            ...prevState[sortMethod],
+            posts: prevState[sortMethod].posts.map((post) => {
               return post.id === currentPost.id
                 ? // CONDITION WHICH TELLS THAT WHEN USER GO TO ANOTHER SUPPAGE
                   // AND THE COMPONENT WILL UNMOUNT, CONDITION WILL NO RUN ONCE AGAIN
@@ -122,7 +122,7 @@ const Post = ({ displayPostSelf }) => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sortMethod]);
 
   const handleShowCommentsButton = () => {
     /* IF USER CLICKS THE BUTTON SHOWCOMMENTS AND BEENSHOWN ARE SET TO TRUE ->
@@ -240,7 +240,7 @@ const Post = ({ displayPostSelf }) => {
         },
       }));
     };
-  }, []);
+  }, [currentPost.id, setMergedState, sortMethod]);
 
   useEffect(() => {
     if (lastFivePosts?.filter((post) => post.id === currentPost.id).length) {
@@ -257,6 +257,9 @@ const Post = ({ displayPostSelf }) => {
     setObservedElements,
     sortMethod,
   ]);
+
+  // console.log(postRef)
+  // console.log(lastFivePosts);
 
   const PostOnPostsPath = mergedState && fetchStatus && (
     <div

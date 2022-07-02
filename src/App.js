@@ -48,20 +48,27 @@ const App = () => {
   } = infiniteFetchingDeps;
   const { urlPostsValue, urlUserValue } = urlDeps;
 
+  const [stateContainerName, setStateContainerName] = useState("initial");
+
   // SETTING STORAGE TO STATE
   useEffect(() => {
     const data = localStorage.getItem("mergedState");
     const sortMethod = localStorage.getItem("sortMethod");
     const infiniteFetchingDeps = localStorage.getItem("infiniteFetchingDeps");
-
+    const postIDStorage = +localStorage.getItem("postID");
     if (data) {
       setMergedState(JSON.parse(data));
       setSortMethod(sortMethod);
       setInfiniteFetchingDeps({
         ...JSON.parse(infiniteFetchingDeps),
       });
+      postID.current = postIDStorage;
     }
   }, []);
+
+  useEffect(() => {
+    setStateContainerName(sortMethod !== "initial" ? "sorted" : "initial");
+  }, [sortMethod]);
 
   // DB'S
   const [dbPosts, setDbPosts] = useState(
@@ -156,7 +163,7 @@ const App = () => {
         return fetchStatus
           ? {
               ...prevState,
-              initial: {
+              [stateContainerName]: {
                 posts: dataPosts.map((post, i) => {
                   postID.current += 1;
                   return {
@@ -214,10 +221,10 @@ const App = () => {
         return !loadingPosts && !loadingUsers
           ? {
               ...prevState,
-              initial: {
-                ...prevState.initial,
+              [stateContainerName]: {
+                ...prevState[stateContainerName],
                 posts: [
-                  ...prevState.initial.posts,
+                  ...prevState[stateContainerName].posts,
                   ...dataPosts.map((post, i) => {
                     postID.current += 1;
                     return {
@@ -233,7 +240,7 @@ const App = () => {
                   }),
                 ],
                 dataUsers: [
-                  ...prevState.initial?.dataUsers,
+                  ...prevState[stateContainerName]?.dataUsers,
                   ...dataUsers.results.map((user) => ({
                     ...user,
                     id: nanoid(),
@@ -259,21 +266,37 @@ const App = () => {
     intersecting,
     startInfinityFetching,
     urlDepsChanged,
+    stateContainerName,
   ]);
 
   // ADD USER ENTRY TO POSTS PROPERTY SO IT CAN BE ACCESSIBLE
   // THROUGH ONE PROP "mergedState.posts"
   useEffect(() => {
     if (fetchStatus) {
+      const oppositeContainerName =
+        stateContainerName === "initial" ? "sorted" : "initial";
       setMergedState((prevState) => {
         return {
           ...prevState,
-          initial: {
-            ...prevState.initial,
-            posts: prevState.initial.posts.map((post, i) => {
+          [stateContainerName]: {
+            ...prevState[stateContainerName],
+            posts: prevState[stateContainerName].posts.map((post, i) => {
+              if (prevState.hasOwnProperty(oppositeContainerName)) {
+                const oppositeStatePostsIds = prevState[
+                  oppositeContainerName
+                ].posts.map((post) => post.postID);
+
+                return oppositeStatePostsIds.includes(post.postID)
+                  ? post
+                  : {
+                      ...post,
+                      user: prevState[stateContainerName].dataUsers[i],
+                    };
+              }
+
               return {
                 ...post,
-                user: prevState.initial.dataUsers[i],
+                user: prevState[stateContainerName].dataUsers[i],
               };
             }),
           },
@@ -281,20 +304,28 @@ const App = () => {
       });
     }
     //
-  }, [fetchStatus, mergedState.initial?.dataUsers]);
+  }, [fetchStatus, dataUsers, stateContainerName]);
 
   // SETS THE OBSERVER TO LAST 5 POSTS ON THE PAGE
   useEffect(() => {
     if (!loadingPosts && !loadingUsers) {
-      if (mergedState[sortMethod] && fetchStatus) {
-        const postsLength = mergedState[sortMethod].posts.length;
+      if (mergedState[stateContainerName] && fetchStatus) {
+        const postsLength = mergedState[stateContainerName].posts.length;
         setInfiniteFetchingDeps((prevState) => ({
           ...prevState,
-          lastFivePosts: mergedState[sortMethod].posts.slice(postsLength - 5),
+          lastFivePosts: mergedState[stateContainerName].posts.slice(
+            postsLength - 5
+          ),
         }));
       }
     }
-  }, [fetchStatus, mergedState, sortMethod, loadingPosts, loadingUsers]);
+  }, [
+    fetchStatus,
+    mergedState,
+    stateContainerName,
+    loadingPosts,
+    loadingUsers,
+  ]);
 
   useEffect(() => {
     if (urlPostsValue >= 100 || urlUserValue >= 21) {
@@ -352,7 +383,6 @@ const App = () => {
           if (!isPostIntersecting) {
             return;
           }
-
           entries.forEach((post) => {
             createdObserver.unobserve(post.target);
           });
@@ -364,12 +394,12 @@ const App = () => {
           threshold: 0,
         }
       );
-      if (sortMethod === "initial") {
-        observedElements.forEach((post) => {
-          if (post.current && typeof post.current === "object")
-            createdObserver.observe(post.current);
-        });
-      }
+      // if (sortMethod === "initial") {
+      observedElements.forEach((post) => {
+        if (post.current && typeof post.current === "object")
+          createdObserver.observe(post.current);
+      });
+      // }
     }
   }, [observedElements, loadingPosts, loadingUsers, sortMethod]);
 
@@ -387,7 +417,9 @@ const App = () => {
       setMergedState((prevState) => {
         if (prevState.initial && prevState.initial.posts) {
           const sortedState = sortByDate(
-            prevState.initial,
+            sortMethod !== "initial"
+              ? sortPreviousState(prevState[stateContainerName])
+              : prevState.initial,
             true,
             sortMethod === "byDateLatest"
               ? true
@@ -400,7 +432,7 @@ const App = () => {
             ? {
                 ...prevState,
                 initial: beenSorted.current
-                  ? sortPreviousState(prevState)
+                  ? sortPreviousState(prevState[stateContainerName])
                   : prevState.initial,
               }
             : {
@@ -411,55 +443,39 @@ const App = () => {
         return prevState;
       });
     }
-  }, [fetchStatus, sortMethod]);
+  }, [fetchStatus, sortMethod, stateContainerName]);
 
   // SAVE STATE TO LocalStorage also fetchDeps
   useEffect(() => {
-    if (mergedState[sortMethod] && fetchStatus) {
+    if (mergedState[stateContainerName] && fetchStatus) {
       localStorage.setItem("mergedState", JSON.stringify(mergedState));
       localStorage.setItem("sortMethod", sortMethod);
       localStorage.setItem(
         "infiniteFetchingDeps",
         JSON.stringify(infiniteFetchingDeps)
       );
+      localStorage.setItem("postID", postID.current);
     }
-  }, [fetchStatus, mergedState, sortMethod, infiniteFetchingDeps]);
+  }, [
+    fetchStatus,
+    mergedState,
+    sortMethod,
+    stateContainerName,
+    infiniteFetchingDeps,
+  ]);
 
-  // TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING TESTING
+  // TESTING TESTING TESTING TESTING TESTING TESTING `TESTING TESTING TESTING
 
   console.log(mergedState);
-  // console.log(mergedState[sortMethod]?.posts.map((post) => post.fetchedID));
 
-  // console.log(mergedState[sortMethod]?.posts);
-  // for (let prop in mergedState) {
-  //   if (mergedState[prop]?.posts) {
-  //     console.log(
-  //       Array(3)
-  //         .fill(0)
-  //         .map(_ => mergedState[prop]?.posts.length)
-  //     );
-  //   }
-  // }
-
-  // console.log(mergedState[sortMethod]?.posts.map((post) => post.postID));
-
-  // console.log(
-  //   mergedState[sortMethod]?.posts
-  //     .map((post, i) => (i % 5 === 0 ? post.fetchedID - 1: null))
-  //     .filter(Boolean)
-  // );
-
-  console.log(sortMethod);
-  
   return (
     <>
       <Header sortMethod={sortMethod} setSortMethod={setSortMethod} />
       <Outlet
         context={{
-          mergedState:
-            mergedState[sortMethod !== "initial" ? "sorted" : "initial"],
+          mergedState: mergedState[stateContainerName],
           setMergedState,
-          sortMethod: sortMethod !== "initial" ? "sorted" : "initial",
+          sortMethod: stateContainerName,
           setSortMethod,
           fetchStatus,
           loadingPosts,

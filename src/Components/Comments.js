@@ -7,13 +7,11 @@ import { randomDate, upperCaseFirst } from "./utilities";
 
 const Comments = ({
   currentPost,
-  currentPostID,
   mergedState,
   commentsFetchedLength,
   showComments,
   setMergedState,
   sortMethod,
-  windowDimensions,
   textAreaRef,
 }) => {
   const dbComments = `https://jsonplaceholder.typicode.com/posts/${currentPost.fetchedID}/comments/?_limit=${commentsFetchedLength}`;
@@ -27,8 +25,6 @@ const Comments = ({
   useEffect(() => {
     if (!loadingComments && !loadingRandomUser) {
       setMergedState((prevState) => {
-        console.log(prevState[sortMethod]?.posts);
-        console.log(prevState[sortMethod]);
         return {
           ...prevState,
           [sortMethod]: {
