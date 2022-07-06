@@ -114,7 +114,7 @@ const PostSelf = ({
           />
         </div>
       )}
-      {dimension.width >= 1800 || dimension.width > 1080 && (
+      {(dimension.width >= 1800 || dimension.width > 1080) && (
         <PostSelfObserver
           currentPost={currentPost}
           setStateObserver={setStateObserver}
