@@ -325,7 +325,7 @@ const Post = ({ displayPostSelf }) => {
       <div className="post-title-content-container">
         <div className="post-title">
           <Link to={currentPost.id} className="post-title-link">
-            <h3>{currentPost.title}</h3>
+            <h2>{currentPost.title}</h2>
           </Link>
         </div>
         <div className="post-content">

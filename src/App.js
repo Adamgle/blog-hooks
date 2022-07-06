@@ -27,7 +27,7 @@ const App = () => {
   const [sortMethod, setSortMethod] = useState("initial");
   const [observedElements, setObservedElements] = useState([]);
   const [postsRefs, setPostsRefs] = useState([]);
-  console.log(postsRefs);
+
   // REFS
   const { current: usersSeed } = useRef("usersSeed");
   const postID = useRef(0);
@@ -399,7 +399,6 @@ const App = () => {
           if (!isPostIntersecting) {
             return;
           }
-          console.log(entries);
           entries.forEach((post) => {
             observer.unobserve(post.target);
           });
@@ -494,8 +493,6 @@ const App = () => {
   ]);
 
   // TESTING TESTING TESTING TESTING TESTING TESTING `TESTING TESTING TESTING
-
-  console.log(mergedState);
 
   return (
     <>
